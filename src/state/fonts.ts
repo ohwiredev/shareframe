@@ -96,81 +96,22 @@ export const GOOGLE_FONTS: GoogleFontOption[] = [
   googleFont("Josefin Sans"),
 ];
 
-const ALL_FONTS: FontOption[] = [...SYSTEM_FONTS, ...GOOGLE_FONTS];
-
-/** Flat stack → option lookup. */
-const FONT_BY_STACK = new Map(ALL_FONTS.map((f) => [f.stack, f]));
-
-export function findFontByStack(stack: string): FontOption | undefined {
-  return FONT_BY_STACK.get(stack);
-}
-
 export function findGoogleFontByStack(
   stack: string,
 ): GoogleFontOption | undefined {
   return GOOGLE_FONTS.find((f) => f.stack === stack);
 }
 
-/** Selector options: System + Google Fonts sections. */
-export const FONT_SELECTOR_OPTIONS = [
-  {
-    type: "section" as const,
-    title: "System",
-    options: SYSTEM_FONTS.map((font) => ({
-      value: font.stack,
-      label: font.label,
-    })),
-  },
-  {
-    type: "section" as const,
-    title: "Google Fonts",
-    options: GOOGLE_FONTS.map((font) => ({
-      value: font.stack,
-      label: font.label,
-    })),
-  },
-];
-
-/** True if this stack is in our catalog (system or Google). */
-export function isKnownFontStack(stack: string): boolean {
-  return FONT_BY_STACK.has(stack);
-}
-
-export type FontWeightOption = {
-  value: string;
-  label: string;
+type FontWeightOption = {
   weight: number;
 };
 
-export const FONT_WEIGHTS: FontWeightOption[] = [
-  { value: "400", label: "Regular", weight: 400 },
-  { value: "500", label: "Medium", weight: 500 },
-  { value: "600", label: "Semibold", weight: 600 },
-  { value: "700", label: "Bold", weight: 700 },
+const FONT_WEIGHTS: FontWeightOption[] = [
+  { weight: 400 },
+  { weight: 500 },
+  { weight: 600 },
+  { weight: 700 },
 ];
 
 /** Weights requested from Google Fonts CSS. */
 export const GOOGLE_FONT_WEIGHTS = FONT_WEIGHTS.map((w) => w.weight);
-
-export const FONT_WEIGHT_SELECTOR_OPTIONS = FONT_WEIGHTS.map((w) => ({
-  value: w.value,
-  label: w.label,
-}));
-
-/** Map a numeric weight to the nearest supported option value. */
-export function weightToOptionValue(weight: number): string {
-  const match = FONT_WEIGHTS.find((w) => w.weight === weight);
-  if (match) {
-    return match.value;
-  }
-  let best = FONT_WEIGHTS[0]!;
-  let bestDist = Math.abs(best.weight - weight);
-  for (const option of FONT_WEIGHTS) {
-    const dist = Math.abs(option.weight - weight);
-    if (dist < bestDist) {
-      best = option;
-      bestDist = dist;
-    }
-  }
-  return best.value;
-}

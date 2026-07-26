@@ -1,153 +1,160 @@
-import { useCallback, useState } from "react";
-import { Theme, type ThemeMode } from "@astryxdesign/core/theme";
-import { AppShell } from "@astryxdesign/core/AppShell";
-import { Layout } from "@astryxdesign/core/Layout";
-import {
-  exportCanvas,
-  getOgCanvas,
-  type ExportFormat,
-} from "./canvas/exportCanvas";
-import { AppTopNav } from "./components/AppTopNav";
-import { ComposeDialog } from "./components/ComposeDialog";
-import { ControlsPanel } from "./components/ControlsPanel";
-import { ExportDialog } from "./components/ExportDialog";
-import { ExportPanel } from "./components/ExportPanel";
-import { PreviewPane } from "./components/PreviewPane";
-import { useBreakpoint } from "./hooks/useBreakpoint";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { exportImage, type ExportFormat } from "./canvas/exportCanvas";
+import type { RenderPipeline } from "./canvas/renderPipeline";
+import { AppHeader } from "./components/AppHeader";
+import { EditorNavigation, type EditorPanel } from "./components/EditorNavigation";
+import { OgCanvas } from "./components/OgCanvas";
+import { CanvasPanel } from "./components/controls/CanvasPanel";
+import { LogoPanel } from "./components/controls/LogoPanel";
+import { TextPanel } from "./components/controls/TextPanel";
 import { DEFAULT_EDITOR_STATE } from "./state/defaults";
 import type { EditorState, LogoState, TextStyle } from "./state/types";
-import { ogSnapTheme } from "./theme/ogSnapTheme";
 
-function revokeLogoSrc(src: string | null | undefined) {
-  if (src?.startsWith("blob:")) {
-    URL.revokeObjectURL(src);
-  }
+export type ThemeMode = "light" | "dark";
+
+function revokeLogo(src: string | null) {
+  if (src?.startsWith("blob:")) URL.revokeObjectURL(src);
 }
 
-/**
- * OGSnap root — single editor state drives controls and canvas.
- *
- * Responsive contract (frame root):
- *   > 1280px  controls 360 | preview | export 256
- *   ≤ 1280px  controls 360 | preview  (export via dialog)
- *   ≤ 768px   preview full width; compose + export via dialogs
- */
-function App() {
+export default function App() {
   const [state, setState] = useState<EditorState>(DEFAULT_EDITOR_STATE);
-  const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
-  const [composeOpen, setComposeOpen] = useState(false);
+  const [theme, setTheme] = useState<ThemeMode>("dark");
+  const [panel, setPanel] = useState<EditorPanel>("canvas");
   const [exportOpen, setExportOpen] = useState(false);
-  const { showControlsPanel, showExportPanel, isMobile } = useBreakpoint();
+  const [fileName, setFileName] = useState("");
+  const [exporting, setExporting] = useState(false);
+  const [renderError, setRenderError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const pipelineRef = useRef<RenderPipeline | null>(null);
 
-  const onBackgroundChange = useCallback((backgroundColor: string) => {
-    setState((prev) =>
-      prev.backgroundColor === backgroundColor
-        ? prev
-        : { ...prev, backgroundColor },
-    );
-  }, []);
+  useEffect(() => () => revokeLogo(state.logo.src), [state.logo.src]);
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
 
-  const onLogoChange = useCallback((logo: LogoState) => {
-    setState((prev) => {
-      if (prev.logo === logo) {
-        return prev;
-      }
-      if (prev.logo.src && prev.logo.src !== logo.src) {
-        revokeLogoSrc(prev.logo.src);
-      }
-      return { ...prev, logo };
+  const setLogo = (logo: LogoState) =>
+    setState((current) => {
+      if (current.logo.src !== logo.src) revokeLogo(current.logo.src);
+      return { ...current, logo };
     });
-  }, []);
+  const setTitle = (title: TextStyle) => setState((current) => ({ ...current, title }));
+  const setDescription = (description: TextStyle) =>
+    setState((current) => ({ ...current, description }));
 
-  const onTitleChange = useCallback((title: TextStyle) => {
-    setState((prev) => (prev.title === title ? prev : { ...prev, title }));
-  }, []);
-
-  const onDescriptionChange = useCallback((description: TextStyle) => {
-    setState((prev) =>
-      prev.description === description ? prev : { ...prev, description },
-    );
-  }, []);
-
-  const onReset = useCallback(() => {
-    setState((prev) => {
-      revokeLogoSrc(prev.logo.src);
-      return DEFAULT_EDITOR_STATE;
-    });
-  }, []);
-
-  const onExport = useCallback((format: ExportFormat) => {
-    const canvas = getOgCanvas();
-    if (!canvas) {
-      console.warn("[og-snap] Export failed: canvas not found");
+  const chooseLogo = (file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
+      window.alert("Choose an image file smaller than 5 MB.");
       return;
     }
-    exportCanvas(canvas, format);
+    setFileName(file.name);
+    setLogo({ ...state.logo, src: URL.createObjectURL(file) });
+  };
+
+  const removeLogo = () => {
+    setLogo({ ...state.logo, src: null });
+    setFileName("");
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const reset = () => {
+    revokeLogo(state.logo.src);
+    setFileName("");
+    if (fileRef.current) fileRef.current.value = "";
+    setState(DEFAULT_EDITOR_STATE);
+  };
+
+  const setPipeline = useCallback((pipeline: RenderPipeline | null) => {
+    pipelineRef.current = pipeline;
+  }, []);
+  const handleRenderError = useCallback((error: Error) => {
+    console.error("[shareframe] Render failed", error);
+    setRenderError(error.message);
+  }, []);
+  const handleRenderSuccess = useCallback(() => {
+    setRenderError(null);
   }, []);
 
+  const download = (format: ExportFormat) => {
+    const pipeline = pipelineRef.current;
+    if (!pipeline || exporting) {
+      if (!pipeline) setRenderError("The image renderer is not ready yet.");
+      return;
+    }
+
+    setExporting(true);
+    setRenderError(null);
+    setExportOpen(false);
+    void exportImage(pipeline, state, format)
+      .catch((error) => {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "The image could not be exported.";
+        console.error("[shareframe] Export failed", error);
+        setRenderError(message);
+      })
+      .finally(() => setExporting(false));
+  };
+
   return (
-    <Theme theme={ogSnapTheme} mode={themeMode}>
-      <AppShell
-        height="fill"
-        contentPadding={0}
-        variant="section"
-        topNav={
-          <AppTopNav
-            onReset={onReset}
-            themeMode={themeMode}
-            onThemeModeChange={setThemeMode}
-            showEditAction={isMobile}
-            onOpenEdit={() => setComposeOpen(true)}
-            showExportAction={!showExportPanel}
-            onOpenExport={() => setExportOpen(true)}
-          />
-        }
-      >
-        <Layout
-          height="fill"
-          start={
-            showControlsPanel ? (
-              <ControlsPanel
-                state={state}
-                onBackgroundChange={onBackgroundChange}
-                onLogoChange={onLogoChange}
-                onTitleChange={onTitleChange}
-                onDescriptionChange={onDescriptionChange}
-              />
-            ) : undefined
-          }
-          content={
-            <PreviewPane
-              state={state}
-              compact={isMobile}
-              showMobileActions={isMobile}
-              onOpenEdit={() => setComposeOpen(true)}
-              onOpenExport={() => setExportOpen(true)}
+    <div className={`d1 production-studio ${theme === "light" ? "studio-light" : ""}`}>
+      <AppHeader
+        theme={theme}
+        exportOpen={exportOpen}
+        exporting={exporting}
+        onReset={reset}
+        onThemeToggle={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+        onExportOpenChange={setExportOpen}
+        onExport={download}
+      />
+
+      <main className="d1-grid">
+        <EditorNavigation activePanel={panel} onPanelChange={setPanel} />
+
+        <aside className="d1-panel">
+          {panel === "canvas" && (
+            <CanvasPanel
+              background={state.background}
+              onChange={(background) => setState((current) => ({ ...current, background }))}
             />
-          }
-          end={
-            showExportPanel ? <ExportPanel onExport={onExport} /> : undefined
-          }
-        />
-      </AppShell>
+          )}
+          {panel === "logo" && (
+            <LogoPanel
+              logo={state.logo}
+              fileName={fileName}
+              fileRef={fileRef}
+              onFileChange={chooseLogo}
+              onLogoChange={setLogo}
+              onRemove={removeLogo}
+            />
+          )}
+          {panel === "text" && (
+            <TextPanel
+              title={state.title}
+              description={state.description}
+              onTitleChange={setTitle}
+              onDescriptionChange={setDescription}
+            />
+          )}
+        </aside>
 
-      <ComposeDialog
-        isOpen={composeOpen}
-        onOpenChange={setComposeOpen}
-        state={state}
-        onBackgroundChange={onBackgroundChange}
-        onLogoChange={onLogoChange}
-        onTitleChange={onTitleChange}
-        onDescriptionChange={onDescriptionChange}
-      />
-
-      <ExportDialog
-        isOpen={exportOpen}
-        onOpenChange={setExportOpen}
-        onExport={onExport}
-      />
-    </Theme>
+        <section className="d1-stage">
+          <div className="functional-preview">
+            <OgCanvas
+              state={state}
+              onPipelineReady={setPipeline}
+              onRenderError={handleRenderError}
+              onRenderSuccess={handleRenderSuccess}
+            />
+          </div>
+          {renderError && (
+            <p className="render-error" role="alert">
+              {renderError}
+            </p>
+          )}
+        </section>
+      </main>
+    </div>
   );
 }
-
-export default App;

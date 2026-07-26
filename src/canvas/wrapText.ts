@@ -3,7 +3,7 @@
  * Returns lines that fit within maxWidth using the current ctx font.
  */
 export function wrapText(
-  ctx: CanvasRenderingContext2D,
+  ctx: Pick<CanvasRenderingContext2D, "measureText">,
   text: string,
   maxWidth: number,
 ): string[] {

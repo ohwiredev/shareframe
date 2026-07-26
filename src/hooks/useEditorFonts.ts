@@ -4,7 +4,7 @@ import type { EditorState } from "../state/types";
 
 /**
  * Loads Google Fonts used by the editor and bumps a generation when ready
- * so the canvas can redraw with real metrics (not fallback faces).
+ * so the SVG can redraw with real metrics (not fallback faces).
  */
 export function useEditorFonts(state: EditorState): number {
   const [fontGeneration, setFontGeneration] = useState(0);

@@ -1,26 +1,16 @@
-/** Normalize user/hex input to `#rrggbb` lowercase, or null if invalid. */
+/** Normalize hex input to the canonical color shape stored by the editor. */
 export function normalizeHex(input: string): string | null {
   const raw = input.trim().toLowerCase();
-  const withHash = raw.startsWith("#") ? raw : `#${raw}`;
+  const value = raw.startsWith("#") ? raw : `#${raw}`;
 
-  if (/^#[0-9a-f]{6}$/.test(withHash)) {
-    return withHash;
+  if (/^#[0-9a-f]{6}$/.test(value)) {
+    return value;
   }
 
-  // Expand #rgb → #rrggbb
-  if (/^#[0-9a-f]{3}$/.test(withHash)) {
-    const r = withHash[1]!;
-    const g = withHash[2]!;
-    const b = withHash[3]!;
-    return `#${r}${r}${g}${g}${b}${b}`;
+  const short = value.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/);
+  if (!short) {
+    return null;
   }
 
-  return null;
-}
-
-/** Case-insensitive equality for hex colors (3- or 6-digit). */
-export function hexEquals(a: string, b: string): boolean {
-  const na = normalizeHex(a);
-  const nb = normalizeHex(b);
-  return na !== null && nb !== null && na === nb;
+  return `#${short[1]}${short[1]}${short[2]}${short[2]}${short[3]}${short[3]}`;
 }

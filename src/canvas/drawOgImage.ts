@@ -1,145 +1,251 @@
+import { normalizeHex } from "../state/color";
 import { OG_HEIGHT, OG_WIDTH } from "../state/constants";
-import type { EditorState, TextStyle } from "../state/types";
+import type {
+  Background,
+  EditorState,
+  HorizontalAlignment,
+  TextStyle,
+} from "../state/types";
 import { wrapText } from "./wrapText";
 
-/** Horizontal inset so text doesn't touch the edges. */
 const CONTENT_PADDING_X = 80;
-
-/** Max logo box at scale 1 (longest side). */
 const LOGO_BASE_SIZE = 120;
-
-/** Gap between logo and title, and title and description. */
 const BLOCK_GAP = 28;
+const LINE_HEIGHT_RATIO = 1.25;
 
-export type DrawOgImageOptions = {
-  /** Decoded logo bitmap when `state.logo.src` is set; ignored otherwise. */
+export type OgRenderingContext =
+  | CanvasRenderingContext2D
+  | OffscreenCanvasRenderingContext2D;
+
+export type RenderAssets = {
   logoImage?: CanvasImageSource | null;
+};
+
+type TextLayout = {
+  ascent: number;
+  height: number;
+  lineHeight: number;
+  lines: string[];
+};
+
+export const CONTEXT_OPTIONS: CanvasRenderingContext2DSettings = {
+  alpha: false,
+  colorSpace: "srgb",
 };
 
 function fontString(style: TextStyle): string {
   return `${style.fontWeight} ${style.fontSize}px ${style.fontFamily}`;
 }
 
-function drawWrappedText(
-  ctx: CanvasRenderingContext2D,
-  style: TextStyle,
-  centerX: number,
-  startY: number,
-  maxWidth: number,
-): number {
-  if (!style.content.trim()) {
-    return startY;
+function textX(alignment: HorizontalAlignment): number {
+  if (alignment === "left") return CONTENT_PADDING_X;
+  if (alignment === "right") return OG_WIDTH - CONTENT_PADDING_X;
+  return OG_WIDTH / 2;
+}
+
+function gradientEndpoints(angle: number) {
+  const radians = (angle * Math.PI) / 180;
+  const directionX = Math.sin(radians);
+  const directionY = -Math.cos(radians);
+  const distance =
+    (Math.abs(OG_WIDTH * directionX) +
+      Math.abs(OG_HEIGHT * directionY)) /
+    2;
+  const centerX = OG_WIDTH / 2;
+  const centerY = OG_HEIGHT / 2;
+
+  return {
+    x1: centerX - directionX * distance,
+    y1: centerY - directionY * distance,
+    x2: centerX + directionX * distance,
+    y2: centerY + directionY * distance,
+  };
+}
+
+function backgroundStyle(
+  ctx: OgRenderingContext,
+  background: Background,
+): string | CanvasGradient {
+  if (background.type === "solid") {
+    return normalizeHex(background.color) ?? "#000000";
   }
 
+  const { x1, y1, x2, y2 } = gradientEndpoints(background.angle);
+  const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+  gradient.addColorStop(0, normalizeHex(background.colors[0]) ?? "#000000");
+  gradient.addColorStop(1, normalizeHex(background.colors[1]) ?? "#000000");
+  return gradient;
+}
+
+function configureText(ctx: OgRenderingContext, style: TextStyle): void {
   ctx.font = fontString(style);
-  ctx.fillStyle = style.color;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "top";
+  ctx.textAlign = style.alignment;
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = normalizeHex(style.color) ?? "#000000";
 
-  const lineHeight = style.fontSize * 1.25;
+  if ("fontKerning" in ctx) {
+    ctx.fontKerning = "normal";
+  }
+  if ("textRendering" in ctx) {
+    ctx.textRendering = "geometricPrecision";
+  }
+}
+
+function layoutText(
+  ctx: OgRenderingContext,
+  style: TextStyle,
+  maxWidth: number,
+): TextLayout {
+  configureText(ctx, style);
   const lines = wrapText(ctx, style.content, maxWidth);
-  let y = startY;
-
-  for (const line of lines) {
-    ctx.fillText(line, centerX, y);
-    y += lineHeight;
+  if (lines.length === 0) {
+    return { ascent: 0, height: 0, lineHeight: 0, lines };
   }
 
-  return y;
+  const metrics = ctx.measureText("Mg");
+  const ascent =
+    metrics.actualBoundingBoxAscent > 0
+      ? metrics.actualBoundingBoxAscent
+      : style.fontSize * 0.8;
+  const descent =
+    metrics.actualBoundingBoxDescent > 0
+      ? metrics.actualBoundingBoxDescent
+      : style.fontSize * 0.2;
+  const lineHeight = Math.max(
+    style.fontSize * LINE_HEIGHT_RATIO,
+    ascent + descent,
+  );
+
+  return {
+    ascent,
+    height: (lines.length - 1) * lineHeight + ascent + descent,
+    lineHeight,
+    lines,
+  };
+}
+
+function drawText(
+  ctx: OgRenderingContext,
+  style: TextStyle,
+  layout: TextLayout,
+  top: number,
+): void {
+  if (layout.lines.length === 0) return;
+
+  configureText(ctx, style);
+  const x = textX(style.alignment);
+  const firstBaseline = top + layout.ascent;
+
+  for (const [index, line] of layout.lines.entries()) {
+    ctx.fillText(line, x, firstBaseline + index * layout.lineHeight);
+  }
+}
+
+function imageDimensions(image: CanvasImageSource): {
+  width: number;
+  height: number;
+} {
+  if ("naturalWidth" in image && "naturalHeight" in image) {
+    return {
+      width: Number(image.naturalWidth),
+      height: Number(image.naturalHeight),
+    };
+  }
+
+  if ("videoWidth" in image && "videoHeight" in image) {
+    return {
+      width: Number(image.videoWidth),
+      height: Number(image.videoHeight),
+    };
+  }
+
+  return {
+    width: "width" in image ? Number(image.width) : LOGO_BASE_SIZE,
+    height: "height" in image ? Number(image.height) : LOGO_BASE_SIZE,
+  };
 }
 
 function drawLogo(
-  ctx: CanvasRenderingContext2D,
+  ctx: OgRenderingContext,
   state: EditorState,
   logoImage: CanvasImageSource,
 ): void {
-  const { x, y, scale } = state.logo;
-  const maxSide = LOGO_BASE_SIZE * scale;
+  const dimensions = imageDimensions(logoImage);
+  if (dimensions.width <= 0 || dimensions.height <= 0) return;
 
-  // Intrinsic size when available (HTMLImageElement / ImageBitmap).
-  const naturalW =
-    "naturalWidth" in logoImage && typeof logoImage.naturalWidth === "number"
-      ? logoImage.naturalWidth
-      : "width" in logoImage && typeof logoImage.width === "number"
-        ? Number(logoImage.width)
-        : maxSide;
-  const naturalH =
-    "naturalHeight" in logoImage && typeof logoImage.naturalHeight === "number"
-      ? logoImage.naturalHeight
-      : "height" in logoImage && typeof logoImage.height === "number"
-        ? Number(logoImage.height)
-        : maxSide;
+  const maxSide = LOGO_BASE_SIZE * state.logo.scale;
+  const fit = Math.min(
+    maxSide / dimensions.width,
+    maxSide / dimensions.height,
+  );
+  const width = dimensions.width * fit;
+  const height = dimensions.height * fit;
+  const x =
+    state.logo.alignment === "left"
+      ? CONTENT_PADDING_X
+      : state.logo.alignment === "right"
+        ? OG_WIDTH - CONTENT_PADDING_X - width
+        : (OG_WIDTH - width) / 2;
+  const y = state.logo.y * OG_HEIGHT - height / 2;
 
-  if (naturalW <= 0 || naturalH <= 0) {
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(logoImage, x, y, width, height);
+}
+
+function resetContext(ctx: OgRenderingContext): void {
+  if ("reset" in ctx && typeof ctx.reset === "function") {
+    ctx.reset();
     return;
   }
 
-  const fit = Math.min(maxSide / naturalW, maxSide / naturalH);
-  const drawW = naturalW * fit;
-  const drawH = naturalH * fit;
-  const cx = x * OG_WIDTH;
-  const cy = y * OG_HEIGHT;
-
-  ctx.drawImage(logoImage, cx - drawW / 2, cy - drawH / 2, drawW, drawH);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.clearRect(0, 0, OG_WIDTH, OG_HEIGHT);
 }
 
 /**
- * Single draw path for preview and export.
- * Always paints the full 1200×630 frame.
+ * The sole composition path for both preview frames and exported files.
+ * The target context must have a 1200×630 backing bitmap.
  */
 export function drawOgImage(
-  ctx: CanvasRenderingContext2D,
+  ctx: OgRenderingContext,
   state: EditorState,
-  options: DrawOgImageOptions = {},
+  assets: RenderAssets = {},
 ): void {
-  const { logoImage = null } = options;
+  resetContext(ctx);
 
-  ctx.save();
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, OG_WIDTH, OG_HEIGHT);
-
-  // Background
-  ctx.fillStyle = state.backgroundColor;
+  ctx.fillStyle = backgroundStyle(ctx, state.background);
   ctx.fillRect(0, 0, OG_WIDTH, OG_HEIGHT);
 
-  // Logo (optional)
-  if (logoImage && state.logo.src) {
+  const logoImage = state.logo.src ? assets.logoImage : null;
+  if (logoImage) {
     drawLogo(ctx, state, logoImage);
   }
 
   const maxTextWidth = OG_WIDTH - CONTENT_PADDING_X * 2;
-  const centerX = OG_WIDTH / 2;
+  const titleLayout = layoutText(
+    ctx,
+    state.title,
+    maxTextWidth * (state.title.width / 100),
+  );
+  const descriptionLayout = layoutText(
+    ctx,
+    state.description,
+    maxTextWidth * (state.description.width / 100),
+  );
+  const hasGap = titleLayout.height > 0 && descriptionLayout.height > 0;
+  const blockHeight =
+    titleLayout.height +
+    (hasGap ? BLOCK_GAP : 0) +
+    descriptionLayout.height;
+  const textStartY = logoImage
+    ? OG_HEIGHT * 0.42
+    : Math.max(CONTENT_PADDING_X, (OG_HEIGHT - blockHeight) / 2);
+  const descriptionY =
+    textStartY + titleLayout.height + (hasGap ? BLOCK_GAP : 0);
 
-  // Vertical layout: if logo present, start text below typical logo band;
-  // otherwise center the text block in the canvas.
-  const hasLogo = Boolean(logoImage && state.logo.src);
-  let textStartY = hasLogo ? OG_HEIGHT * 0.42 : OG_HEIGHT * 0.32;
-
-  // Measure text block height to vertically balance when no logo.
-  if (!hasLogo) {
-    ctx.font = fontString(state.title);
-    const titleLines = wrapText(ctx, state.title.content, maxTextWidth);
-    const titleH = titleLines.length * state.title.fontSize * 1.25;
-
-    ctx.font = fontString(state.description);
-    const descLines = wrapText(ctx, state.description.content, maxTextWidth);
-    const descH = descLines.length * state.description.fontSize * 1.25;
-
-    const blockH =
-      titleH +
-      (titleH > 0 && descH > 0 ? BLOCK_GAP : 0) +
-      descH;
-    textStartY = Math.max(CONTENT_PADDING_X, (OG_HEIGHT - blockH) / 2);
-  }
-
-  let y = textStartY;
-  y = drawWrappedText(ctx, state.title, centerX, y, maxTextWidth);
-
-  if (state.title.content.trim() && state.description.content.trim()) {
-    y += BLOCK_GAP;
-  }
-
-  drawWrappedText(ctx, state.description, centerX, y, maxTextWidth);
-
-  ctx.restore();
+  drawText(ctx, state.title, titleLayout, textStartY);
+  drawText(ctx, state.description, descriptionLayout, descriptionY);
 }

@@ -63,7 +63,7 @@ function injectStylesheet(font: GoogleFontOption): Promise<void> {
 async function loadFamilyFaces(font: GoogleFontOption): Promise<void> {
   await injectStylesheet(font);
 
-  // Warm the faces canvas will use so drawText isn't measuring with fallbacks.
+  // Warm the faces used for SVG text measurement so metrics aren't fallbacks.
   const family = font.family;
   await Promise.all(
     GOOGLE_FONT_WEIGHTS.map((weight) =>
@@ -73,7 +73,7 @@ async function loadFamilyFaces(font: GoogleFontOption): Promise<void> {
 }
 
 /**
- * Ensure a Google Font stack is loaded for canvas + UI.
+ * Ensure a Google Font stack is loaded for SVG measurement + UI.
  * System stacks resolve immediately. Concurrent calls share one promise.
  */
 export function ensureFontLoaded(stack: string): Promise<void> {
@@ -90,7 +90,7 @@ export function ensureFontLoaded(stack: string): Promise<void> {
   const promise = loadFamilyFaces(google).catch((err) => {
     // Allow retry on next selection.
     loadCache.delete(google.family);
-    console.warn(`[og-snap] Google Font load failed: ${google.family}`, err);
+    console.warn(`[shareframe] Google Font load failed: ${google.family}`, err);
   });
 
   loadCache.set(google.family, promise);
