@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, useState } from "react";
 import { Check, Pipette } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
 import { normalizeHex } from "../../state/color";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -36,14 +36,24 @@ function hsvToHex({ h, s, v }: Hsv) {
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = v - c;
   const [r, g, b] =
-    h < 60 ? [c, x, 0] :
-    h < 120 ? [x, c, 0] :
-    h < 180 ? [0, c, x] :
-    h < 240 ? [0, x, c] :
-    h < 300 ? [x, 0, c] : [c, 0, x];
+    h < 60
+      ? [c, x, 0]
+      : h < 120
+        ? [x, c, 0]
+        : h < 180
+          ? [0, c, x]
+          : h < 240
+            ? [0, x, c]
+            : h < 300
+              ? [x, 0, c]
+              : [c, 0, x];
 
   return `#${[r, g, b]
-    .map((channel) => Math.round((channel + m) * 255).toString(16).padStart(2, "0"))
+    .map((channel) =>
+      Math.round((channel + m) * 255)
+        .toString(16)
+        .padStart(2, "0"),
+    )
     .join("")}`;
 }
 
@@ -58,17 +68,17 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
 
   useEffect(() => {
     if (!open) return;
-    const close = (event: PointerEvent) => {
+    const handlePointerDown = (event: PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
     };
-    const escape = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
     };
-    document.addEventListener("pointerdown", close);
-    document.addEventListener("keydown", escape);
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("pointerdown", close);
-      document.removeEventListener("keydown", escape);
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open]);
 
@@ -121,11 +131,17 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
               event.currentTarget.setPointerCapture(event.pointerId);
               updateSaturation(event);
             }}
-            onPointerMove={(event) => event.currentTarget.hasPointerCapture(event.pointerId) && updateSaturation(event)}
+            onPointerMove={(event) =>
+              event.currentTarget.hasPointerCapture(event.pointerId) && updateSaturation(event)
+            }
           >
             <span
               className="color-cursor"
-              style={{ left: `${hsv.s * 100}%`, top: `${(1 - hsv.v) * 100}%`, backgroundColor: value }}
+              style={{
+                left: `${hsv.s * 100}%`,
+                top: `${(1 - hsv.v) * 100}%`,
+                backgroundColor: value,
+              }}
             />
           </div>
           <label className="color-hue">
@@ -136,7 +152,9 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
               max="359"
               value={Math.round(hsv.h)}
               aria-label={`${label} hue`}
-              onChange={(event) => onChange(hsvToHex({ ...hsv, h: Number(event.currentTarget.value) }))}
+              onChange={(event) =>
+                onChange(hsvToHex({ ...hsv, h: Number(event.currentTarget.value) }))
+              }
             />
           </label>
           <div className="color-popover-footer">

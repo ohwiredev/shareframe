@@ -1,0 +1,37 @@
+{
+  "id": "docs-guide",
+  "name": "Documentation Guide",
+  "description": "Crisp technical reference on a bespoke midnight ocean gradient with clean Inter typography",
+  "category": "Engineering",
+  "badge": "Guide",
+  "state": {
+    "background": {
+      "type": "gradient",
+      "angle": 140,
+      "colors": ["#030712", "#0c4a6e"]
+    },
+    "logo": {
+      "y": 0.2,
+      "scale": 0.95,
+      "alignment": "left"
+    },
+    "title": {
+      "content": "Complete Guide to Open Graph Specifications & Social Card Best Practices",
+      "fontFamily": "Inter, system-ui, sans-serif",
+      "fontSize": 54,
+      "width": 90,
+      "fontWeight": 700,
+      "color": "#ffffff",
+      "alignment": "left"
+    },
+    "description": {
+      "content": "Learn exact dimensions, meta tag requirements, and how to optimize for Twitter, LinkedIn, and Discord link previews.",
+      "fontFamily": "Inter, system-ui, sans-serif",
+      "fontSize": 25,
+      "width": 88,
+      "fontWeight": 400,
+      "color": "#7dd3fc",
+      "alignment": "left"
+    }
+  }
+}

@@ -13,3 +13,5 @@
 - [x] Shared sRGB drawing pipeline with worker rendering and main-thread fallback
 - [x] Dark theme support
 - [x] Polish + responsive controls
+- [x] Standard JSON template system with 11 unique curated templates across multiple categories with filter chips and badge tags
+- [x] Install and set up Biome for linting and formatting

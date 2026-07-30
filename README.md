@@ -46,7 +46,8 @@ npm run dev
 
 - `npm run dev` – Starts the local development server.
 - `npm run build` – Builds the production bundle (`tsc` + Vite build).
-- `npm run lint` – Runs the linter (`oxlint`).
-- `npm run check` – Runs linting and build checks.
+- `npm run lint` – Runs the linter (`biome lint`).
+- `npm run format` – Formats the codebase with Biome (`biome format --write`).
+- `npm run check` – Runs Biome checks and builds the project.
 - `npm run preview` – Previews the production build locally.
 

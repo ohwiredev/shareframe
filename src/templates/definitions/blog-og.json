@@ -1,0 +1,37 @@
+{
+  "id": "blog-og",
+  "name": "Blog OG Image",
+  "description": "Vibrant gradient background with Space Grotesk headline for articles",
+  "category": "Blogging",
+  "badge": "Editorial",
+  "state": {
+    "background": {
+      "type": "gradient",
+      "angle": 135,
+      "colors": ["#312e81", "#7c3aed"]
+    },
+    "logo": {
+      "y": 0.22,
+      "scale": 1.0,
+      "alignment": "left"
+    },
+    "title": {
+      "content": "Designing Scalable Web Applications with Modern Frontend Patterns",
+      "fontFamily": "\"Space Grotesk\", system-ui, sans-serif",
+      "fontSize": 56,
+      "width": 90,
+      "fontWeight": 700,
+      "color": "#ffffff",
+      "alignment": "left"
+    },
+    "description": {
+      "content": "Explore modern architectures, state management, and high-performance browser tools.",
+      "fontFamily": "Inter, system-ui, sans-serif",
+      "fontSize": 26,
+      "width": 85,
+      "fontWeight": 400,
+      "color": "#e0e7ff",
+      "alignment": "left"
+    }
+  }
+}

@@ -1,10 +1,6 @@
-import {
-  findGoogleFontByStack,
-  GOOGLE_FONT_WEIGHTS,
-  type GoogleFontOption,
-} from "../state/fonts";
+import { findGoogleFontByStack, GOOGLE_FONT_WEIGHTS, type GoogleFontOption } from "../state/fonts";
 
-/** In-flight / completed loads keyed by Google family name. */
+/** In-flight / completed loads keyed by family name. */
 const loadCache = new Map<string, Promise<void>>();
 
 function stylesheetHref(font: GoogleFontOption): string {
@@ -14,9 +10,7 @@ function stylesheetHref(font: GoogleFontOption): string {
 }
 
 function findExistingLink(family: string): HTMLLinkElement | null {
-  const links = document.querySelectorAll<HTMLLinkElement>(
-    "link[data-og-google-font]",
-  );
+  const links = document.querySelectorAll<HTMLLinkElement>("link[data-og-google-font]");
   for (const link of links) {
     if (link.dataset.ogGoogleFont === family) {
       return link;
@@ -35,8 +29,7 @@ function injectStylesheet(font: GoogleFontOption): Promise<void> {
       existing.addEventListener("load", () => resolve(), { once: true });
       existing.addEventListener(
         "error",
-        () =>
-          reject(new Error(`Failed to load font stylesheet: ${font.family}`)),
+        () => reject(new Error(`Failed to load font stylesheet: ${font.family}`)),
         { once: true },
       );
     });
@@ -63,11 +56,13 @@ function injectStylesheet(font: GoogleFontOption): Promise<void> {
 async function loadFamilyFaces(font: GoogleFontOption): Promise<void> {
   await injectStylesheet(font);
 
-  // Warm the faces used for SVG text measurement so metrics aren't fallbacks.
   const family = font.family;
   await Promise.all(
     GOOGLE_FONT_WEIGHTS.map((weight) =>
-      document.fonts.load(`${weight} 64px "${family}"`).then(() => undefined),
+      document.fonts
+        .load(`${weight} 64px "${family}"`)
+        .then(() => undefined)
+        .catch(() => undefined),
     ),
   );
 }
@@ -88,7 +83,6 @@ export function ensureFontLoaded(stack: string): Promise<void> {
   }
 
   const promise = loadFamilyFaces(google).catch((err) => {
-    // Allow retry on next selection.
     loadCache.delete(google.family);
     console.warn(`[shareframe] Google Font load failed: ${google.family}`, err);
   });
@@ -98,11 +92,7 @@ export function ensureFontLoaded(stack: string): Promise<void> {
 }
 
 /** Load every stack used by the current editor text styles. */
-export function ensureEditorFontsLoaded(
-  stacks: readonly string[],
-): Promise<void> {
+export function ensureEditorFontsLoaded(stacks: readonly string[]): Promise<void> {
   const unique = [...new Set(stacks.filter(Boolean))];
-  return Promise.all(unique.map((stack) => ensureFontLoaded(stack))).then(
-    () => undefined,
-  );
+  return Promise.all(unique.map((stack) => ensureFontLoaded(stack))).then(() => undefined);
 }

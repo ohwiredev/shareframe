@@ -1,7 +1,4 @@
-import {
-  findGoogleFontByStack,
-  type GoogleFontOption,
-} from "../state/fonts";
+import { findGoogleFontByStack, type GoogleFontOption } from "../state/fonts";
 
 type WorkerFontScope = {
   fonts: FontFaceSet;
@@ -15,9 +12,7 @@ function stylesheetHref(font: GoogleFontOption, weight: number): string {
 }
 
 function cssValue(block: string, property: string): string | undefined {
-  return block
-    .match(new RegExp(`${property}\\s*:\\s*([^;]+)`, "i"))?.[1]
-    ?.trim();
+  return block.match(new RegExp(`${property}\\s*:\\s*([^;]+)`, "i"))?.[1]?.trim();
 }
 
 async function loadGoogleFace(

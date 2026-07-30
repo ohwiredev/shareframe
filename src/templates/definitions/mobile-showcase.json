@@ -1,0 +1,48 @@
+{
+  "id": "mobile-showcase",
+  "name": "Mobile App Showcase",
+  "description": "Left-aligned mobile UI screen preview with clean headline copy on the right.",
+  "category": "Product",
+  "badge": "New",
+  "state": {
+    "background": {
+      "type": "gradient",
+      "angle": 135,
+      "colors": ["#1e1b4b", "#09090b"]
+    },
+    "logo": {
+      "y": 0.12,
+      "scale": 1.0,
+      "alignment": "right",
+      "src": null
+    },
+    "title": {
+      "content": "Your Pocket Workspace",
+      "fontFamily": "Outfit",
+      "fontSize": 52,
+      "width": 100,
+      "fontWeight": 700,
+      "color": "#ffffff",
+      "alignment": "right"
+    },
+    "description": {
+      "content": "Take full control of workflows, notifications, and team tasks on the go.",
+      "fontFamily": "Outfit",
+      "fontSize": 22,
+      "width": 100,
+      "fontWeight": 400,
+      "color": "#a5b4fc",
+      "alignment": "right"
+    },
+
+    "image": {
+      "src": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22320%22%20height%3D%22580%22%20viewBox%3D%220%200%20320%20580%22%3E%3Crect%20width%3D%22320%22%20height%3D%22580%22%20rx%3D%2236%22%20fill%3D%22%2309090b%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2216%22%20width%3D%22288%22%20height%3D%22548%22%20rx%3D%2224%22%20fill%3D%22%231e1b4b%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2228%22%20width%3D%22120%22%20height%3D%2218%22%20rx%3D%229%22%20fill%3D%22%2309090b%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2280%22%20width%3D%22160%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23818cf8%22/%3E%3Crect%20x%3D%2232%22%20y%3D%22130%22%20width%3D%22256%22%20height%3D%22140%22%20rx%3D%2216%22%20fill%3D%22%23312e81%22/%3E%3Ccircle%20cx%3D%2270%22%20cy%3D%22180%22%20r%3D%2224%22%20fill%3D%22%23a5b4fc%22/%3E%3Crect%20x%3D%22110%22%20y%3D%22165%22%20width%3D%22140%22%20height%3D%2214%22%20rx%3D%224%22%20fill%3D%22%23c7d2fe%22/%3E%3Crect%20x%3D%22110%22%20y%3D%22190%22%20width%3D%2290%22%20height%3D%2212%22%20rx%3D%224%22%20fill%3D%22%23818cf8%22/%3E%3Crect%20x%3D%2232%22%20y%3D%22290%22%20width%3D%22256%22%20height%3D%2280%22%20rx%3D%2214%22%20fill%3D%22%23312e81%22/%3E%3Crect%20x%3D%2232%22%20y%3D%22385%22%20width%3D%22256%22%20height%3D%2280%22%20rx%3D%2214%22%20fill%3D%22%23312e81%22/%3E%3C/svg%3E",
+      "position": "left",
+      "scale": 0.88,
+      "borderRadius": 24,
+      "shadow": true,
+      "shadowBlur": 40,
+      "yOffset": 0
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "dev-release",
+  "name": "Developer Release",
+  "description": "Neon green Bebas Neue heading with monospace tech specs on a cyber slate abyss",
+  "category": "Engineering",
+  "badge": "Technical",
+  "state": {
+    "background": {
+      "type": "gradient",
+      "angle": 150,
+      "colors": ["#0a0f18", "#0b1e26"]
+    },
+    "logo": {
+      "y": 0.18,
+      "scale": 0.9,
+      "alignment": "left"
+    },
+    "title": {
+      "content": "v4.0 Released: Rust Worker Engine & Sub-millisecond Exports",
+      "fontFamily": "\"Bebas Neue\", system-ui, sans-serif",
+      "fontSize": 68,
+      "width": 90,
+      "fontWeight": 400,
+      "color": "#4ade80",
+      "alignment": "left"
+    },
+    "description": {
+      "content": "Changelog, breaking changes, and migration guide for high-throughput browser rendering pipelines.",
+      "fontFamily": "ui-monospace, Consolas, monospace",
+      "fontSize": 24,
+      "width": 88,
+      "fontWeight": 400,
+      "color": "#94a3b8",
+      "alignment": "left"
+    }
+  }
+}

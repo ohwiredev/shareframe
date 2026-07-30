@@ -16,21 +16,13 @@ const OPTIONS = [
   { value: "right", label: "Right", icon: AlignRight },
 ] as const;
 
-export function AlignmentField({
-  value,
-  disabled,
-  onChange,
-}: AlignmentFieldProps) {
+export function AlignmentField({ value, disabled, onChange }: AlignmentFieldProps) {
   const labelId = useId();
 
   return (
     <div className="studio-field">
       <Label id={labelId}>Alignment</Label>
-      <div
-        className="alignment-control"
-        role="group"
-        aria-labelledby={labelId}
-      >
+      <div className="alignment-control" role="group" aria-labelledby={labelId}>
         {OPTIONS.map((option) => {
           const Icon = option.icon;
           return (

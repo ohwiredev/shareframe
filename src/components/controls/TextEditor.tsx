@@ -1,24 +1,14 @@
-import { useId } from "react";
 import { Combobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown, Search } from "lucide-react";
-import {
-  GOOGLE_FONTS,
-  SYSTEM_FONTS,
-  type FontOption,
-} from "../../state/fonts";
+import { useId } from "react";
+import { type FontOption, GOOGLE_FONTS, SYSTEM_FONTS } from "../../state/fonts";
 import type { TextStyle } from "../../state/types";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-import { ColorField } from "./ColorField";
 import { AlignmentField } from "./AlignmentField";
+import { ColorField } from "./ColorField";
 import { RangeField } from "./RangeField";
 
 type TextEditorProps = {
@@ -50,34 +40,23 @@ function FontCombobox({ id, value, onValueChange }: FontComboboxProps) {
       items={FONT_GROUPS}
       value={value}
       openOnInputClick
-      isItemEqualToValue={(font, selected) => font.id === selected.id}
+      itemToStringLabel={(font) => font?.label ?? ""}
+      isItemEqualToValue={(font, selected) => font?.id === selected?.id}
       onValueChange={(font) => {
         if (font) onValueChange(font);
       }}
     >
       <Combobox.InputGroup data-slot="font-combobox-input-group">
         <Search aria-hidden="true" size={14} />
-        <Combobox.Input
-          id={id}
-          data-slot="font-combobox-input"
-          placeholder="Search fonts..."
-        />
-        <Combobox.Trigger
-          data-slot="font-combobox-trigger"
-          aria-label="Open font menu"
-        >
+        <Combobox.Input id={id} data-slot="font-combobox-input" placeholder="Search fonts..." />
+        <Combobox.Trigger data-slot="font-combobox-trigger" aria-label="Open font menu">
           <ChevronDown aria-hidden="true" size={15} />
         </Combobox.Trigger>
       </Combobox.InputGroup>
       <Combobox.Portal>
-        <Combobox.Positioner
-          data-slot="font-combobox-positioner"
-          sideOffset={4}
-        >
+        <Combobox.Positioner data-slot="font-combobox-positioner" sideOffset={4}>
           <Combobox.Popup data-slot="font-combobox-popup">
-            <Combobox.Empty data-slot="font-combobox-empty">
-              No fonts found
-            </Combobox.Empty>
+            <Combobox.Empty data-slot="font-combobox-empty">No fonts found</Combobox.Empty>
             <Combobox.List data-slot="font-combobox-list">
               {(group: FontGroup) => (
                 <Combobox.Group key={group.value} items={group.items}>
@@ -86,11 +65,7 @@ function FontCombobox({ id, value, onValueChange }: FontComboboxProps) {
                   </Combobox.GroupLabel>
                   <Combobox.Collection>
                     {(font: FontOption) => (
-                      <Combobox.Item
-                        key={font.id}
-                        value={font}
-                        data-slot="font-combobox-item"
-                      >
+                      <Combobox.Item key={font.id} value={font} data-slot="font-combobox-item">
                         <span>{font.label}</span>
                         <Combobox.ItemIndicator data-slot="font-combobox-item-indicator">
                           <Check aria-hidden="true" size={14} />
@@ -108,12 +83,7 @@ function FontCombobox({ id, value, onValueChange }: FontComboboxProps) {
   );
 }
 
-export function TextEditor({
-  label,
-  style,
-  multiline,
-  onChange,
-}: TextEditorProps) {
+export function TextEditor({ label, style, multiline, onChange }: TextEditorProps) {
   const contentId = useId();
   const fontId = useId();
   const weightId = useId();
@@ -121,9 +91,8 @@ export function TextEditor({
     (font) => font.stack === style.fontFamily,
   );
   const weightLabel =
-    { 400: "Regular", 500: "Medium", 600: "Semibold", 700: "Bold" }[
-      style.fontWeight
-    ] ?? String(style.fontWeight);
+    { 400: "Regular", 500: "Medium", 600: "Semibold", 700: "Bold" }[style.fontWeight] ??
+    String(style.fontWeight);
 
   return (
     <section className="studio-section">
@@ -135,17 +104,13 @@ export function TextEditor({
             id={contentId}
             rows={3}
             value={style.content}
-            onChange={(event) =>
-              onChange({ ...style, content: event.currentTarget.value })
-            }
+            onChange={(event) => onChange({ ...style, content: event.currentTarget.value })}
           />
         ) : (
           <Input
             id={contentId}
             value={style.content}
-            onChange={(event) =>
-              onChange({ ...style, content: event.currentTarget.value })
-            }
+            onChange={(event) => onChange({ ...style, content: event.currentTarget.value })}
           />
         )}
       </div>
@@ -154,9 +119,7 @@ export function TextEditor({
         <FontCombobox
           id={fontId}
           value={selectedFont ?? null}
-          onValueChange={(font) =>
-            onChange({ ...style, fontFamily: font.stack })
-          }
+          onValueChange={(font) => onChange({ ...style, fontFamily: font.stack })}
         />
       </div>
       <RangeField
@@ -177,9 +140,7 @@ export function TextEditor({
           <Label htmlFor={weightId}>Weight</Label>
           <Select
             value={String(style.fontWeight)}
-            onValueChange={(fontWeight) =>
-              onChange({ ...style, fontWeight: Number(fontWeight) })
-            }
+            onValueChange={(fontWeight) => onChange({ ...style, fontWeight: Number(fontWeight) })}
           >
             <SelectTrigger id={weightId}>
               <SelectValue>{weightLabel}</SelectValue>

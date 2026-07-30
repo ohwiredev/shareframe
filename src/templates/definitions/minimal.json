@@ -1,0 +1,36 @@
+{
+  "id": "minimal",
+  "name": "Minimal",
+  "description": "Clean, high-contrast solid background with centered Inter typography",
+  "category": "General",
+  "badge": "Popular",
+  "state": {
+    "background": {
+      "type": "solid",
+      "color": "#0f172a"
+    },
+    "logo": {
+      "y": 0.24,
+      "scale": 0.9,
+      "alignment": "center"
+    },
+    "title": {
+      "content": "Minimal Open Graph Image",
+      "fontFamily": "Inter, system-ui, sans-serif",
+      "fontSize": 64,
+      "width": 85,
+      "fontWeight": 700,
+      "color": "#f8fafc",
+      "alignment": "center"
+    },
+    "description": {
+      "content": "A simple, elegant layout focused on readability and sleek aesthetics.",
+      "fontFamily": "Inter, system-ui, sans-serif",
+      "fontSize": 26,
+      "width": 75,
+      "fontWeight": 400,
+      "color": "#94a3b8",
+      "alignment": "center"
+    }
+  }
+}
