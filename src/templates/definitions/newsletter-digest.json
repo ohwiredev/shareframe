@@ -1,0 +1,37 @@
+{
+  "id": "newsletter-digest",
+  "name": "Newsletter Digest",
+  "description": "Distinctive deep forest green gradient with Plus Jakarta Sans headline and Inter body",
+  "category": "Media",
+  "badge": "Weekly",
+  "state": {
+    "background": {
+      "type": "gradient",
+      "angle": 130,
+      "colors": ["#052e16", "#14532d"]
+    },
+    "logo": {
+      "y": 0.22,
+      "scale": 1.0,
+      "alignment": "left"
+    },
+    "title": {
+      "content": "The Frontend Weekly #104: What's New in React 19 & Vite 6",
+      "fontFamily": "\"Plus Jakarta Sans\", system-ui, sans-serif",
+      "fontSize": 58,
+      "width": 90,
+      "fontWeight": 700,
+      "color": "#a7f3d0",
+      "alignment": "left"
+    },
+    "description": {
+      "content": "Top 10 benchmarks, CSS nesting updates, and curated community tools delivered straight to your inbox.",
+      "fontFamily": "Inter, system-ui, sans-serif",
+      "fontSize": 26,
+      "width": 86,
+      "fontWeight": 400,
+      "color": "#ecfdf5",
+      "alignment": "left"
+    }
+  }
+}

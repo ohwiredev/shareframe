@@ -1,12 +1,6 @@
-import {
-  ArrowDownToLine,
-  Moon,
-  RotateCcw,
-  Sun,
-  WandSparkles,
-} from "lucide-react";
-import type { ExportFormat } from "../canvas/exportCanvas";
+import { ArrowDownToLine, Moon, RotateCcw, Sun, WandSparkles } from "lucide-react";
 import type { ThemeMode } from "../App";
+import type { ExportFormat } from "../canvas/exportCanvas";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -63,24 +57,16 @@ export function AppHeader({
         >
           {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
         </Button>
-        <DropdownMenu
-          open={exportOpen}
-          onOpenChange={onExportOpenChange}
-        >
+        <DropdownMenu open={exportOpen} onOpenChange={onExportOpenChange}>
           <DropdownMenuTrigger
             disabled={exporting}
             render={<Button className="primary" disabled={exporting} />}
           >
-            <ArrowDownToLine size={15} />{" "}
-            {exporting ? "Exporting…" : "Export image"}
+            <ArrowDownToLine size={15} /> {exporting ? "Exporting…" : "Export image"}
           </DropdownMenuTrigger>
           <DropdownMenuContent className="export-menu" align="end">
             {formats.map(({ id, description }) => (
-              <DropdownMenuItem
-                key={id}
-                disabled={exporting}
-                onClick={() => onExport(id)}
-              >
+              <DropdownMenuItem key={id} disabled={exporting} onClick={() => onExport(id)}>
                 <b>{id.toUpperCase()}</b>
                 <span>{description}</span>
               </DropdownMenuItem>

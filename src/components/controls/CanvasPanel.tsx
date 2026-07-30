@@ -1,7 +1,7 @@
+import type { Background, GradientBackground } from "../../state/types";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { ColorField } from "./ColorField";
-import type { Background, GradientBackground } from "../../state/types";
 
 const COLORS = ["#15151a", "#27272a", "#3730a3", "#1d4ed8", "#047857", "#b45309"];
 
@@ -25,12 +25,48 @@ const GRADIENTS: GradientPreset[] = [
     colors: ["#0f172a", "#2563eb"],
     type: "gradient",
   },
-  { id: "ocean", name: "Ocean", angle: 135, colors: ["#0f766e", "#0891b2"], type: "gradient" },
-  { id: "emerald", name: "Emerald", angle: 135, colors: ["#064e3b", "#10b981"], type: "gradient" },
-  { id: "sunset", name: "Sunset", angle: 135, colors: ["#db2777", "#f97316"], type: "gradient" },
-  { id: "ember", name: "Ember", angle: 135, colors: ["#7f1d1d", "#ea580c"], type: "gradient" },
-  { id: "berry", name: "Berry", angle: 135, colors: ["#4c1d95", "#db2777"], type: "gradient" },
-  { id: "aurora", name: "Aurora", angle: 120, colors: ["#4338ca", "#06b6d4"], type: "gradient" },
+  {
+    id: "ocean",
+    name: "Ocean",
+    angle: 135,
+    colors: ["#0f766e", "#0891b2"],
+    type: "gradient",
+  },
+  {
+    id: "emerald",
+    name: "Emerald",
+    angle: 135,
+    colors: ["#064e3b", "#10b981"],
+    type: "gradient",
+  },
+  {
+    id: "sunset",
+    name: "Sunset",
+    angle: 135,
+    colors: ["#db2777", "#f97316"],
+    type: "gradient",
+  },
+  {
+    id: "ember",
+    name: "Ember",
+    angle: 135,
+    colors: ["#7f1d1d", "#ea580c"],
+    type: "gradient",
+  },
+  {
+    id: "berry",
+    name: "Berry",
+    angle: 135,
+    colors: ["#4c1d95", "#db2777"],
+    type: "gradient",
+  },
+  {
+    id: "aurora",
+    name: "Aurora",
+    angle: 120,
+    colors: ["#4338ca", "#06b6d4"],
+    type: "gradient",
+  },
   {
     id: "midnight",
     name: "Midnight",
@@ -38,9 +74,34 @@ const GRADIENTS: GradientPreset[] = [
     colors: ["#020617", "#334155"],
     type: "gradient",
   },
-  { id: "steel", name: "Steel", angle: 135, colors: ["#1e293b", "#64748b"], type: "gradient" },
-  { id: "plum", name: "Plum", angle: 135, colors: ["#3b0764", "#a21caf"], type: "gradient" },
-  { id: "lagoon", name: "Lagoon", angle: 120, colors: ["#164e63", "#14b8a6"], type: "gradient" },
+  {
+    id: "steel",
+    name: "Steel",
+    angle: 135,
+    colors: ["#1e293b", "#64748b"],
+    type: "gradient",
+  },
+  {
+    id: "plum",
+    name: "Plum",
+    angle: 135,
+    colors: ["#3b0764", "#a21caf"],
+    type: "gradient",
+  },
+  {
+    id: "lagoon",
+    name: "Lagoon",
+    angle: 120,
+    colors: ["#164e63", "#14b8a6"],
+    type: "gradient",
+  },
+  {
+    id: "forest-canopy",
+    name: "Forest Canopy",
+    angle: 135,
+    colors: ["#003b24", "#12663e", "#65925a", "#a6bb7a", "#d6dd9b", "#f2f4be"],
+    type: "gradient",
+  },
 ];
 
 type CanvasPanelProps = {
@@ -54,8 +115,8 @@ export function CanvasPanel({ background, onChange }: CanvasPanelProps) {
   const isGradientSelected = (gradient: GradientPreset) =>
     background.type === "gradient" &&
     background.angle === gradient.angle &&
-    background.colors[0] === gradient.colors[0] &&
-    background.colors[1] === gradient.colors[1];
+    background.colors.length === gradient.colors.length &&
+    background.colors.every((c, i) => c.toLowerCase() === gradient.colors[i].toLowerCase());
 
   return (
     <>
@@ -90,7 +151,7 @@ export function CanvasPanel({ background, onChange }: CanvasPanelProps) {
             key={gradient.id}
             className={isGradientSelected(gradient) ? "selected" : ""}
             style={{
-              background: `linear-gradient(${gradient.angle}deg, ${gradient.colors[0]}, ${gradient.colors[1]})`,
+              background: `linear-gradient(${gradient.angle}deg, ${gradient.colors.join(", ")})`,
             }}
             aria-label={`Use ${gradient.name} gradient`}
             aria-pressed={isGradientSelected(gradient)}

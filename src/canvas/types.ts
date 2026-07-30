@@ -6,11 +6,14 @@ export type RenderBackend = "auto" | "worker" | "main";
 export type RenderWorkerRequest =
   | { type: "set-logo"; assetId: number; bitmap: ImageBitmap }
   | { type: "remove-logo"; assetId: number }
+  | { type: "set-overlay-image"; assetId: number; bitmap: ImageBitmap }
+  | { type: "remove-overlay-image"; assetId: number }
   | {
       type: "render";
       revision: number;
       state: EditorState;
       logoAssetId: number | null;
+      overlayAssetId: number | null;
     }
   | {
       type: "export";
@@ -18,6 +21,7 @@ export type RenderWorkerRequest =
       state: EditorState;
       format: ExportFormat;
       logoAssetId: number | null;
+      overlayAssetId: number | null;
     };
 
 export type RenderWorkerResponse =
@@ -32,4 +36,3 @@ export type RenderWorkerResponse =
       requestId?: number;
       message: string;
     };
-

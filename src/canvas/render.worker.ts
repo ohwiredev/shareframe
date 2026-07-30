@@ -1,18 +1,10 @@
 /// <reference lib="webworker" />
 
-import {
-  CONTEXT_OPTIONS,
-  drawOgImage,
-  type OgRenderingContext,
-} from "./drawOgImage";
-import type {
-  ExportFormat,
-  RenderWorkerRequest,
-  RenderWorkerResponse,
-} from "./types";
 import { ensureWorkerFontLoaded } from "../fonts/loadWorkerFont";
 import { OG_HEIGHT, OG_WIDTH } from "../state/constants";
 import type { EditorState } from "../state/types";
+import { CONTEXT_OPTIONS, drawOgImage, type OgRenderingContext } from "./drawOgImage";
+import type { ExportFormat, RenderWorkerRequest, RenderWorkerResponse } from "./types";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 const previewCanvas = new OffscreenCanvas(OG_WIDTH, OG_HEIGHT);
@@ -25,6 +17,8 @@ const previewContext: OffscreenCanvasRenderingContext2D = maybePreviewContext;
 
 let logoBitmap: ImageBitmap | null = null;
 let logoAssetId: number | null = null;
+let overlayBitmap: ImageBitmap | null = null;
+let overlayAssetId: number | null = null;
 let latestRevision = 0;
 
 function post(message: RenderWorkerResponse, transfer: Transferable[] = []) {
@@ -34,16 +28,16 @@ function post(message: RenderWorkerResponse, transfer: Transferable[] = []) {
 async function ensureFonts(state: EditorState): Promise<void> {
   await Promise.all([
     ensureWorkerFontLoaded(scope, state.title.fontFamily, state.title.fontWeight),
-    ensureWorkerFontLoaded(
-      scope,
-      state.description.fontFamily,
-      state.description.fontWeight,
-    ),
+    ensureWorkerFontLoaded(scope, state.description.fontFamily, state.description.fontWeight),
   ]);
 }
 
 function matchingLogo(assetId: number | null): ImageBitmap | null {
   return assetId !== null && assetId === logoAssetId ? logoBitmap : null;
+}
+
+function matchingOverlay(assetId: number | null): ImageBitmap | null {
+  return assetId !== null && assetId === overlayAssetId ? overlayBitmap : null;
 }
 
 function mimeType(format: ExportFormat): string {
@@ -55,6 +49,7 @@ async function renderPreview(
   state: EditorState,
   revision: number,
   assetId: number | null,
+  overlayId: number | null,
 ): Promise<void> {
   latestRevision = Math.max(latestRevision, revision);
   await ensureFonts(state);
@@ -62,6 +57,7 @@ async function renderPreview(
 
   drawOgImage(previewContext, state, {
     logoImage: matchingLogo(assetId),
+    overlayImage: matchingOverlay(overlayId),
   });
   const bitmap = previewCanvas.transferToImageBitmap();
   post({ type: "frame", revision, bitmap }, [bitmap]);
@@ -71,6 +67,7 @@ async function renderExport(
   state: EditorState,
   format: ExportFormat,
   assetId: number | null,
+  overlayId: number | null,
 ): Promise<Blob> {
   await ensureFonts(state);
   const canvas = new OffscreenCanvas(OG_WIDTH, OG_HEIGHT);
@@ -81,6 +78,7 @@ async function renderExport(
 
   drawOgImage(context as OgRenderingContext, state, {
     logoImage: matchingLogo(assetId),
+    overlayImage: matchingOverlay(overlayId),
   });
   const expectedType = mimeType(format);
   const blob = await canvas.convertToBlob({
@@ -110,27 +108,37 @@ scope.onmessage = (event: MessageEvent<RenderWorkerRequest>) => {
     return;
   }
 
+  if (message.type === "set-overlay-image") {
+    overlayBitmap?.close();
+    overlayBitmap = message.bitmap;
+    overlayAssetId = message.assetId;
+    return;
+  }
+
+  if (message.type === "remove-overlay-image") {
+    overlayBitmap?.close();
+    overlayBitmap = null;
+    overlayAssetId = message.assetId;
+    return;
+  }
+
   if (message.type === "render") {
     latestRevision = Math.max(latestRevision, message.revision);
     void renderPreview(
       message.state,
       message.revision,
       message.logoAssetId,
+      message.overlayAssetId,
     ).catch((error) => {
       post({
         type: "error",
-        message:
-          error instanceof Error ? error.message : "The preview could not be rendered.",
+        message: error instanceof Error ? error.message : "The preview could not be rendered.",
       });
     });
     return;
   }
 
-  void renderExport(
-    message.state,
-    message.format,
-    message.logoAssetId,
-  )
+  void renderExport(message.state, message.format, message.logoAssetId, message.overlayAssetId)
     .then((blob) => {
       post({ type: "exported", requestId: message.requestId, blob });
     })
@@ -138,8 +146,7 @@ scope.onmessage = (event: MessageEvent<RenderWorkerRequest>) => {
       post({
         type: "error",
         requestId: message.requestId,
-        message:
-          error instanceof Error ? error.message : "The image could not be exported.",
+        message: error instanceof Error ? error.message : "The image could not be exported.",
       });
     });
 };

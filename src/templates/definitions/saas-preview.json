@@ -1,0 +1,50 @@
+{
+  "id": "saas-preview",
+  "name": "SaaS Product Showcase",
+  "description": "Showcase your app dashboard or UI preview card below vibrant headline text.",
+  "category": "Product",
+  "badge": "New",
+  "state": {
+    "background": {
+      "type": "gradient",
+      "angle": 135,
+      "colors": ["#0f172a", "#1e293b"]
+    },
+    "logo": {
+      "y": 0.08,
+      "scale": 1.0,
+      "alignment": "center",
+      "src": null
+    },
+    "title": {
+      "content": "Next-Gen Analytics Platform",
+      "fontFamily": "Plus Jakarta Sans",
+      "fontSize": 56,
+      "width": 100,
+      "fontWeight": 800,
+      "color": "#f8fafc",
+      "alignment": "center",
+      "yOffset": 45
+    },
+    "description": {
+      "content": "Monitor metrics, analyze user cohorts, and automate reports in real time.",
+      "fontFamily": "Public Sans",
+      "fontSize": 24,
+      "width": 100,
+      "fontWeight": 400,
+      "color": "#94a3b8",
+      "alignment": "center",
+      "yOffset": 45
+    },
+
+    "image": {
+      "src": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22600%22%20height%3D%22380%22%20viewBox%3D%220%200%20600%20380%22%3E%3Crect%20width%3D%22600%22%20height%3D%22380%22%20fill%3D%22%230f172a%22/%3E%3Crect%20x%3D%2224%22%20y%3D%2224%22%20width%3D%22140%22%20height%3D%22332%22%20rx%3D%2212%22%20fill%3D%22%231e293b%22/%3E%3Crect%20x%3D%22188%22%20y%3D%2224%22%20width%3D%22388%22%20height%3D%2288%22%20rx%3D%2212%22%20fill%3D%22%231e293b%22/%3E%3Crect%20x%3D%22188%22%20y%3D%22136%22%20width%3D%22250%22%20height%3D%22220%22%20rx%3D%2212%22%20fill%3D%22%231e293b%22/%3E%3Crect%20x%3D%22458%22%20y%3D%22136%22%20width%3D%22118%22%20height%3D%22220%22%20rx%3D%2212%22%20fill%3D%22%233b82f6%22%20opacity%3D%220.8%22/%3E%3Ccircle%20cx%3D%2256%22%20cy%3D%2256%22%20r%3D%2214%22%20fill%3D%22%2338bdf8%22/%3E%3Crect%20x%3D%2284%22%20y%3D%2248%22%20width%3D%2260%22%20height%3D%2216%22%20rx%3D%224%22%20fill%3D%22%2364748b%22/%3E%3Crect%20x%3D%22216%22%20y%3D%2252%22%20width%3D%22160%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22%23334155%22/%3E%3C/svg%3E",
+      "position": "bottom",
+      "scale": 1.35,
+      "borderRadius": 20,
+      "shadow": true,
+      "shadowBlur": 36,
+      "yOffset": 100
+    }
+  }
+}

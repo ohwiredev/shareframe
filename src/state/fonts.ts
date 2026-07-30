@@ -94,12 +94,19 @@ export const GOOGLE_FONTS: GoogleFontOption[] = [
   googleFont("Outfit"),
   googleFont("Sora"),
   googleFont("Josefin Sans"),
+  googleFont("Public Sans"),
+  googleFont("Plus Jakarta Sans"),
 ];
 
-export function findGoogleFontByStack(
-  stack: string,
-): GoogleFontOption | undefined {
-  return GOOGLE_FONTS.find((f) => f.stack === stack);
+export function findGoogleFontByStack(stack: string): GoogleFontOption | undefined {
+  return GOOGLE_FONTS.find((f) => {
+    if (f.stack === stack) return true;
+    const firstFamily = stack
+      .split(",")[0]
+      .trim()
+      .replace(/^['"]|['"]$/g, "");
+    return firstFamily.toLowerCase() === f.family.toLowerCase();
+  });
 }
 
 type FontWeightOption = {

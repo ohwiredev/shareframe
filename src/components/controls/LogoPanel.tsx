@@ -4,8 +4,8 @@ import type { LogoState } from "../../state/types";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
-import { RangeField } from "./RangeField";
 import { AlignmentField } from "./AlignmentField";
+import { RangeField } from "./RangeField";
 
 type LogoPanelProps = {
   logo: LogoState;
@@ -43,11 +43,7 @@ export function LogoPanel({
         <small>PNG, JPG, WebP or SVG · max 5 MB</small>
       </Button>
       {logo.src && (
-        <Button
-          variant="destructive"
-          className="remove-logo"
-          onClick={onRemove}
-        >
+        <Button variant="destructive" className="remove-logo" onClick={onRemove}>
           <X size={14} /> Remove logo
         </Button>
       )}

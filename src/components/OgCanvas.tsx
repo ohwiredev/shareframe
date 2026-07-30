@@ -1,8 +1,5 @@
 import { memo, useEffect, useRef } from "react";
-import {
-  createRenderPipeline,
-  type RenderPipeline,
-} from "../canvas/renderPipeline";
+import { createRenderPipeline, type RenderPipeline } from "../canvas/renderPipeline";
 import { useEditorFonts } from "../hooks/useEditorFonts";
 import { OG_HEIGHT, OG_WIDTH } from "../state/constants";
 import type { EditorState } from "../state/types";
@@ -42,9 +39,7 @@ export const OgCanvas = memo(function OgCanvas({
       });
     } catch (error) {
       onRenderError(
-        error instanceof Error
-          ? error
-          : new Error("The canvas could not be initialized."),
+        error instanceof Error ? error : new Error("The canvas could not be initialized."),
       );
       return;
     }
@@ -58,6 +53,7 @@ export const OgCanvas = memo(function OgCanvas({
     };
   }, [onPipelineReady, onRenderError, onRenderSuccess]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fontGeneration triggers a re-render when a font is loaded
   useEffect(() => {
     pipelineRef.current?.render(state);
   }, [state, fontGeneration]);

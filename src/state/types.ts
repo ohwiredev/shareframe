@@ -8,7 +8,7 @@ export type SolidBackground = {
 export type GradientBackground = {
   type: "gradient";
   angle: number;
-  colors: [string, string];
+  colors: string[];
 };
 
 export type Background = SolidBackground | GradientBackground;
@@ -23,6 +23,8 @@ export type TextStyle = {
   fontWeight: number;
   color: string;
   alignment: HorizontalAlignment;
+  /** Vertical offset adjustment in pixels (-200 to 200). */
+  yOffset: number;
 };
 
 /** Logo placement on the 1200×630 canvas. */
@@ -37,6 +39,29 @@ export type LogoState = {
   alignment: HorizontalAlignment;
 };
 
+/** Overlay image placement mode on the 1200x630 canvas. */
+export type OverlayPosition = "bottom" | "right" | "left";
+
+/** Overlay image card settings (feature screenshot, mockup, or photo). */
+export type OverlayImageState = {
+  /** Whether this template supports an overlay image. */
+  enabled: boolean;
+  /** Object URL, data URL, or preset image URL; null when none. */
+  src: string | null;
+  /** Positioning layout relative to text: bottom card vs split right/left. */
+  position: OverlayPosition;
+  /** Scale factor relative to the allocated image slot (0.4 - 1.2). */
+  scale: number;
+  /** Corner radius in canvas pixels (0 - 48). */
+  borderRadius: number;
+  /** Whether to render drop shadow around the card frame. */
+  shadow: boolean;
+  /** Shadow blur intensity (0 - 64). */
+  shadowBlur: number;
+  /** Vertical offset adjustment in pixels (-80 to 80). */
+  yOffset: number;
+};
+
 /**
  * Single-source editor state.
  * Controls and canvas both read/write this shape.
@@ -46,4 +71,5 @@ export type EditorState = {
   logo: LogoState;
   title: TextStyle;
   description: TextStyle;
+  image: OverlayImageState;
 };

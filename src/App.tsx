@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { exportImage, type ExportFormat } from "./canvas/exportCanvas";
+import { type ExportFormat, exportImage } from "./canvas/exportCanvas";
 import type { RenderPipeline } from "./canvas/renderPipeline";
 import { AppHeader } from "./components/AppHeader";
-import { EditorNavigation, type EditorPanel } from "./components/EditorNavigation";
-import { OgCanvas } from "./components/OgCanvas";
 import { CanvasPanel } from "./components/controls/CanvasPanel";
 import { LogoPanel } from "./components/controls/LogoPanel";
+import { OverlayImagePanel } from "./components/controls/OverlayImagePanel";
+import { TemplatePanel } from "./components/controls/TemplatePanel";
 import { TextPanel } from "./components/controls/TextPanel";
+import { EditorNavigation, type EditorPanel } from "./components/EditorNavigation";
+import { OgCanvas } from "./components/OgCanvas";
+import { ensureEditorFontsLoaded } from "./fonts/loadGoogleFont";
 import { DEFAULT_EDITOR_STATE } from "./state/defaults";
-import type { EditorState, LogoState, TextStyle } from "./state/types";
+import type { EditorState, LogoState, OverlayImageState, TextStyle } from "./state/types";
+import { applyTemplate, BUILTIN_TEMPLATES, type OgTemplate } from "./templates";
 
 export type ThemeMode = "light" | "dark";
 
@@ -19,27 +23,52 @@ function revokeLogo(src: string | null) {
 export default function App() {
   const [state, setState] = useState<EditorState>(DEFAULT_EDITOR_STATE);
   const [theme, setTheme] = useState<ThemeMode>("dark");
-  const [panel, setPanel] = useState<EditorPanel>("canvas");
+  const [panel, setPanel] = useState<EditorPanel>("templates");
   const [exportOpen, setExportOpen] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [imageFileName, setImageFileName] = useState("");
   const [exporting, setExporting] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const imageFileRef = useRef<HTMLInputElement>(null);
   const pipelineRef = useRef<RenderPipeline | null>(null);
 
   useEffect(() => () => revokeLogo(state.logo.src), [state.logo.src]);
+  useEffect(() => () => revokeLogo(state.image.src), [state.image.src]);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
+  useEffect(() => {
+    const templateFontStacks = BUILTIN_TEMPLATES.flatMap((t) => [
+      t.state.title?.fontFamily,
+      t.state.description?.fontFamily,
+    ]).filter((s): s is string => Boolean(s));
+    void ensureEditorFontsLoaded(templateFontStacks);
+  }, []);
 
   const setLogo = (logo: LogoState) =>
     setState((current) => {
       if (current.logo.src !== logo.src) revokeLogo(current.logo.src);
       return { ...current, logo };
     });
+  const setImage = (image: OverlayImageState) =>
+    setState((current) => {
+      if (current.image.src !== image.src) revokeLogo(current.image.src);
+      return { ...current, image };
+    });
   const setTitle = (title: TextStyle) => setState((current) => ({ ...current, title }));
   const setDescription = (description: TextStyle) =>
     setState((current) => ({ ...current, description }));
+
+  const handleApplyTemplate = (template: OgTemplate) => {
+    setState((current) => {
+      const next = applyTemplate(current, template);
+      if (!next.image.enabled && panel === "image") {
+        setPanel("templates");
+      }
+      return next;
+    });
+  };
 
   const chooseLogo = (file?: File) => {
     if (!file) return;
@@ -57,10 +86,29 @@ export default function App() {
     if (fileRef.current) fileRef.current.value = "";
   };
 
+  const chooseImage = (file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
+      window.alert("Choose an image file smaller than 5 MB.");
+      return;
+    }
+    setImageFileName(file.name);
+    setImage({ ...state.image, src: URL.createObjectURL(file) });
+  };
+
+  const removeImage = () => {
+    setImage({ ...state.image, src: null });
+    setImageFileName("");
+    if (imageFileRef.current) imageFileRef.current.value = "";
+  };
+
   const reset = () => {
     revokeLogo(state.logo.src);
+    revokeLogo(state.image.src);
     setFileName("");
+    setImageFileName("");
     if (fileRef.current) fileRef.current.value = "";
+    if (imageFileRef.current) imageFileRef.current.value = "";
     setState(DEFAULT_EDITOR_STATE);
   };
 
@@ -87,10 +135,7 @@ export default function App() {
     setExportOpen(false);
     void exportImage(pipeline, state, format)
       .catch((error) => {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "The image could not be exported.";
+        const message = error instanceof Error ? error.message : "The image could not be exported.";
         console.error("[shareframe] Export failed", error);
         setRenderError(message);
       })
@@ -110,9 +155,16 @@ export default function App() {
       />
 
       <main className="d1-grid">
-        <EditorNavigation activePanel={panel} onPanelChange={setPanel} />
+        <EditorNavigation
+          activePanel={panel}
+          showImagePanel={state.image.enabled}
+          onPanelChange={setPanel}
+        />
 
         <aside className="d1-panel">
+          {panel === "templates" && (
+            <TemplatePanel currentState={state} onApplyTemplate={handleApplyTemplate} />
+          )}
           {panel === "canvas" && (
             <CanvasPanel
               background={state.background}
@@ -135,6 +187,16 @@ export default function App() {
               description={state.description}
               onTitleChange={setTitle}
               onDescriptionChange={setDescription}
+            />
+          )}
+          {panel === "image" && (
+            <OverlayImagePanel
+              image={state.image}
+              fileName={imageFileName}
+              fileRef={imageFileRef}
+              onFileChange={chooseImage}
+              onImageChange={setImage}
+              onRemove={removeImage}
             />
           )}
         </aside>

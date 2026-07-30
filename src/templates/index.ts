@@ -1,0 +1,176 @@
+import type { EditorState } from "../state/types";
+import appSplitJson from "./definitions/app-split.json";
+import blogOgJson from "./definitions/blog-og.json";
+import devReleaseJson from "./definitions/dev-release.json";
+import docsGuideJson from "./definitions/docs-guide.json";
+import editorialOpinionJson from "./definitions/editorial-opinion.json";
+import minimalJson from "./definitions/minimal.json";
+import mobileShowcaseJson from "./definitions/mobile-showcase.json";
+import newsletterDigestJson from "./definitions/newsletter-digest.json";
+import podcastEpisodeJson from "./definitions/podcast-episode.json";
+import saasLaunchJson from "./definitions/saas-launch.json";
+import saasPreviewJson from "./definitions/saas-preview.json";
+import type { OgTemplate, TemplateState } from "./types";
+
+export * from "./types";
+
+export const BUILTIN_TEMPLATES: OgTemplate[] = [
+  saasPreviewJson as OgTemplate,
+  appSplitJson as OgTemplate,
+  mobileShowcaseJson as OgTemplate,
+  minimalJson as OgTemplate,
+  saasLaunchJson as OgTemplate,
+  blogOgJson as OgTemplate,
+
+  devReleaseJson as OgTemplate,
+  podcastEpisodeJson as OgTemplate,
+  editorialOpinionJson as OgTemplate,
+  docsGuideJson as OgTemplate,
+  newsletterDigestJson as OgTemplate,
+];
+
+/**
+ * Applies a template to the current editor state.
+ * Merges typography, placement, and background while preserving
+ * an existing uploaded logo image unless overridden.
+ */
+export function applyTemplate(currentState: EditorState, template: OgTemplate): EditorState {
+  const ts: TemplateState = template.state;
+
+  const background = ts.background ?? currentState.background;
+
+  const logo = {
+    ...currentState.logo,
+    ...(ts.logo?.y !== undefined && { y: ts.logo.y }),
+    ...(ts.logo?.scale !== undefined && { scale: ts.logo.scale }),
+    ...(ts.logo?.alignment !== undefined && { alignment: ts.logo.alignment }),
+    src:
+      ts.logo?.src !== undefined
+        ? ts.logo.src
+        : currentState.logo.src?.startsWith("data:image/svg+xml")
+          ? null
+          : currentState.logo.src,
+  };
+
+  const title = {
+    ...currentState.title,
+    ...(ts.title?.content !== undefined && { content: ts.title.content }),
+    ...(ts.title?.fontFamily !== undefined && {
+      fontFamily: ts.title.fontFamily,
+    }),
+    ...(ts.title?.fontSize !== undefined && { fontSize: ts.title.fontSize }),
+    ...(ts.title?.width !== undefined && { width: ts.title.width }),
+    ...(ts.title?.fontWeight !== undefined && {
+      fontWeight: ts.title.fontWeight,
+    }),
+    ...(ts.title?.color !== undefined && { color: ts.title.color }),
+    ...(ts.title?.alignment !== undefined && { alignment: ts.title.alignment }),
+    yOffset: ts.title?.yOffset ?? currentState.title.yOffset ?? 0,
+  };
+
+  const description = {
+    ...currentState.description,
+    ...(ts.description?.content !== undefined && {
+      content: ts.description.content,
+    }),
+    ...(ts.description?.fontFamily !== undefined && {
+      fontFamily: ts.description.fontFamily,
+    }),
+    ...(ts.description?.fontSize !== undefined && {
+      fontSize: ts.description.fontSize,
+    }),
+    ...(ts.description?.width !== undefined && { width: ts.description.width }),
+    ...(ts.description?.fontWeight !== undefined && {
+      fontWeight: ts.description.fontWeight,
+    }),
+    ...(ts.description?.color !== undefined && { color: ts.description.color }),
+    ...(ts.description?.alignment !== undefined && {
+      alignment: ts.description.alignment,
+    }),
+    yOffset: ts.description?.yOffset ?? currentState.description.yOffset ?? 0,
+  };
+
+  const image = ts.image
+    ? {
+        enabled: true,
+        src: ts.image.src !== undefined ? ts.image.src : currentState.image.src,
+        position: ts.image.position ?? currentState.image.position,
+        scale: ts.image.scale ?? currentState.image.scale,
+        borderRadius: ts.image.borderRadius ?? currentState.image.borderRadius,
+        shadow: ts.image.shadow ?? currentState.image.shadow,
+        shadowBlur: ts.image.shadowBlur ?? currentState.image.shadowBlur ?? 32,
+        yOffset: ts.image.yOffset ?? currentState.image.yOffset,
+      }
+    : {
+        ...currentState.image,
+        enabled: false,
+        src: null,
+      };
+
+  return {
+    background,
+    logo,
+    title,
+    description,
+    image,
+  };
+}
+
+/**
+ * Parses and validates a template JSON string.
+ */
+export function parseTemplateJson(jsonString: string): OgTemplate {
+  const data = JSON.parse(jsonString) as Partial<OgTemplate>;
+
+  if (!data || typeof data !== "object") {
+    throw new Error("Invalid JSON: Expected an object.");
+  }
+  if (!data.id || typeof data.id !== "string") {
+    throw new Error("Invalid Template JSON: Missing or invalid 'id' field.");
+  }
+  if (!data.name || typeof data.name !== "string") {
+    throw new Error("Invalid Template JSON: Missing or invalid 'name' field.");
+  }
+  if (!data.state || typeof data.state !== "object") {
+    throw new Error("Invalid Template JSON: Missing or invalid 'state' object.");
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description ?? "Custom imported template",
+    category: data.category ?? "Custom",
+    badge: data.badge ?? "Custom",
+    state: data.state,
+  };
+}
+
+/**
+ * Serializes the current EditorState into a standardized template JSON string.
+ */
+export function exportTemplateJson(
+  state: EditorState,
+  name: string = "Custom Template",
+  description: string = "Exported from Shareframe",
+): string {
+  const template: OgTemplate = {
+    id: `custom-${Date.now()}`,
+    name,
+    description,
+    category: "Custom",
+    badge: "Custom",
+    state: {
+      background: state.background,
+      logo: {
+        y: state.logo.y,
+        scale: state.logo.scale,
+        alignment: state.logo.alignment,
+      },
+      title: state.title,
+      description: state.description,
+      image: state.image,
+    },
+  };
+
+  return JSON.stringify(template, null, 2);
+}

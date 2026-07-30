@@ -19,6 +19,7 @@ export const DEFAULT_EDITOR_STATE: EditorState = {
     fontWeight: 700,
     color: "#ffffff",
     alignment: "center",
+    yOffset: 0,
   },
   description: {
     content: "A short description for social previews.",
@@ -28,5 +29,16 @@ export const DEFAULT_EDITOR_STATE: EditorState = {
     fontWeight: 400,
     color: "#c8c8d4",
     alignment: "center",
+    yOffset: 0,
+  },
+  image: {
+    enabled: false,
+    src: null,
+    position: "bottom",
+    scale: 1,
+    borderRadius: 20,
+    shadow: true,
+    shadowBlur: 32,
+    yOffset: 0,
   },
 };

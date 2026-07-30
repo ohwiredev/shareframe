@@ -1,0 +1,37 @@
+{
+  "id": "saas-launch",
+  "name": "Product Launch Announcement",
+  "description": "Futuristic cyan Space Grotesk heading with clean Inter typography on obsidian-indigo",
+  "category": "SaaS / Product",
+  "badge": "Launch",
+  "state": {
+    "background": {
+      "type": "gradient",
+      "angle": 110,
+      "colors": ["#030712", "#1e1b4b"]
+    },
+    "logo": {
+      "y": 0.18,
+      "scale": 1.1,
+      "alignment": "left"
+    },
+    "title": {
+      "content": "Introducing Shareframe 2.0: Next-Gen Open Graph Studio",
+      "fontFamily": "\"Space Grotesk\", system-ui, sans-serif",
+      "fontSize": 62,
+      "width": 92,
+      "fontWeight": 700,
+      "color": "#38bdf8",
+      "alignment": "left"
+    },
+    "description": {
+      "content": "Generate stunning 1200×630 social cards in seconds with real-time Canvas 2D preview and zero latency.",
+      "fontFamily": "Inter, system-ui, sans-serif",
+      "fontSize": 26,
+      "width": 86,
+      "fontWeight": 400,
+      "color": "#e2e8f0",
+      "alignment": "left"
+    }
+  }
+}

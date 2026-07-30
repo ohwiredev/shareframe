@@ -1,11 +1,7 @@
 import { ensureEditorFontsLoaded } from "../fonts/loadGoogleFont";
 import { OG_HEIGHT, OG_WIDTH } from "../state/constants";
 import type { EditorState } from "../state/types";
-import {
-  CONTEXT_OPTIONS,
-  drawOgImage,
-  type OgRenderingContext,
-} from "./drawOgImage";
+import { CONTEXT_OPTIONS, drawOgImage, type OgRenderingContext } from "./drawOgImage";
 import type {
   ExportFormat,
   RenderBackend,
@@ -39,9 +35,7 @@ function asError(value: unknown, fallback: string): Error {
   return value instanceof Error ? value : new Error(fallback);
 }
 
-function createHtmlContext(
-  canvas: HTMLCanvasElement,
-): CanvasRenderingContext2D {
+function createHtmlContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   const context = canvas.getContext("2d", CONTEXT_OPTIONS);
   if (!context) {
     throw new Error("Canvas 2D is unavailable in this browser.");
@@ -50,9 +44,7 @@ function createHtmlContext(
   return context;
 }
 
-function createOffscreenContext(
-  canvas: OffscreenCanvas,
-): OffscreenCanvasRenderingContext2D {
+function createOffscreenContext(canvas: OffscreenCanvas): OffscreenCanvasRenderingContext2D {
   const context = canvas.getContext("2d", CONTEXT_OPTIONS);
   if (!context) {
     throw new Error("Canvas 2D is unavailable in this browser.");
@@ -120,10 +112,7 @@ function mimeType(format: ExportFormat): string {
   return `image/${format}`;
 }
 
-function canvasToBlob(
-  canvas: HTMLCanvasElement,
-  format: ExportFormat,
-): Promise<Blob> {
+function canvasToBlob(canvas: HTMLCanvasElement, format: ExportFormat): Promise<Blob> {
   const expectedType = mimeType(format);
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -131,11 +120,7 @@ function canvasToBlob(
         if (!blob) {
           reject(new Error("The browser returned no image data."));
         } else if (blob.type !== expectedType) {
-          reject(
-            new Error(
-              `${format.toUpperCase()} encoding is unavailable in this browser.`,
-            ),
-          );
+          reject(new Error(`${format.toUpperCase()} encoding is unavailable in this browser.`));
         } else {
           resolve(blob);
         }
@@ -168,12 +153,12 @@ class WorkerRenderPipeline implements RenderPipeline {
   private logoSrc: string | null = null;
   private logoAssetId = 0;
   private logoPromise: Promise<number | null> = Promise.resolve(null);
+  private overlaySrc: string | null = null;
+  private overlayAssetId = 0;
+  private overlayPromise: Promise<number | null> = Promise.resolve(null);
   private disposed = false;
 
-  constructor(
-    canvas: HTMLCanvasElement,
-    options: RenderPipelineOptions,
-  ) {
+  constructor(canvas: HTMLCanvasElement, options: RenderPipelineOptions) {
     this.canvas = canvas;
     this.previewContext = createHtmlContext(canvas);
     this.onError = options.onError;
@@ -205,18 +190,22 @@ class WorkerRenderPipeline implements RenderPipeline {
       const nextState = this.latestState;
       if (!nextState) return;
 
-      void this.ensureLogo(nextState.logo.src)
+      void Promise.all([
+        this.ensureLogo(nextState.logo.src),
+        this.ensureOverlayImage(nextState.image?.src),
+      ])
         .catch((error) => {
-          this.onError?.(asError(error, "The logo could not be decoded."));
-          return null;
+          this.onError?.(asError(error, "The image could not be decoded."));
+          return [null, null] as const;
         })
-        .then((logoAssetId) => {
+        .then(([logoAssetId, overlayAssetId]) => {
           if (this.disposed || revision !== this.revision) return;
           this.post({
             type: "render",
             revision,
             state: nextState,
             logoAssetId,
+            overlayAssetId,
           });
         });
     });
@@ -227,7 +216,10 @@ class WorkerRenderPipeline implements RenderPipeline {
       throw new Error("The render pipeline has been closed.");
     }
 
-    const logoAssetId = await this.ensureLogo(state.logo.src);
+    const [logoAssetId, overlayAssetId] = await Promise.all([
+      this.ensureLogo(state.logo.src),
+      this.ensureOverlayImage(state.image?.src),
+    ]);
     const requestId = ++this.requestId;
     const result = new Promise<Blob>((resolve, reject) => {
       this.pendingExports.set(requestId, { resolve, reject });
@@ -238,6 +230,7 @@ class WorkerRenderPipeline implements RenderPipeline {
       state,
       format,
       logoAssetId,
+      overlayAssetId,
     });
     return result;
   }
@@ -248,10 +241,7 @@ class WorkerRenderPipeline implements RenderPipeline {
     if (this.animationFrame !== null) {
       cancelAnimationFrame(this.animationFrame);
     }
-    this.canvas.removeEventListener(
-      "contextrestored",
-      this.handleContextRestored,
-    );
+    this.canvas.removeEventListener("contextrestored", this.handleContextRestored);
     this.worker.terminate();
     this.failPendingExports(new Error("The render pipeline was closed."));
   }
@@ -286,6 +276,28 @@ class WorkerRenderPipeline implements RenderPipeline {
     return this.logoPromise;
   }
 
+  private async ensureOverlayImage(src: string | null): Promise<number | null> {
+    if (src === this.overlaySrc) return this.overlayPromise;
+
+    this.overlaySrc = src;
+    const assetId = ++this.overlayAssetId;
+    if (!src) {
+      this.overlayPromise = Promise.resolve(null);
+      this.post({ type: "remove-overlay-image", assetId });
+      return null;
+    }
+
+    this.overlayPromise = decodeImageBitmap(src).then((bitmap) => {
+      if (this.disposed || assetId !== this.overlayAssetId) {
+        bitmap.close();
+        return null;
+      }
+      this.post({ type: "set-overlay-image", assetId, bitmap }, [bitmap]);
+      return assetId;
+    });
+    return this.overlayPromise;
+  }
+
   private handleWorkerMessage(message: RenderWorkerResponse): void {
     if (message.type === "frame") {
       if (message.revision < this.revision || this.disposed) {
@@ -293,13 +305,7 @@ class WorkerRenderPipeline implements RenderPipeline {
         return;
       }
 
-      this.previewContext.drawImage(
-        message.bitmap,
-        0,
-        0,
-        OG_WIDTH,
-        OG_HEIGHT,
-      );
+      this.previewContext.drawImage(message.bitmap, 0, 0, OG_WIDTH, OG_HEIGHT);
       message.bitmap.close();
       this.canvas.dataset.renderRevision = String(message.revision);
       this.canvas.dataset.renderBackend = "worker";
@@ -346,12 +352,12 @@ class MainThreadRenderPipeline implements RenderPipeline {
   private logoSrc: string | null = null;
   private logoPromise: Promise<DecodedLogo | null> = Promise.resolve(null);
   private logo: DecodedLogo | null = null;
+  private overlaySrc: string | null = null;
+  private overlayPromise: Promise<DecodedLogo | null> = Promise.resolve(null);
+  private overlay: DecodedLogo | null = null;
   private disposed = false;
 
-  constructor(
-    canvas: HTMLCanvasElement,
-    options: RenderPipelineOptions,
-  ) {
+  constructor(canvas: HTMLCanvasElement, options: RenderPipelineOptions) {
     this.canvas = canvas;
     this.context = createHtmlContext(canvas);
     this.onError = options.onError;
@@ -372,16 +378,15 @@ class MainThreadRenderPipeline implements RenderPipeline {
       if (!nextState) return;
 
       void Promise.all([
-        ensureEditorFontsLoaded([
-          nextState.title.fontFamily,
-          nextState.description.fontFamily,
-        ]),
+        ensureEditorFontsLoaded([nextState.title.fontFamily, nextState.description.fontFamily]),
         this.ensureLogo(nextState.logo.src),
+        this.ensureOverlayImage(nextState.image?.src),
       ])
-        .then(([, logo]) => {
+        .then(([, logo, overlay]) => {
           if (this.disposed || revision !== this.revision) return;
           drawOgImage(this.context, nextState, {
             logoImage: logo?.source,
+            overlayImage: overlay?.source,
           });
           this.canvas.dataset.renderRevision = String(revision);
           this.canvas.dataset.renderBackend = "main";
@@ -398,27 +403,26 @@ class MainThreadRenderPipeline implements RenderPipeline {
       throw new Error("The render pipeline has been closed.");
     }
 
-    const [, logo] = await Promise.all([
-      ensureEditorFontsLoaded([
-        state.title.fontFamily,
-        state.description.fontFamily,
-      ]),
+    const [, logo, overlay] = await Promise.all([
+      ensureEditorFontsLoaded([state.title.fontFamily, state.description.fontFamily]),
       this.ensureLogo(state.logo.src),
+      this.ensureOverlayImage(state.image?.src),
     ]);
 
     if (typeof OffscreenCanvas !== "undefined") {
       const canvas = new OffscreenCanvas(OG_WIDTH, OG_HEIGHT);
       const context = createOffscreenContext(canvas);
-      drawOgImage(context, state, { logoImage: logo?.source });
+      drawOgImage(context, state, {
+        logoImage: logo?.source,
+        overlayImage: overlay?.source,
+      });
       const expectedType = mimeType(format);
       const blob = await canvas.convertToBlob({
         type: expectedType,
         quality: format === "png" ? undefined : 0.92,
       });
       if (blob.type !== expectedType) {
-        throw new Error(
-          `${format.toUpperCase()} encoding is unavailable in this browser.`,
-        );
+        throw new Error(`${format.toUpperCase()} encoding is unavailable in this browser.`);
       }
       return blob;
     }
@@ -427,7 +431,10 @@ class MainThreadRenderPipeline implements RenderPipeline {
     canvas.width = OG_WIDTH;
     canvas.height = OG_HEIGHT;
     const context = createHtmlContext(canvas);
-    drawOgImage(context, state, { logoImage: logo?.source });
+    drawOgImage(context, state, {
+      logoImage: logo?.source,
+      overlayImage: overlay?.source,
+    });
     return canvasToBlob(canvas, format);
   }
 
@@ -437,12 +444,11 @@ class MainThreadRenderPipeline implements RenderPipeline {
     if (this.animationFrame !== null) {
       cancelAnimationFrame(this.animationFrame);
     }
-    this.canvas.removeEventListener(
-      "contextrestored",
-      this.handleContextRestored,
-    );
+    this.canvas.removeEventListener("contextrestored", this.handleContextRestored);
     this.logo?.close();
     this.logo = null;
+    this.overlay?.close();
+    this.overlay = null;
   }
 
   private readonly handleContextRestored = () => {
@@ -470,6 +476,29 @@ class MainThreadRenderPipeline implements RenderPipeline {
       return logo;
     });
     return this.logoPromise;
+  }
+
+  private async ensureOverlayImage(src: string | null): Promise<DecodedLogo | null> {
+    if (src === this.overlaySrc) return this.overlayPromise;
+
+    this.overlaySrc = src;
+    this.overlay?.close();
+    this.overlay = null;
+    if (!src) {
+      this.overlayPromise = Promise.resolve(null);
+      return null;
+    }
+
+    const expectedSrc = src;
+    this.overlayPromise = decodeLogo(src).then((overlay) => {
+      if (this.disposed || this.overlaySrc !== expectedSrc) {
+        overlay.close();
+        return null;
+      }
+      this.overlay = overlay;
+      return overlay;
+    });
+    return this.overlayPromise;
   }
 }
 
