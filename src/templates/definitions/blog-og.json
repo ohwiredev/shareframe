@@ -1,37 +1,40 @@
 {
   "id": "blog-og",
-  "name": "Blog OG Image",
-  "description": "Vibrant gradient background with Space Grotesk headline for articles",
-  "category": "Blogging",
-  "badge": "Editorial",
+  "name": "Sunset Editorial",
+  "description": "Warm rose-to-amber gradient with a bold left-aligned article headline and soft body copy.",
+  "category": "Gradient",
+  "badge": "Blog",
   "state": {
     "background": {
       "type": "gradient",
-      "angle": 135,
-      "colors": ["#312e81", "#7c3aed"]
+      "angle": 125,
+      "colors": ["#7c2d12", "#c2410c", "#ea580c"]
     },
     "logo": {
-      "y": 0.22,
-      "scale": 1.0,
-      "alignment": "left"
+      "y": 0.18,
+      "scale": 0.95,
+      "alignment": "left",
+      "src": null
     },
     "title": {
-      "content": "Designing Scalable Web Applications with Modern Frontend Patterns",
-      "fontFamily": "\"Space Grotesk\", system-ui, sans-serif",
-      "fontSize": 56,
-      "width": 90,
+      "content": "Designing Scalable Web Apps with Modern Frontend Patterns",
+      "fontFamily": "Space Grotesk",
+      "fontSize": 52,
+      "width": 88,
       "fontWeight": 700,
-      "color": "#ffffff",
-      "alignment": "left"
+      "color": "#fff7ed",
+      "alignment": "left",
+      "yOffset": 0
     },
     "description": {
-      "content": "Explore modern architectures, state management, and high-performance browser tools.",
-      "fontFamily": "Inter, system-ui, sans-serif",
-      "fontSize": 26,
-      "width": 85,
+      "content": "Architectures, state models, and browser performance — lessons from shipping at scale.",
+      "fontFamily": "Inter",
+      "fontSize": 24,
+      "width": 82,
       "fontWeight": 400,
-      "color": "#e0e7ff",
-      "alignment": "left"
+      "color": "#ffedd5",
+      "alignment": "left",
+      "yOffset": 6
     }
   }
 }

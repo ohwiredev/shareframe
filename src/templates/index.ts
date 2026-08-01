@@ -1,5 +1,6 @@
 import type { EditorState } from "../state/types";
-import appSplitJson from "./definitions/app-split.json";
+import blogFeaturedJson from "./definitions/blog-featured.json";
+import blogHeroCardJson from "./definitions/blog-hero-card.json";
 import blogOgJson from "./definitions/blog-og.json";
 import devReleaseJson from "./definitions/dev-release.json";
 import docsGuideJson from "./definitions/docs-guide.json";
@@ -9,24 +10,22 @@ import mobileShowcaseJson from "./definitions/mobile-showcase.json";
 import newsletterDigestJson from "./definitions/newsletter-digest.json";
 import podcastEpisodeJson from "./definitions/podcast-episode.json";
 import saasLaunchJson from "./definitions/saas-launch.json";
-import saasPreviewJson from "./definitions/saas-preview.json";
 import type { OgTemplate, TemplateState } from "./types";
 
 export * from "./types";
 
 export const BUILTIN_TEMPLATES: OgTemplate[] = [
-  saasPreviewJson as OgTemplate,
-  appSplitJson as OgTemplate,
+  blogHeroCardJson as OgTemplate,
+  blogFeaturedJson as OgTemplate,
   mobileShowcaseJson as OgTemplate,
-  minimalJson as OgTemplate,
-  saasLaunchJson as OgTemplate,
   blogOgJson as OgTemplate,
-
+  saasLaunchJson as OgTemplate,
+  docsGuideJson as OgTemplate,
+  newsletterDigestJson as OgTemplate,
   devReleaseJson as OgTemplate,
   podcastEpisodeJson as OgTemplate,
   editorialOpinionJson as OgTemplate,
-  docsGuideJson as OgTemplate,
-  newsletterDigestJson as OgTemplate,
+  minimalJson as OgTemplate,
 ];
 
 /**

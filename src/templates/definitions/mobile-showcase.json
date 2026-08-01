@@ -1,47 +1,48 @@
 {
   "id": "mobile-showcase",
-  "name": "Mobile App Showcase",
-  "description": "Left-aligned mobile UI screen preview with clean headline copy on the right.",
-  "category": "Product",
-  "badge": "New",
+  "name": "Split Left Phone",
+  "description": "Vertical phone frame on the left with right-aligned product headline and supporting copy.",
+  "category": "With Image",
+  "badge": "Mobile",
   "state": {
     "background": {
       "type": "gradient",
-      "angle": 135,
-      "colors": ["#1e1b4b", "#09090b"]
+      "angle": 150,
+      "colors": ["#0f0a1a", "#1a1035", "#2d1b4e"]
     },
     "logo": {
-      "y": 0.12,
-      "scale": 1.0,
+      "y": 0.14,
+      "scale": 0.95,
       "alignment": "right",
       "src": null
     },
     "title": {
       "content": "Your Pocket Workspace",
       "fontFamily": "Outfit",
-      "fontSize": 52,
+      "fontSize": 50,
       "width": 100,
       "fontWeight": 700,
-      "color": "#ffffff",
-      "alignment": "right"
+      "color": "#faf5ff",
+      "alignment": "right",
+      "yOffset": 0
     },
     "description": {
-      "content": "Take full control of workflows, notifications, and team tasks on the go.",
-      "fontFamily": "Outfit",
+      "content": "Ship workflows, notifications, and team tasks from anywhere — full power, zero clutter.",
+      "fontFamily": "DM Sans",
       "fontSize": 22,
       "width": 100,
       "fontWeight": 400,
-      "color": "#a5b4fc",
-      "alignment": "right"
+      "color": "#c4b5fd",
+      "alignment": "right",
+      "yOffset": 4
     },
-
     "image": {
-      "src": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22320%22%20height%3D%22580%22%20viewBox%3D%220%200%20320%20580%22%3E%3Crect%20width%3D%22320%22%20height%3D%22580%22%20rx%3D%2236%22%20fill%3D%22%2309090b%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2216%22%20width%3D%22288%22%20height%3D%22548%22%20rx%3D%2224%22%20fill%3D%22%231e1b4b%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2228%22%20width%3D%22120%22%20height%3D%2218%22%20rx%3D%229%22%20fill%3D%22%2309090b%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2280%22%20width%3D%22160%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23818cf8%22/%3E%3Crect%20x%3D%2232%22%20y%3D%22130%22%20width%3D%22256%22%20height%3D%22140%22%20rx%3D%2216%22%20fill%3D%22%23312e81%22/%3E%3Ccircle%20cx%3D%2270%22%20cy%3D%22180%22%20r%3D%2224%22%20fill%3D%22%23a5b4fc%22/%3E%3Crect%20x%3D%22110%22%20y%3D%22165%22%20width%3D%22140%22%20height%3D%2214%22%20rx%3D%224%22%20fill%3D%22%23c7d2fe%22/%3E%3Crect%20x%3D%22110%22%20y%3D%22190%22%20width%3D%2290%22%20height%3D%2212%22%20rx%3D%224%22%20fill%3D%22%23818cf8%22/%3E%3Crect%20x%3D%2232%22%20y%3D%22290%22%20width%3D%22256%22%20height%3D%2280%22%20rx%3D%2214%22%20fill%3D%22%23312e81%22/%3E%3Crect%20x%3D%2232%22%20y%3D%22385%22%20width%3D%22256%22%20height%3D%2280%22%20rx%3D%2214%22%20fill%3D%22%23312e81%22/%3E%3C/svg%3E",
+      "src": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22320%22%20height%3D%22580%22%20viewBox%3D%220%200%20320%20580%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22sc%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%232e1065%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%234c1d95%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22320%22%20height%3D%22580%22%20rx%3D%2240%22%20fill%3D%22%230c0a12%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2212%22%20width%3D%22296%22%20height%3D%22556%22%20rx%3D%2232%22%20fill%3D%22url(%23sc)%22/%3E%3Crect%20x%3D%22110%22%20y%3D%2224%22%20width%3D%22100%22%20height%3D%2214%22%20rx%3D%227%22%20fill%3D%22%230c0a12%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2272%22%20width%3D%22148%22%20height%3D%2220%22%20rx%3D%226%22%20fill%3D%22%23e9d5ff%22/%3E%3Crect%20x%3D%2236%22%20y%3D%22104%22%20width%3D%2296%22%20height%3D%2212%22%20rx%3D%224%22%20fill%3D%22%23a78bfa%22%20opacity%3D%220.7%22/%3E%3Crect%20x%3D%2236%22%20y%3D%22140%22%20width%3D%22248%22%20height%3D%22128%22%20rx%3D%2216%22%20fill%3D%22%231e1b4b%22%20opacity%3D%220.85%22/%3E%3Ccircle%20cx%3D%2276%22%20cy%3D%22190%22%20r%3D%2222%22%20fill%3D%22%23c4b5fd%22/%3E%3Crect%20x%3D%22112%22%20y%3D%22176%22%20width%3D%22136%22%20height%3D%2212%22%20rx%3D%224%22%20fill%3D%22%23e9d5ff%22/%3E%3Crect%20x%3D%22112%22%20y%3D%22198%22%20width%3D%2292%22%20height%3D%2210%22%20rx%3D%223%22%20fill%3D%22%23a78bfa%22/%3E%3Crect%20x%3D%2236%22%20y%3D%22292%22%20width%3D%22248%22%20height%3D%2272%22%20rx%3D%2214%22%20fill%3D%22%231e1b4b%22%20opacity%3D%220.75%22/%3E%3Crect%20x%3D%2236%22%20y%3D%22380%22%20width%3D%22248%22%20height%3D%2272%22%20rx%3D%2214%22%20fill%3D%22%231e1b4b%22%20opacity%3D%220.75%22/%3E%3Crect%20x%3D%2236%22%20y%3D%22468%22%20width%3D%22248%22%20height%3D%2272%22%20rx%3D%2214%22%20fill%3D%22%231e1b4b%22%20opacity%3D%220.75%22/%3E%3C/svg%3E",
       "position": "left",
-      "scale": 0.88,
-      "borderRadius": 24,
+      "scale": 0.9,
+      "borderRadius": 28,
       "shadow": true,
-      "shadowBlur": 40,
+      "shadowBlur": 44,
       "yOffset": 0
     }
   }

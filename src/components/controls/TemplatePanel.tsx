@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ensureEditorFontsLoaded } from "../../fonts/loadGoogleFont";
+import { gradientToCss } from "../../state/gradient";
 import type { EditorState } from "../../state/types";
 import { BUILTIN_TEMPLATES, type OgTemplate } from "../../templates";
 import { Label } from "../ui/label";
@@ -13,9 +14,7 @@ type TemplatePanelProps = {
 function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
   const bg = template.state.background;
   const bgStyle =
-    bg?.type === "gradient"
-      ? `linear-gradient(${bg.angle}deg, ${bg.colors.join(", ")})`
-      : (bg?.color ?? "#1e293b");
+    bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
 
   const title = template.state.title;
   const desc = template.state.description;

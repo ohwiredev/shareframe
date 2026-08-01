@@ -7,8 +7,13 @@ export type TemplateBackground =
     }
   | {
       type: "gradient";
-      angle: number;
+      style?: "linear" | "radial";
+      angle?: number;
+      cx?: number;
+      cy?: number;
+      radius?: "farthest-corner" | number;
       colors: string[];
+      stops?: number[];
     };
 
 export type TemplateLogo = {
