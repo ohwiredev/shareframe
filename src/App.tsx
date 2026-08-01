@@ -2,14 +2,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { type ExportFormat, exportImage } from "./canvas/exportCanvas";
 import type { RenderPipeline } from "./canvas/renderPipeline";
 import { AppHeader } from "./components/AppHeader";
+import { BatchOgGeneratorModal } from "./components/controls/BatchOgGeneratorModal";
 import { CanvasPanel } from "./components/controls/CanvasPanel";
 import { LogoPanel } from "./components/controls/LogoPanel";
 import { OverlayImagePanel } from "./components/controls/OverlayImagePanel";
 import { TemplatePanel } from "./components/controls/TemplatePanel";
 import { TextPanel } from "./components/controls/TextPanel";
+import { UrlImportModal } from "./components/controls/UrlImportModal";
 import { EditorNavigation, type EditorPanel } from "./components/EditorNavigation";
 import { OgCanvas } from "./components/OgCanvas";
 import { ensureEditorFontsLoaded } from "./fonts/loadGoogleFont";
+import type { ExtractedMetadata } from "./lib/websiteExtractor";
 import { DEFAULT_EDITOR_STATE } from "./state/defaults";
 import type { EditorState, LogoState, OverlayImageState, TextStyle } from "./state/types";
 import { applyTemplate, BUILTIN_TEMPLATES, type OgTemplate } from "./templates";
@@ -25,6 +28,10 @@ export default function App() {
   const [theme, setTheme] = useState<ThemeMode>("dark");
   const [panel, setPanel] = useState<EditorPanel>("templates");
   const [exportOpen, setExportOpen] = useState(false);
+  const [urlModalOpen, setUrlModalOpen] = useState(false);
+  const [batchModalOpen, setBatchModalOpen] = useState(false);
+  const [extractedMetadata, setExtractedMetadata] = useState<ExtractedMetadata | null>(null);
+
   const [fileName, setFileName] = useState("");
   const [imageFileName, setImageFileName] = useState("");
   const [exporting, setExporting] = useState(false);
@@ -68,6 +75,37 @@ export default function App() {
       }
       return next;
     });
+  };
+
+  const handleApplyExtractedToCanvas = (extracted: ExtractedMetadata) => {
+    setState((current) => ({
+      ...current,
+      title: {
+        ...current.title,
+        content: extracted.title,
+      },
+      description: {
+        ...current.description,
+        content: extracted.description,
+      },
+      logo: extracted.logoUrl
+        ? {
+            ...current.logo,
+            src: extracted.logoUrl,
+          }
+        : current.logo,
+      background: extracted.themeColor
+        ? {
+            type: "solid",
+            color: extracted.themeColor,
+          }
+        : current.background,
+    }));
+  };
+
+  const handleOpenBatchMode = (extracted: ExtractedMetadata) => {
+    setExtractedMetadata(extracted);
+    setBatchModalOpen(true);
   };
 
   const chooseLogo = (file?: File) => {
@@ -150,6 +188,7 @@ export default function App() {
         exporting={exporting}
         onReset={reset}
         onThemeToggle={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+        onOpenUrlImport={() => setUrlModalOpen(true)}
         onExportOpenChange={setExportOpen}
         onExport={download}
       />
@@ -217,6 +256,22 @@ export default function App() {
           )}
         </section>
       </main>
+
+      <UrlImportModal
+        isOpen={urlModalOpen}
+        onClose={() => setUrlModalOpen(false)}
+        onApplyToCanvas={handleApplyExtractedToCanvas}
+        onOpenBatchMode={handleOpenBatchMode}
+      />
+
+      <BatchOgGeneratorModal
+        isOpen={batchModalOpen}
+        onClose={() => setBatchModalOpen(false)}
+        extracted={extractedMetadata}
+        baseState={state}
+        pipeline={pipelineRef.current}
+        onSelectLinkForCanvas={(selectedState) => setState(selectedState)}
+      />
     </div>
   );
 }
