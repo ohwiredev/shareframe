@@ -6,6 +6,7 @@ import type {
   ExtractedLink,
   ExtractedMetadata,
 } from "../../lib/websiteExtractor";
+import { gradientToCss } from "../../state/gradient";
 import type { EditorState } from "../../state/types";
 import { applyTemplate, BUILTIN_TEMPLATES } from "../../templates";
 import { Input } from "../ui/input";
@@ -32,9 +33,7 @@ type BatchOgGeneratorModalProps = {
 function BatchPagePreviewThumbnail({ state }: { state: EditorState }) {
   const bg = state.background;
   const bgStyle =
-    bg?.type === "gradient"
-      ? `linear-gradient(${bg.angle}deg, ${bg.colors.join(", ")})`
-      : (bg?.color ?? "#1e293b");
+    bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
 
   const title = state.title;
   const desc = state.description;

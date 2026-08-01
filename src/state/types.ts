@@ -5,10 +5,32 @@ export type SolidBackground = {
   color: string;
 };
 
+/** Linear (default) or radial background fill. */
+export type GradientStyle = "linear" | "radial";
+
+/**
+ * Gradient background.
+ * Existing templates omit `style` and use `angle` + `colors` (linear, evenly spaced).
+ * Radial presets set `style: "radial"` with center/radius; optional `stops` match CSS offsets.
+ */
 export type GradientBackground = {
   type: "gradient";
-  angle: number;
+  /** Defaults to `"linear"` when omitted. */
+  style?: GradientStyle;
+  /** Linear angle in degrees. Used when style is linear (default 135). */
+  angle?: number;
+  /** Radial center X as a fraction of canvas width (0–1). Default 0.5. */
+  cx?: number;
+  /** Radial center Y as a fraction of canvas height (0–1). Default 0.5. */
+  cy?: number;
+  /**
+   * Radial radius on the 1200×630 canvas.
+   * `"farthest-corner"` matches CSS; a number is absolute pixels.
+   */
+  radius?: "farthest-corner" | number;
   colors: string[];
+  /** Optional stop offsets 0–1 aligned with `colors`. Evenly spaced when omitted. */
+  stops?: number[];
 };
 
 export type Background = SolidBackground | GradientBackground;
