@@ -45,6 +45,7 @@ Do not introduce alternate UI kits, heavy rendering libraries, or backend servic
 | --- | --- |
 | `docs/PRD.md` | Product requirements and success criteria |
 | `docs/TODO.md` | Implementation checklist (scaffold → polish) |
+| `DESIGN.md` | Authoritative design system guidelines (typography, colors, spacing, radius) |
 | `AGENTS.md` | This file — agent/project conventions |
 
 Keep these docs accurate when product or stack decisions change.

@@ -15,3 +15,6 @@
 - [x] Polish + responsive controls
 - [x] Standard JSON template system with 11 unique curated templates across multiple categories with filter chips and badge tags
 - [x] Install and set up Biome for linting and formatting
+- [x] Website URL metadata import engine (extracting title, description, favicon logo, theme color)
+- [x] Batch OG image generator workflow for multi-page site exports (.PNG)
+
