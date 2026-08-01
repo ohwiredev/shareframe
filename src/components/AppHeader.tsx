@@ -1,4 +1,4 @@
-import { ArrowDownToLine, Moon, RotateCcw, Sun, WandSparkles } from "lucide-react";
+import { ArrowDownToLine, Globe, Moon, RotateCcw, Sun, WandSparkles } from "lucide-react";
 import type { ThemeMode } from "../App";
 import type { ExportFormat } from "../canvas/exportCanvas";
 import { Button } from "./ui/button";
@@ -15,6 +15,7 @@ type AppHeaderProps = {
   exporting: boolean;
   onReset: () => void;
   onThemeToggle: () => void;
+  onOpenUrlImport: () => void;
   onExportOpenChange: (open: boolean) => void;
   onExport: (format: ExportFormat) => void;
 };
@@ -34,6 +35,7 @@ export function AppHeader({
   exporting,
   onReset,
   onThemeToggle,
+  onOpenUrlImport,
   onExportOpenChange,
   onExport,
 }: AppHeaderProps) {
@@ -46,6 +48,9 @@ export function AppHeader({
         Shareframe
       </div>
       <div className="d1-actions">
+        <Button variant="outline" onClick={onOpenUrlImport}>
+          <Globe size={15} /> Import Website
+        </Button>
         <Button variant="outline" onClick={onReset}>
           <RotateCcw size={15} /> Reset
         </Button>

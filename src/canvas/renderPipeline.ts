@@ -61,12 +61,42 @@ function verifySrgbContext(context: OgRenderingContext): void {
   }
 }
 
-async function decodeImageBitmap(src: string): Promise<ImageBitmap> {
-  const response = await fetch(src);
-  if (!response.ok) {
-    throw new Error("The logo file could not be read.");
+async function fetchImageBlobWithCorsFallback(src: string): Promise<Blob> {
+  try {
+    const response = await fetch(src, { mode: "cors" });
+    if (response.ok) {
+      return await response.blob();
+    }
+  } catch {
+    // CORS or network error, proceed to proxy fallback
   }
-  const blob = await response.blob();
+
+  if (/^https?:\/\//i.test(src)) {
+    const cleanUrl = src.replace(/^https?:\/\//i, "");
+    const proxyUrls = [
+      `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}`,
+      `https://corsproxy.io/?url=${encodeURIComponent(src)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(src)}`,
+    ];
+
+    for (const proxyUrl of proxyUrls) {
+      try {
+        const res = await fetch(proxyUrl, { mode: "cors" });
+        if (res.ok) {
+          const blob = await res.blob();
+          if (blob && blob.size > 0) return blob;
+        }
+      } catch {
+        // Try next fallback proxy
+      }
+    }
+  }
+
+  throw new Error("The logo file could not be read.");
+}
+
+async function decodeImageBitmap(src: string): Promise<ImageBitmap> {
+  const blob = await fetchImageBlobWithCorsFallback(src);
   const options: ImageBitmapOptions = {
     colorSpaceConversion: "default",
     imageOrientation: "from-image",
@@ -100,11 +130,18 @@ async function decodeLogo(src: string): Promise<DecodedLogo> {
     };
   }
 
+  const blob = await fetchImageBlobWithCorsFallback(src);
+  const objectUrl = URL.createObjectURL(blob);
   const image = new Image();
   image.decoding = "async";
-  image.src = src;
+  image.src = objectUrl;
   await image.decode();
-  return { source: image, close: () => undefined };
+  return {
+    source: image,
+    close: () => {
+      URL.revokeObjectURL(objectUrl);
+    },
+  };
 }
 
 function mimeType(format: ExportFormat): string {
