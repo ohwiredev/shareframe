@@ -17,4 +17,9 @@
 - [x] Install and set up Biome for linting and formatting
 - [x] Website URL metadata import engine (extracting title, description, favicon logo, theme color)
 - [x] Batch OG image generator workflow for multi-page site exports (.PNG)
-
+- [x] Undo/Redo with state history stack (Ctrl+Z / Ctrl+Shift+Z)
+- [x] Copy to clipboard support (PNG via Clipboard API)
+- [x] Toast notifications (Sonner) replacing window.alert()
+- [x] Keyboard shortcuts (Ctrl+Z, Ctrl+Shift+Z, Ctrl+S, Ctrl+Shift+E, Ctrl+Shift+C)
+- [x] Drag-and-drop logo upload
+- [x] Debounced slider inputs via requestAnimationFrame batching
