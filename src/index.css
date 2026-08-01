@@ -51,6 +51,7 @@ button {
   place-items: center;
   border-radius: 9px;
   background: #695cff;
+  color: #ffffff;
 }
 
 .d1-header {
@@ -79,6 +80,12 @@ button {
   background: #151518;
   color: #bdbdc5;
   font-size: 12px;
+}
+
+.d1-actions button[data-size="icon"] {
+  width: 36px;
+  padding: 0;
+  justify-content: center;
 }
 
 .d1-actions .primary {
@@ -290,6 +297,28 @@ button {
   flex-direction: column;
   gap: 16px;
   margin-top: 12px;
+}
+
+.studio-template-count {
+  color: #85858f;
+}
+
+.studio-category-pill {
+  background: #ffffff0e;
+  color: #b5afc4;
+}
+.studio-category-pill:hover {
+  background: #ffffff18;
+  color: #f4f4f6;
+}
+.studio-category-pill.active {
+  background: #695cff;
+  color: #ffffff;
+}
+
+.studio-template-badge {
+  background: #ffffff14;
+  color: #b5afc4;
 }
 
 .studio-template-card {
@@ -831,102 +860,254 @@ button {
 }
 
 .studio-light {
-  background: #f5f5f7;
-  color: #18181b;
+  background: #f8fafc;
+  color: #0f172a;
+}
+.studio-light .sub {
+  color: #64748b;
+}
+.studio-light .d1-panel > label,
+.studio-light .studio-color-field > [data-slot="label"],
+.studio-light .studio-field > [data-slot="label"],
+.studio-light .studio-range [data-slot="label"] {
+  color: #475569;
+}
+.studio-light .studio-range output {
+  color: #64748b;
 }
 .studio-light .d1-header,
 .studio-light .d1-tools,
 .studio-light .d1-panel {
-  border-color: #00000012;
+  border-color: #e2e8f0;
 }
 .studio-light .d1-actions button {
-  border-color: #00000012;
+  border-color: #cbd5e1;
   background: white;
-  color: #555;
+  color: #334155;
+}
+.studio-light .d1-actions button:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+  color: #0f172a;
 }
 .studio-light .d1-actions .primary {
+  border: 0;
   background: #6657f6;
   color: white;
+}
+.studio-light .d1-actions .primary:hover {
+  background: #5749dc;
 }
 .studio-light .d1-panel {
   background: white;
 }
 .studio-light .d1-stage {
-  background: radial-gradient(circle at 50% 40%, #dcd8ff 0, transparent 45%);
+  background: radial-gradient(circle at 50% 40%, #e0e7ff 0, transparent 45%);
+}
+.studio-light .stage-meta,
+.studio-light .d1-stage > p {
+  color: #64748b;
 }
 .studio-light .d1-tools button {
-  color: #777;
+  color: #64748b;
 }
 .studio-light .d1-tools button:hover {
-  background: #00000006;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+.studio-light .d1-tools .tool-active {
+  background: #695cff15;
+  color: #4f46e5;
+}
+.studio-light .upload-zone {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #64748b;
+}
+.studio-light .upload-zone:hover {
+  border-color: #818cf8;
+  background: #eef2ff;
+  color: #1e293b;
+}
+.studio-light .upload-zone b {
+  color: #0f172a;
+}
+.studio-light .upload-zone small {
+  color: #64748b;
+}
+.studio-light .remove-logo {
+  color: #dc2626;
+}
+.studio-light .remove-logo:hover {
+  color: #991b1b;
+}
+.studio-light .studio-swatches button,
+.studio-light .studio-gradient-swatches button {
+  border-color: #0000001a;
 }
 .studio-light .studio-color-trigger,
 .studio-light .studio-field input,
 .studio-light .studio-field textarea,
 .studio-light .studio-field [data-slot="select-trigger"] {
-  border-color: #00000016;
-  background: #f7f7f8;
-  color: #222;
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+}
+.studio-light .studio-color-trigger input {
+  color: #0f172a;
+}
+.studio-light .color-swatch-button {
+  color: #64748b;
+}
+.studio-light .color-swatch-button span,
+.studio-light .color-preview {
+  border-color: #00000020;
+}
+.studio-light .color-popover {
+  border-color: #e2e8f0;
+  background: white;
+  box-shadow: 0 18px 50px #0000001f;
+}
+.studio-light .color-hue {
+  color: #64748b;
+}
+.studio-light .color-popover-footer code {
+  color: #475569;
+}
+.studio-light [data-slot="font-combobox-input-group"] > svg,
+.studio-light [data-slot="font-combobox-trigger"],
+.studio-light [data-slot="font-combobox-group-label"],
+.studio-light [data-slot="font-combobox-empty"] {
+  color: #64748b;
+}
+.studio-light [data-slot="font-combobox-trigger"]:hover {
+  color: #0f172a;
 }
 .studio-light [data-slot="font-combobox-popup"] {
-  border-color: #00000016;
+  border-color: #e2e8f0;
   background: white;
-  color: #222;
+  color: #0f172a;
   box-shadow: 0 14px 32px #0000001f;
 }
 .studio-light [data-slot="font-combobox-item"] {
-  color: #444;
+  color: #334155;
 }
 .studio-light [data-slot="font-combobox-item"][data-highlighted] {
-  background: #00000008;
-  color: #111;
+  background: #f1f5f9;
+  color: #0f172a;
 }
 .studio-light .alignment-control {
-  border-color: #00000016;
+  border-color: #cbd5e1;
 }
 .studio-light .alignment-control [data-slot="button"] {
-  border-color: #00000016;
-  background: #f7f7f8;
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+}
+.studio-light .alignment-control [data-slot="button"]:hover {
+  background: #f1f5f9;
+  color: #0f172a;
 }
 .studio-light .alignment-control [data-slot="button"][aria-pressed="true"] {
-  background: #695cff18;
-  color: #5749dc;
-}
-.studio-light .studio-color-trigger input {
-  color: #222;
-}
-.studio-light .color-popover {
-  border-color: #00000018;
-  background: white;
-  box-shadow: 0 18px 50px #0003;
-}
-.studio-light .color-popover-footer code {
-  color: #555;
+  background: #695cff15;
+  color: #4f46e5;
 }
 .studio-light .studio-section {
-  border-top-color: #00000012;
+  border-top-color: #e2e8f0;
 }
 .studio-light .typography-advanced {
-  border-color: #00000012;
-  background: #00000002;
+  border-color: #e2e8f0;
+  background: #f8fafc;
+}
+.studio-light .typography-advanced summary {
+  color: #475569;
+}
+.studio-light .typography-advanced summary:hover {
+  color: #0f172a;
 }
 .studio-light .typography-advanced[open] summary {
-  border-bottom-color: #0000000d;
-  color: #333;
+  border-bottom-color: #e2e8f0;
+  color: #0f172a;
 }
 .studio-light .functional-preview {
-  border-color: #00000018;
+  border-color: #cbd5e1;
+  box-shadow: 0 20px 50px #00000015;
 }
-.studio-light .export-menu {
-  border-color: #0002;
+.studio-light .export-menu,
+html:not(.dark) .export-menu {
+  border-color: #e2e8f0;
   background: white;
+  box-shadow: 0 18px 45px #0000001f;
 }
-.studio-light .export-menu b {
-  color: #222;
+.studio-light .export-menu b,
+html:not(.dark) .export-menu b {
+  color: #0f172a;
+}
+.studio-light .export-menu span,
+html:not(.dark) .export-menu span {
+  color: #64748b;
 }
 .studio-light .export-menu [data-slot="dropdown-menu-item"]:hover,
-.studio-light .export-menu [data-slot="dropdown-menu-item"]:focus {
-  background: #00000008 !important;
+.studio-light .export-menu [data-slot="dropdown-menu-item"]:focus,
+.studio-light .export-menu [data-slot="dropdown-menu-item"][data-highlighted],
+html:not(.dark) .export-menu [data-slot="dropdown-menu-item"]:hover,
+html:not(.dark) .export-menu [data-slot="dropdown-menu-item"]:focus,
+html:not(.dark) .export-menu [data-slot="dropdown-menu-item"][data-highlighted] {
+  background: #f1f5f9 !important;
+}
+
+/* Portalled elements light mode overrides */
+html:not(.dark) [data-slot="font-combobox-popup"] {
+  border-color: #e2e8f0;
+  background: white;
+  color: #0f172a;
+  box-shadow: 0 14px 32px #0000001f;
+}
+html:not(.dark) [data-slot="font-combobox-group-label"],
+html:not(.dark) [data-slot="font-combobox-empty"] {
+  color: #64748b;
+}
+html:not(.dark) [data-slot="font-combobox-item"] {
+  color: #334155;
+}
+html:not(.dark) [data-slot="font-combobox-item"][data-highlighted] {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Studio Template Panel Light Mode */
+.studio-light .studio-template-count {
+  color: #64748b;
+}
+.studio-light .studio-category-pill {
+  background: #f1f5f9;
+  color: #475569;
+}
+.studio-light .studio-category-pill:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+.studio-light .studio-category-pill.active {
+  background: #6657f6;
+  color: #ffffff;
+}
+.studio-light .studio-template-badge {
+  background: #e2e8f0;
+  color: #475569;
+}
+.studio-light .studio-template-card {
+  border-color: #cbd5e1;
+  background: #ffffff;
+}
+.studio-light .studio-template-card:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+.studio-light .studio-template-card-title {
+  color: #0f172a;
+}
+.studio-light .studio-template-preview {
+  border-color: #e2e8f0;
 }
 
 @media (max-width: 900px) {
@@ -992,6 +1173,7 @@ button {
 }
 
 :root {
+  color-scheme: light;
   --background: oklch(1 0 0);
   --foreground: oklch(0.147 0.004 49.3);
   --card: oklch(1 0 0);
@@ -1027,6 +1209,7 @@ button {
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.147 0.004 49.3);
   --foreground: oklch(0.986 0.002 67.8);
   --card: oklch(0.214 0.009 43.1);

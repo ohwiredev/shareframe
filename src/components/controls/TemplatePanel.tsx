@@ -174,7 +174,7 @@ export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelPr
     <>
       <div className="flex items-center justify-between">
         <Label className="text-xs!">Templates</Label>
-        <span className="text-xs text-white/50">{BUILTIN_TEMPLATES.length} available</span>
+        <span className="text-xs studio-template-count">{BUILTIN_TEMPLATES.length} available</span>
       </div>
 
       <div className="flex flex-wrap gap-1.5 my-2">
@@ -185,10 +185,8 @@ export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelPr
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              className={`text-sm! px-2.5 py-0.5 rounded-full font-medium inline-flex items-center justify-center transition-colors cursor-pointer ${
-                active
-                  ? "bg-[#887bff] text-white shadow-sm"
-                  : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white/80"
+              className={`text-sm! px-2.5 py-0.5 rounded-full font-medium inline-flex items-center justify-center transition-colors cursor-pointer studio-category-pill ${
+                active ? "active shadow-sm" : ""
               }`}
             >
               {cat}
@@ -211,7 +209,7 @@ export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelPr
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="studio-template-card-title truncate">{template.name}</span>
                   {template.badge && (
-                    <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded bg-white/10 text-white/70">
+                    <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded studio-template-badge">
                       {template.badge}
                     </span>
                   )}

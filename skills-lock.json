@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "shieldcn-badges": {
+      "source": "jal-co/shieldcn",
+      "sourceType": "github",
+      "skillPath": "skills/shieldcn-badges/SKILL.md",
+      "computedHash": "fb7d0a39094e63a060c5c9271b1056eb1e630101cf62581d75f2d3690d84e75b"
+    }
+  }
+}
