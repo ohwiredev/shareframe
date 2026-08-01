@@ -127,6 +127,26 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
           <div
             className="color-saturation"
             style={{ backgroundColor: `hsl(${hsv.h} 100% 50%)` }}
+            role="slider"
+            tabIndex={0}
+            aria-label={`${label} saturation and brightness`}
+            aria-valuenow={Math.round(hsv.s * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuetext={`Saturation ${Math.round(hsv.s * 100)}%, Brightness ${Math.round(hsv.v * 100)}%`}
+            onKeyDown={(e) => {
+              const step = e.shiftKey ? 0.1 : 0.05;
+              let nextS = hsv.s;
+              let nextV = hsv.v;
+              if (e.key === "ArrowRight") nextS = Math.min(1, hsv.s + step);
+              else if (e.key === "ArrowLeft") nextS = Math.max(0, hsv.s - step);
+              else if (e.key === "ArrowUp") nextV = Math.min(1, hsv.v + step);
+              else if (e.key === "ArrowDown") nextV = Math.max(0, hsv.v - step);
+              else return;
+              e.preventDefault();
+              const nextHex = hsvToHex({ h: hsv.h, s: nextS, v: nextV });
+              onChange(nextHex);
+            }}
             onPointerDown={(event) => {
               event.currentTarget.setPointerCapture(event.pointerId);
               updateSaturation(event);

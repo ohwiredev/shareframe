@@ -135,13 +135,24 @@ export function parseTemplateJson(jsonString: string): OgTemplate {
     throw new Error("Invalid Template JSON: Missing or invalid 'state' object.");
   }
 
+  const s = data.state;
+  if (s.title && typeof s.title.fontSize === "number") {
+    s.title.fontSize = Math.max(12, Math.min(200, s.title.fontSize));
+  }
+  if (s.description && typeof s.description.fontSize === "number") {
+    s.description.fontSize = Math.max(10, Math.min(100, s.description.fontSize));
+  }
+  if (s.logo && typeof s.logo.scale === "number") {
+    s.logo.scale = Math.max(0.2, Math.min(3, s.logo.scale));
+  }
+
   return {
     id: data.id,
     name: data.name,
     description: data.description ?? "Custom imported template",
     category: data.category ?? "Custom",
     badge: data.badge ?? "Custom",
-    state: data.state,
+    state: s,
   };
 }
 
