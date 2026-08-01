@@ -1,4 +1,4 @@
-# AGENTS.md — Shareframe
+# AGENTS.md - Shareframe
 
 Guidance for AI coding agents working in this repository.
 
