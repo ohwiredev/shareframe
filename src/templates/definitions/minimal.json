@@ -1,36 +1,39 @@
 {
   "id": "minimal",
-  "name": "Minimal",
-  "description": "Clean, high-contrast solid background with centered Inter typography",
-  "category": "General",
-  "badge": "Popular",
+  "name": "Void Minimal",
+  "description": "Ultra-clean dark solid with centered Inter — maximum contrast, zero noise.",
+  "category": "Solid",
+  "badge": "Minimal",
   "state": {
     "background": {
       "type": "solid",
-      "color": "#0f172a"
+      "color": "#09090b"
     },
     "logo": {
-      "y": 0.24,
-      "scale": 0.9,
-      "alignment": "center"
+      "y": 0.22,
+      "scale": 0.85,
+      "alignment": "center",
+      "src": null
     },
     "title": {
-      "content": "Minimal Open Graph Image",
-      "fontFamily": "Inter, system-ui, sans-serif",
-      "fontSize": 64,
-      "width": 85,
+      "content": "Less is louder",
+      "fontFamily": "Inter",
+      "fontSize": 68,
+      "width": 80,
       "fontWeight": 700,
-      "color": "#f8fafc",
-      "alignment": "center"
+      "color": "#fafafa",
+      "alignment": "center",
+      "yOffset": 0
     },
     "description": {
-      "content": "A simple, elegant layout focused on readability and sleek aesthetics.",
-      "fontFamily": "Inter, system-ui, sans-serif",
-      "fontSize": 26,
-      "width": 75,
+      "content": "A focused layout for titles that need room to breathe.",
+      "fontFamily": "Inter",
+      "fontSize": 24,
+      "width": 70,
       "fontWeight": 400,
-      "color": "#94a3b8",
-      "alignment": "center"
+      "color": "#a1a1aa",
+      "alignment": "center",
+      "yOffset": 8
     }
   }
 }

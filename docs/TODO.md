@@ -13,8 +13,13 @@
 - [x] Shared sRGB drawing pipeline with worker rendering and main-thread fallback
 - [x] Dark theme support
 - [x] Polish + responsive controls
-- [x] Standard JSON template system with 11 unique curated templates across multiple categories with filter chips and badge tags
+- [x] Standard JSON template system with 11 layout-focused curated templates across layout categories with filter chips and badge tags
 - [x] Install and set up Biome for linting and formatting
 - [x] Website URL metadata import engine (extracting title, description, favicon logo, theme color)
 - [x] Batch OG image generator workflow for multi-page site exports (.PNG)
-
+- [x] Undo/Redo with state history stack (Ctrl+Z / Ctrl+Shift+Z)
+- [x] Copy to clipboard support (PNG via Clipboard API)
+- [x] Toast notifications (Sonner) replacing window.alert()
+- [x] Keyboard shortcuts (Ctrl+Z, Ctrl+Shift+Z, Ctrl+S, Ctrl+Shift+E, Ctrl+Shift+C)
+- [x] Drag-and-drop logo upload
+- [x] Debounced slider inputs via requestAnimationFrame batching

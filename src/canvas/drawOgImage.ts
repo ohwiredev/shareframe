@@ -58,25 +58,59 @@ function gradientEndpoints(angle: number) {
   };
 }
 
+function farthestCornerRadius(cx: number, cy: number): number {
+  const corners: Array<[number, number]> = [
+    [0, 0],
+    [OG_WIDTH, 0],
+    [0, OG_HEIGHT],
+    [OG_WIDTH, OG_HEIGHT],
+  ];
+  return Math.max(...corners.map(([x, y]) => Math.hypot(x - cx, y - cy)));
+}
+
+function applyColorStops(
+  gradient: CanvasGradient,
+  colors: string[],
+  stops?: number[],
+): void {
+  const palette = colors.length > 0 ? colors : ["#000000", "#000000"];
+  if (palette.length === 1) {
+    const hex = normalizeHex(palette[0]) ?? "#000000";
+    gradient.addColorStop(0, hex);
+    gradient.addColorStop(1, hex);
+    return;
+  }
+
+  palette.forEach((color, i) => {
+    const raw = stops?.[i] ?? i / (palette.length - 1);
+    const offset = Math.min(1, Math.max(0, raw));
+    gradient.addColorStop(offset, normalizeHex(color) ?? "#000000");
+  });
+}
+
 function backgroundStyle(ctx: OgRenderingContext, background: Background): string | CanvasGradient {
   if (background.type === "solid") {
     return normalizeHex(background.color) ?? "#000000";
   }
 
-  const { x1, y1, x2, y2 } = gradientEndpoints(background.angle);
-  const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
   const colors =
     background.colors && background.colors.length > 0 ? background.colors : ["#000000", "#000000"];
-  if (colors.length === 1) {
-    const hex = normalizeHex(colors[0]) ?? "#000000";
-    gradient.addColorStop(0, hex);
-    gradient.addColorStop(1, hex);
-  } else {
-    colors.forEach((color, i) => {
-      const offset = i / (colors.length - 1);
-      gradient.addColorStop(offset, normalizeHex(color) ?? "#000000");
-    });
+
+  if (background.style === "radial") {
+    const cx = (background.cx ?? 0.5) * OG_WIDTH;
+    const cy = (background.cy ?? 0.5) * OG_HEIGHT;
+    const radius =
+      typeof background.radius === "number"
+        ? background.radius
+        : farthestCornerRadius(cx, cy);
+    const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(radius, 1));
+    applyColorStops(gradient, colors, background.stops);
+    return gradient;
   }
+
+  const { x1, y1, x2, y2 } = gradientEndpoints(background.angle ?? 135);
+  const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+  applyColorStops(gradient, colors, background.stops);
   return gradient;
 }
 

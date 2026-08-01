@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
+import { copyImageToClipboard, isClipboardSupported } from "./canvas/clipboard";
 import { type ExportFormat, exportImage } from "./canvas/exportCanvas";
 import type { RenderPipeline } from "./canvas/renderPipeline";
 import { AppHeader } from "./components/AppHeader";
@@ -12,6 +14,8 @@ import { UrlImportModal } from "./components/controls/UrlImportModal";
 import { EditorNavigation, type EditorPanel } from "./components/EditorNavigation";
 import { OgCanvas } from "./components/OgCanvas";
 import { ensureEditorFontsLoaded } from "./fonts/loadGoogleFont";
+import { useHistory } from "./hooks/useHistory";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import type { ExtractedMetadata } from "./lib/websiteExtractor";
 import { DEFAULT_EDITOR_STATE } from "./state/defaults";
 import type { EditorState, LogoState, OverlayImageState, TextStyle } from "./state/types";
@@ -24,7 +28,17 @@ function revokeLogo(src: string | null) {
 }
 
 export default function App() {
-  const [state, setState] = useState<EditorState>(DEFAULT_EDITOR_STATE);
+  const {
+    state,
+    set: setState,
+    replace: replaceState,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    reset: resetHistory,
+  } = useHistory<EditorState>(DEFAULT_EDITOR_STATE);
+
   const [theme, setTheme] = useState<ThemeMode>("dark");
   const [panel, setPanel] = useState<EditorPanel>("templates");
   const [exportOpen, setExportOpen] = useState(false);
@@ -68,7 +82,7 @@ export default function App() {
     setState((current) => ({ ...current, description }));
 
   const handleApplyTemplate = (template: OgTemplate) => {
-    setState((current) => {
+    replaceState((current) => {
       const next = applyTemplate(current, template);
       if (!next.image.enabled && panel === "image") {
         setPanel("templates");
@@ -111,7 +125,7 @@ export default function App() {
   const chooseLogo = (file?: File) => {
     if (!file) return;
     if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
-      window.alert("Choose an image file smaller than 5 MB.");
+      toast.error("Choose an image file smaller than 5 MB.");
       return;
     }
     setFileName(file.name);
@@ -127,7 +141,7 @@ export default function App() {
   const chooseImage = (file?: File) => {
     if (!file) return;
     if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
-      window.alert("Choose an image file smaller than 5 MB.");
+      toast.error("Choose an image file smaller than 5 MB.");
       return;
     }
     setImageFileName(file.name);
@@ -147,7 +161,7 @@ export default function App() {
     setImageFileName("");
     if (fileRef.current) fileRef.current.value = "";
     if (imageFileRef.current) imageFileRef.current.value = "";
-    setState(DEFAULT_EDITOR_STATE);
+    resetHistory(DEFAULT_EDITOR_STATE);
   };
 
   const setPipeline = useCallback((pipeline: RenderPipeline | null) => {
@@ -161,24 +175,61 @@ export default function App() {
     setRenderError(null);
   }, []);
 
-  const download = (format: ExportFormat) => {
+  const download = useCallback(
+    (format: ExportFormat) => {
+      const pipeline = pipelineRef.current;
+      if (!pipeline || exporting) {
+        if (!pipeline) setRenderError("The image renderer is not ready yet.");
+        return;
+      }
+
+      setExporting(true);
+      setRenderError(null);
+      setExportOpen(false);
+      void exportImage(pipeline, state, format)
+        .then(() => {
+          toast.success(`Exported as ${format.toUpperCase()}`);
+        })
+        .catch((error) => {
+          const message = error instanceof Error ? error.message : "The image could not be exported.";
+          console.error("[shareframe] Export failed", error);
+          toast.error(message);
+          setRenderError(message);
+        })
+        .finally(() => setExporting(false));
+    },
+    [exporting, state],
+  );
+
+  const copyToClipboard = useCallback(() => {
     const pipeline = pipelineRef.current;
-    if (!pipeline || exporting) {
-      if (!pipeline) setRenderError("The image renderer is not ready yet.");
-      return;
-    }
+    if (!pipeline || exporting) return;
 
     setExporting(true);
-    setRenderError(null);
-    setExportOpen(false);
-    void exportImage(pipeline, state, format)
+    void copyImageToClipboard(pipeline, state)
+      .then(() => {
+        toast.success("Copied to clipboard");
+      })
       .catch((error) => {
-        const message = error instanceof Error ? error.message : "The image could not be exported.";
-        console.error("[shareframe] Export failed", error);
-        setRenderError(message);
+        const message =
+          error instanceof Error ? error.message : "Could not copy to clipboard.";
+        toast.error(message);
       })
       .finally(() => setExporting(false));
-  };
+  }, [state, exporting]);
+
+  useKeyboardShortcuts(
+    useMemo(
+      () => ({
+        "ctrl+z": undo,
+        "ctrl+shift+z": redo,
+        "ctrl+s": () => download("png"),
+        "ctrl+shift+e": () => setExportOpen(true),
+        "ctrl+shift+c": copyToClipboard,
+      }),
+      [undo, redo, copyToClipboard, download],
+    ),
+  );
 
   return (
     <div className={`d1 production-studio ${theme === "light" ? "studio-light" : ""}`}>
@@ -186,11 +237,17 @@ export default function App() {
         theme={theme}
         exportOpen={exportOpen}
         exporting={exporting}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        clipboardSupported={isClipboardSupported()}
+        onUndo={undo}
+        onRedo={redo}
         onReset={reset}
         onThemeToggle={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
         onOpenUrlImport={() => setUrlModalOpen(true)}
         onExportOpenChange={setExportOpen}
         onExport={download}
+        onCopy={copyToClipboard}
       />
 
       <main className="d1-grid">

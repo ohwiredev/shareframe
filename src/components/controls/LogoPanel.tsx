@@ -1,5 +1,5 @@
 import { Upload, X } from "lucide-react";
-import type { RefObject } from "react";
+import { type DragEvent, type RefObject, useCallback, useState } from "react";
 import type { LogoState } from "../../state/types";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -24,6 +24,34 @@ export function LogoPanel({
   onLogoChange,
   onRemove,
 }: LogoPanelProps) {
+  const [dragActive, setDragActive] = useState(false);
+
+  const handleDragOver = useCallback((event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(true);
+  }, []);
+
+  const handleDragLeave = useCallback((event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (event: DragEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setDragActive(false);
+
+      const file = event.dataTransfer?.files?.[0];
+      if (file) {
+        onFileChange(file);
+      }
+    },
+    [onFileChange],
+  );
+
   return (
     <>
       <Input
@@ -35,12 +63,15 @@ export function LogoPanel({
       />
       <Button
         variant="outline"
-        className="upload-zone studio-upload"
+        className={`upload-zone studio-upload ${dragActive ? "drag-active" : ""}`}
         onClick={() => fileRef.current?.click()}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
         <Upload size={20} />
-        <b>{fileName || "Choose your logo"}</b>
-        <small>PNG, JPG, WebP or SVG · max 5 MB</small>
+        <b>{dragActive ? "Drop image here" : fileName || "Choose your logo"}</b>
+        <small>PNG, JPG, WebP or SVG · max 5 MB · or drag & drop</small>
       </Button>
       {logo.src && (
         <Button variant="destructive" className="remove-logo" onClick={onRemove}>

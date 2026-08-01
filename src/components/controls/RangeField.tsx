@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, useRef, useState } from "react";
 import { Label } from "../ui/label";
 import { Slider } from "../ui/slider";
 
@@ -24,6 +24,26 @@ export function RangeField({
   onChange,
 }: RangeFieldProps) {
   const id = useId();
+  const [localValue, setLocalValue] = useState(value);
+  const rafRef = useRef<number | null>(null);
+
+  // Sync external value changes (e.g., template application, undo)
+  if (Math.abs(localValue - value) > step * 0.5 && rafRef.current === null) {
+    setLocalValue(value);
+  }
+
+  const handleChange = (nextValue: number) => {
+    setLocalValue(nextValue);
+
+    // Batch state updates to one per animation frame
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+    }
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      onChange(nextValue);
+    });
+  };
 
   return (
     <div className="studio-range">
@@ -33,12 +53,12 @@ export function RangeField({
       </span>
       <Slider
         id={id}
-        value={value}
+        value={localValue}
         min={min}
         max={max}
         step={step}
         disabled={disabled}
-        onValueChange={(nextValue) => onChange(nextValue as number)}
+        onValueChange={(nextValue) => handleChange(nextValue as number)}
       />
     </div>
   );

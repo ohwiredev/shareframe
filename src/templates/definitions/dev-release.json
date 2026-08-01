@@ -1,37 +1,40 @@
 {
   "id": "dev-release",
-  "name": "Developer Release",
-  "description": "Neon green Bebas Neue heading with monospace tech specs on a cyber slate abyss",
-  "category": "Engineering",
-  "badge": "Technical",
+  "name": "Neon Changelog",
+  "description": "Neon green display type and monospace body on a cyber-dark slate — for releases.",
+  "category": "Gradient",
+  "badge": "Release",
   "state": {
     "background": {
       "type": "gradient",
-      "angle": 150,
-      "colors": ["#0a0f18", "#0b1e26"]
+      "angle": 160,
+      "colors": ["#020617", "#0a1628", "#0f1f2e"]
     },
     "logo": {
-      "y": 0.18,
+      "y": 0.16,
       "scale": 0.9,
-      "alignment": "left"
+      "alignment": "left",
+      "src": null
     },
     "title": {
-      "content": "v4.0 Released: Rust Worker Engine & Sub-millisecond Exports",
-      "fontFamily": "\"Bebas Neue\", system-ui, sans-serif",
-      "fontSize": 68,
-      "width": 90,
+      "content": "v4.0 — Sub-ms Exports",
+      "fontFamily": "Bebas Neue",
+      "fontSize": 72,
+      "width": 92,
       "fontWeight": 400,
       "color": "#4ade80",
-      "alignment": "left"
+      "alignment": "left",
+      "yOffset": 0
     },
     "description": {
-      "content": "Changelog, breaking changes, and migration guide for high-throughput browser rendering pipelines.",
+      "content": "Worker pipelines, breaking changes, and the migration path for high-throughput renders.",
       "fontFamily": "ui-monospace, Consolas, monospace",
-      "fontSize": 24,
+      "fontSize": 22,
       "width": 88,
       "fontWeight": 400,
       "color": "#94a3b8",
-      "alignment": "left"
+      "alignment": "left",
+      "yOffset": 4
     }
   }
 }

@@ -1,4 +1,14 @@
-import { ArrowDownToLine, Globe, Moon, RotateCcw, Sun, WandSparkles } from "lucide-react";
+import {
+  ArrowDownToLine,
+  Clipboard,
+  Globe,
+  Moon,
+  Redo2,
+  RotateCcw,
+  Sun,
+  Undo2,
+  WandSparkles,
+} from "lucide-react";
 import type { ThemeMode } from "../App";
 import type { ExportFormat } from "../canvas/exportCanvas";
 import { Button } from "./ui/button";
@@ -13,11 +23,17 @@ type AppHeaderProps = {
   theme: ThemeMode;
   exportOpen: boolean;
   exporting: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  clipboardSupported: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
   onReset: () => void;
   onThemeToggle: () => void;
   onOpenUrlImport: () => void;
   onExportOpenChange: (open: boolean) => void;
   onExport: (format: ExportFormat) => void;
+  onCopy: () => void;
 };
 
 const formats: Array<{
@@ -33,11 +49,17 @@ export function AppHeader({
   theme,
   exportOpen,
   exporting,
+  canUndo,
+  canRedo,
+  clipboardSupported,
+  onUndo,
+  onRedo,
   onReset,
   onThemeToggle,
   onOpenUrlImport,
   onExportOpenChange,
   onExport,
+  onCopy,
 }: AppHeaderProps) {
   return (
     <header className="d1-header">
@@ -48,6 +70,26 @@ export function AppHeader({
         Shareframe
       </div>
       <div className="d1-actions">
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Undo (Ctrl+Z)"
+          title="Undo (Ctrl+Z)"
+          disabled={!canUndo}
+          onClick={onUndo}
+        >
+          <Undo2 size={15} />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Redo (Ctrl+Shift+Z)"
+          title="Redo (Ctrl+Shift+Z)"
+          disabled={!canRedo}
+          onClick={onRedo}
+        >
+          <Redo2 size={15} />
+        </Button>
         <Button variant="outline" onClick={onOpenUrlImport}>
           <Globe size={15} /> Import Website
         </Button>
@@ -62,6 +104,17 @@ export function AppHeader({
         >
           {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
         </Button>
+        {clipboardSupported && (
+          <Button
+            variant="outline"
+            disabled={exporting}
+            aria-label="Copy to clipboard (Ctrl+Shift+C)"
+            title="Copy to clipboard (Ctrl+Shift+C)"
+            onClick={onCopy}
+          >
+            <Clipboard size={15} /> Copy
+          </Button>
+        )}
         <DropdownMenu open={exportOpen} onOpenChange={onExportOpenChange}>
           <DropdownMenuTrigger
             disabled={exporting}

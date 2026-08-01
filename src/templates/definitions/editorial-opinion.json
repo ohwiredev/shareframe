@@ -1,36 +1,39 @@
 {
   "id": "editorial-opinion",
-  "name": "Editorial Opinion",
-  "description": "Classic print journal look with warm ivory paper and dramatic Playfair Display & Merriweather serifs",
-  "category": "Blogging",
+  "name": "Ivory Magazine",
+  "description": "Warm paper background with dramatic Playfair serif — classic editorial essay layout.",
+  "category": "Solid",
   "badge": "Essay",
   "state": {
     "background": {
       "type": "solid",
-      "color": "#fffcf5"
+      "color": "#faf6f0"
     },
     "logo": {
-      "y": 0.22,
-      "scale": 0.9,
-      "alignment": "left"
+      "y": 0.2,
+      "scale": 0.88,
+      "alignment": "left",
+      "src": null
     },
     "title": {
       "content": "Why Simplicity Wins: The Return to Client-Side Architecture",
-      "fontFamily": "\"Playfair Display\", system-ui, serif",
-      "fontSize": 58,
-      "width": 88,
+      "fontFamily": "Playfair Display",
+      "fontSize": 48,
+      "width": 90,
       "fontWeight": 700,
       "color": "#1c1917",
-      "alignment": "left"
+      "alignment": "left",
+      "yOffset": 0
     },
     "description": {
-      "content": "An essay on why zero-config browser tools and local-first software are outperforming bloated server monoliths.",
-      "fontFamily": "Merriweather, system-ui, serif",
-      "fontSize": 24,
+      "content": "Zero-config browser tools and local-first software are outperforming server monoliths.",
+      "fontFamily": "Merriweather",
+      "fontSize": 22,
       "width": 84,
       "fontWeight": 400,
       "color": "#57534e",
-      "alignment": "left"
+      "alignment": "left",
+      "yOffset": 8
     }
   }
 }

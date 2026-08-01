@@ -1,37 +1,40 @@
 {
   "id": "docs-guide",
-  "name": "Documentation Guide",
-  "description": "Crisp technical reference on a bespoke midnight ocean gradient with clean Inter typography",
-  "category": "Engineering",
-  "badge": "Guide",
+  "name": "Midnight Docs",
+  "description": "Cool slate-to-sky gradient with high-legibility Inter — ideal for guides and specs.",
+  "category": "Gradient",
+  "badge": "Docs",
   "state": {
     "background": {
       "type": "gradient",
-      "angle": 140,
-      "colors": ["#030712", "#0c4a6e"]
+      "angle": 155,
+      "colors": ["#0c1222", "#0e2744", "#0c4a6e"]
     },
     "logo": {
-      "y": 0.2,
-      "scale": 0.95,
-      "alignment": "left"
+      "y": 0.18,
+      "scale": 0.9,
+      "alignment": "left",
+      "src": null
     },
     "title": {
-      "content": "Complete Guide to Open Graph Specifications & Social Card Best Practices",
-      "fontFamily": "Inter, system-ui, sans-serif",
-      "fontSize": 54,
-      "width": 90,
+      "content": "Open Graph Specs & Social Card Best Practices",
+      "fontFamily": "Inter",
+      "fontSize": 50,
+      "width": 88,
       "fontWeight": 700,
-      "color": "#ffffff",
-      "alignment": "left"
+      "color": "#f0f9ff",
+      "alignment": "left",
+      "yOffset": 0
     },
     "description": {
-      "content": "Learn exact dimensions, meta tag requirements, and how to optimize for Twitter, LinkedIn, and Discord link previews.",
-      "fontFamily": "Inter, system-ui, sans-serif",
-      "fontSize": 25,
-      "width": 88,
+      "content": "Exact dimensions, meta tags, and how to optimize for Twitter, LinkedIn, and Discord.",
+      "fontFamily": "Inter",
+      "fontSize": 23,
+      "width": 86,
       "fontWeight": 400,
       "color": "#7dd3fc",
-      "alignment": "left"
+      "alignment": "left",
+      "yOffset": 6
     }
   }
 }

@@ -1,37 +1,40 @@
 {
   "id": "saas-launch",
-  "name": "Product Launch Announcement",
-  "description": "Futuristic cyan Space Grotesk heading with clean Inter typography on obsidian-indigo",
-  "category": "SaaS / Product",
+  "name": "Launch Accent",
+  "description": "Electric sky accent title on a deep obsidian gradient — built for product launches.",
+  "category": "Gradient",
   "badge": "Launch",
   "state": {
     "background": {
       "type": "gradient",
-      "angle": 110,
-      "colors": ["#030712", "#1e1b4b"]
+      "angle": 145,
+      "colors": ["#020617", "#0f172a", "#1e293b"]
     },
     "logo": {
-      "y": 0.18,
-      "scale": 1.1,
-      "alignment": "left"
+      "y": 0.16,
+      "scale": 1.05,
+      "alignment": "left",
+      "src": null
     },
     "title": {
-      "content": "Introducing Shareframe 2.0: Next-Gen Open Graph Studio",
-      "fontFamily": "\"Space Grotesk\", system-ui, sans-serif",
-      "fontSize": 62,
-      "width": 92,
+      "content": "Introducing Shareframe 2.0",
+      "fontFamily": "Plus Jakarta Sans",
+      "fontSize": 58,
+      "width": 90,
       "fontWeight": 700,
       "color": "#38bdf8",
-      "alignment": "left"
+      "alignment": "left",
+      "yOffset": 0
     },
     "description": {
-      "content": "Generate stunning 1200×630 social cards in seconds with real-time Canvas 2D preview and zero latency.",
-      "fontFamily": "Inter, system-ui, sans-serif",
-      "fontSize": 26,
-      "width": 86,
+      "content": "Generate stunning 1200×630 social cards in seconds — live Canvas preview, zero latency.",
+      "fontFamily": "Inter",
+      "fontSize": 24,
+      "width": 84,
       "fontWeight": 400,
-      "color": "#e2e8f0",
-      "alignment": "left"
+      "color": "#cbd5e1",
+      "alignment": "left",
+      "yOffset": 8
     }
   }
 }

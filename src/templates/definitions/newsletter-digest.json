@@ -1,37 +1,40 @@
 {
   "id": "newsletter-digest",
-  "name": "Newsletter Digest",
-  "description": "Distinctive deep forest green gradient with Plus Jakarta Sans headline and Inter body",
-  "category": "Media",
+  "name": "Forest Digest",
+  "description": "Deep emerald gradient with mint headline accents — made for weekly digests.",
+  "category": "Gradient",
   "badge": "Weekly",
   "state": {
     "background": {
       "type": "gradient",
-      "angle": 130,
-      "colors": ["#052e16", "#14532d"]
+      "angle": 135,
+      "colors": ["#022c22", "#064e3b", "#065f46"]
     },
     "logo": {
-      "y": 0.22,
-      "scale": 1.0,
-      "alignment": "left"
+      "y": 0.18,
+      "scale": 0.95,
+      "alignment": "left",
+      "src": null
     },
     "title": {
-      "content": "The Frontend Weekly #104: What's New in React 19 & Vite 6",
-      "fontFamily": "\"Plus Jakarta Sans\", system-ui, sans-serif",
-      "fontSize": 58,
-      "width": 90,
+      "content": "Frontend Weekly #104",
+      "fontFamily": "Plus Jakarta Sans",
+      "fontSize": 56,
+      "width": 88,
       "fontWeight": 700,
       "color": "#a7f3d0",
-      "alignment": "left"
+      "alignment": "left",
+      "yOffset": 0
     },
     "description": {
-      "content": "Top 10 benchmarks, CSS nesting updates, and curated community tools delivered straight to your inbox.",
-      "fontFamily": "Inter, system-ui, sans-serif",
-      "fontSize": 26,
-      "width": 86,
+      "content": "React 19, Vite 6, and the benchmarks worth reading this week.",
+      "fontFamily": "DM Sans",
+      "fontSize": 24,
+      "width": 82,
       "fontWeight": 400,
-      "color": "#ecfdf5",
-      "alignment": "left"
+      "color": "#d1fae5",
+      "alignment": "left",
+      "yOffset": 8
     }
   }
 }
