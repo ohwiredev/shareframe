@@ -1,4 +1,5 @@
 import type { TextStyle } from "../../state/types";
+import { PanelHeader } from "./PanelHeader";
 import { TextEditor } from "./TextEditor";
 
 type TextPanelProps = {
@@ -16,6 +17,10 @@ export function TextPanel({
 }: TextPanelProps) {
   return (
     <>
+      <PanelHeader
+        title="Text"
+        subtitle="Edit title and description with independent type controls."
+      />
       <TextEditor label="Title" style={title} onChange={onTitleChange} />
       <TextEditor
         label="Description"
