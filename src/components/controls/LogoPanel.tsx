@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
 import { AlignmentField } from "./AlignmentField";
+import { PanelHeader } from "./PanelHeader";
 import { RangeField } from "./RangeField";
 
 type LogoPanelProps = {
@@ -54,6 +55,11 @@ export function LogoPanel({
 
   return (
     <>
+      <PanelHeader
+        title="Logo"
+        subtitle="Upload your mark, then position and scale it on the canvas."
+      />
+
       <Input
         ref={fileRef}
         hidden
@@ -74,7 +80,11 @@ export function LogoPanel({
         <small>PNG, JPG, WebP or SVG · max 5 MB · or drag & drop</small>
       </Button>
       {logo.src && (
-        <Button variant="destructive" className="remove-logo" onClick={onRemove}>
+        <Button
+          variant="destructive"
+          className="remove-logo"
+          onClick={onRemove}
+        >
           <X size={14} /> Remove logo
         </Button>
       )}

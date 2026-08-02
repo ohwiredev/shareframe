@@ -3,8 +3,16 @@ import type { Background, GradientBackground } from "../../state/types";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { ColorField } from "./ColorField";
+import { PanelHeader } from "./PanelHeader";
 
-const COLORS = ["#15151a", "#27272a", "#3730a3", "#1d4ed8", "#047857", "#b45309"];
+const COLORS = [
+  "#15151a",
+  "#27272a",
+  "#3730a3",
+  "#1d4ed8",
+  "#047857",
+  "#b45309",
+];
 
 type GradientPreset = GradientBackground & {
   id: string;
@@ -112,27 +120,38 @@ type CanvasPanelProps = {
 };
 
 export function CanvasPanel({ background, onChange }: CanvasPanelProps) {
-  const customColor = background.type === "solid" ? background.color : background.colors[0];
+  const customColor =
+    background.type === "solid" ? background.color : background.colors[0];
 
   const isGradientSelected = (gradient: GradientPreset) =>
-    background.type === "gradient" && gradientsEqual(background, toBackground(gradient));
+    background.type === "gradient" &&
+    gradientsEqual(background, toBackground(gradient));
 
   return (
     <>
-      <Label>Solid colors</Label>
+      <PanelHeader
+        title="Canvas"
+        subtitle="Pick a solid color or curated gradient for the Open Graph canvas."
+      />
+
+      <Label className="panel-field-label">Solid colors</Label>
       <div className="studio-swatches">
         {COLORS.map((color) => (
           <Button
             variant="ghost"
             key={color}
             className={
-              background.type === "solid" && background.color.toLowerCase() === color
+              background.type === "solid" &&
+              background.color.toLowerCase() === color
                 ? "selected"
                 : ""
             }
             style={{ background: color }}
             aria-label={`Set background to ${color}`}
-            aria-pressed={background.type === "solid" && background.color.toLowerCase() === color}
+            aria-pressed={
+              background.type === "solid" &&
+              background.color.toLowerCase() === color
+            }
             onClick={() => onChange({ type: "solid", color })}
           />
         ))}
@@ -142,7 +161,7 @@ export function CanvasPanel({ background, onChange }: CanvasPanelProps) {
         value={customColor}
         onChange={(color) => onChange({ type: "solid", color })}
       />
-      <Label>Gradient presets</Label>
+      <Label className="panel-field-label">Gradient presets</Label>
       <div className="studio-gradient-swatches">
         {GRADIENTS.map((gradient) => {
           const selected = isGradientSelected(gradient);

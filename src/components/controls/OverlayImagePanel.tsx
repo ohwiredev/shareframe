@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
+import { PanelHeader } from "./PanelHeader";
 import { RangeField } from "./RangeField";
 
 type OverlayImagePanelProps = {
@@ -26,6 +27,11 @@ export function OverlayImagePanel({
 }: OverlayImagePanelProps) {
   return (
     <>
+      <PanelHeader
+        title="Image"
+        subtitle="Add a screenshot or product card and control its presentation."
+      />
+
       <Input
         ref={fileRef}
         hidden
@@ -43,7 +49,11 @@ export function OverlayImagePanel({
         <small>PNG, JPG, WebP or SVG · max 5 MB</small>
       </Button>
       {image.src && (
-        <Button variant="destructive" className="remove-logo" onClick={onRemove}>
+        <Button
+          variant="destructive"
+          className="remove-logo"
+          onClick={onRemove}
+        >
           <X size={14} /> Remove image
         </Button>
       )}
@@ -72,18 +82,12 @@ export function OverlayImagePanel({
         onChange={(borderRadius) => onImageChange({ ...image, borderRadius })}
       />
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: "12px",
-        }}
-      >
-        <Label style={{ margin: 0 }}>Elevation shadow</Label>
+      <div className="panel-toggle-row">
+        <Label className="panel-field-label">Elevation shadow</Label>
         <Button
           variant={image.shadow ? "default" : "outline"}
           size="sm"
+          className="panel-toggle-button"
           disabled={!image.src}
           onClick={() => onImageChange({ ...image, shadow: !image.shadow })}
         >

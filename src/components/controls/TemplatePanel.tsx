@@ -4,7 +4,7 @@ import { ensureEditorFontsLoaded } from "../../fonts/loadGoogleFont";
 import { gradientToCss } from "../../state/gradient";
 import type { EditorState } from "../../state/types";
 import { BUILTIN_TEMPLATES, type OgTemplate } from "../../templates";
-import { Label } from "../ui/label";
+import { PanelHeader } from "./PanelHeader";
 
 type TemplatePanelProps = {
   currentState: EditorState;
@@ -123,7 +123,10 @@ function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
   );
 }
 
-export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelProps) {
+export function TemplatePanel({
+  currentState,
+  onApplyTemplate,
+}: TemplatePanelProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [, setFontsLoaded] = useState(false);
 
@@ -139,7 +142,9 @@ export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelPr
 
   const categories = [
     "All",
-    ...Array.from(new Set(BUILTIN_TEMPLATES.map((t) => t.category || "General"))),
+    ...Array.from(
+      new Set(BUILTIN_TEMPLATES.map((t) => t.category || "General")),
+    ),
   ];
 
   const filteredTemplates = BUILTIN_TEMPLATES.filter((t) => {
@@ -152,7 +157,9 @@ export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelPr
     if (!bg) return false;
     if (bg.type !== currentState.background.type) return false;
     if (bg.type === "solid" && currentState.background.type === "solid") {
-      return bg.color.toLowerCase() === currentState.background.color.toLowerCase();
+      return (
+        bg.color.toLowerCase() === currentState.background.color.toLowerCase()
+      );
     }
     if (bg.type === "gradient" && currentState.background.type === "gradient") {
       return (
@@ -160,9 +167,9 @@ export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelPr
         bg.colors.every(
           (c, i) =>
             c.toLowerCase() ===
-            (currentState.background as { type: "gradient"; colors: string[] }).colors[
-              i
-            ].toLowerCase(),
+            (
+              currentState.background as { type: "gradient"; colors: string[] }
+            ).colors[i].toLowerCase(),
         )
       );
     }
@@ -171,12 +178,12 @@ export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelPr
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <Label className="text-xs!">Templates</Label>
-        <span className="text-xs studio-template-count">{BUILTIN_TEMPLATES.length} available</span>
-      </div>
+      <PanelHeader
+        title="Templates"
+        subtitle={`${BUILTIN_TEMPLATES.length} layouts ready to customize for your Open Graph image.`}
+      />
 
-      <div className="flex flex-wrap gap-1.5 my-2">
+      <div className="studio-category-pills">
         {categories.map((cat) => {
           const active = selectedCategory === cat;
           return (
@@ -184,9 +191,7 @@ export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelPr
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              className={`text-sm! px-2.5 py-0.5 rounded-full font-medium inline-flex items-center justify-center transition-colors cursor-pointer studio-category-pill ${
-                active ? "active shadow-sm" : ""
-              }`}
+              className={`studio-category-pill ${active ? "active" : ""}`}
             >
               {cat}
             </button>
@@ -206,15 +211,15 @@ export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelPr
             >
               <div className="studio-template-card-header">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="studio-template-card-title truncate">{template.name}</span>
+                  <span className="studio-template-card-title truncate">
+                    {template.name}
+                  </span>
                   {template.badge && (
-                    <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded studio-template-badge">
-                      {template.badge}
-                    </span>
+                    <span className="studio-template-badge">{template.badge}</span>
                   )}
                 </div>
                 {selected && (
-                  <span className="text-[#887bff] flex items-center justify-center shrink-0 ml-1">
+                  <span className="studio-template-check" aria-hidden="true">
                     <Check size={15} />
                   </span>
                 )}

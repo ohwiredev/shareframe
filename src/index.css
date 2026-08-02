@@ -41,6 +41,7 @@ button {
   display: flex;
   align-items: center;
   gap: 9px;
+  font-family: "Public Sans Variable", sans-serif;
   font-weight: 800;
 }
 
@@ -134,8 +135,13 @@ button {
 
 .d1-panel {
   overflow: auto;
+  width: 340px;
   padding: 34px 28px;
   border-right: 1px solid #ffffff10;
+}
+
+.panel-header {
+  margin-bottom: 0;
 }
 
 .eyebrow {
@@ -143,26 +149,70 @@ button {
   color: #8275ff;
   font-size: 10px;
   font-weight: 800;
+  line-height: 1.2;
   letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .d1-panel h1 {
-  margin: 8px 0;
+  margin: 0 0 8px;
+  color: #f4f4f6;
+  font-family: "Public Sans Variable", sans-serif;
   font-size: 25px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: normal;
 }
 
 .sub {
-  margin: 0 0 30px;
+  margin: 0 0 28px;
   color: #85858f;
   font-size: 13px;
+  font-weight: 400;
   line-height: 1.55;
+  letter-spacing: normal;
 }
 
-.d1-panel > label {
+/* Field labels — DESIGN.md §2.2 (12px / 650) */
+.d1-panel > label,
+.d1-panel .panel-field-label,
+.studio-color-field > [data-slot="label"],
+.studio-field > [data-slot="label"],
+.studio-range [data-slot="label"] {
   display: block;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
+  color: #9696a1;
   font-size: 12px;
   font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: normal;
+}
+
+/* Primary section labels (direct panel children / panel-field-label) */
+.d1-panel > label,
+.d1-panel .panel-field-label {
+  margin-bottom: 14px;
+  color: #e7e7e9;
+}
+
+.panel-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.panel-toggle-row .panel-field-label {
+  margin-bottom: 0;
+}
+
+.panel-toggle-button {
+  height: 32px;
+  min-width: 52px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 550;
 }
 
 .d1-stage {
@@ -251,7 +301,7 @@ button {
 .studio-swatches {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 9px;
+  gap: 8px;
   margin-bottom: 24px;
 }
 
@@ -259,7 +309,10 @@ button {
   aspect-ratio: 1;
   border: 1px solid #ffffff18;
   border-radius: 8px;
-  transition: transform 0.15s;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .studio-swatches button:hover {
@@ -280,8 +333,11 @@ button {
 .studio-gradient-swatches button {
   height: 48px;
   border: 1px solid #ffffff18;
-  border-radius: 9px;
-  transition: transform 0.15s;
+  border-radius: 8px;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .studio-gradient-swatches button:hover {
@@ -296,16 +352,32 @@ button {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 12px;
+  margin-top: 4px;
 }
 
-.studio-template-count {
-  color: #85858f;
+.studio-category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
 }
 
 .studio-category-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 999px;
   background: #ffffff0e;
   color: #b5afc4;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 .studio-category-pill:hover {
   background: #ffffff18;
@@ -317,8 +389,24 @@ button {
 }
 
 .studio-template-badge {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 999px;
   background: #ffffff14;
   color: #b5afc4;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.studio-template-check {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  color: #887bff;
 }
 
 .studio-template-card {
@@ -379,16 +467,8 @@ button {
 
 .studio-color-field {
   display: block !important;
-  margin: 18px 0 !important;
+  margin: 14px 0 18px !important;
   position: relative;
-}
-
-.studio-color-field > [data-slot="label"],
-.studio-field > [data-slot="label"] {
-  display: block;
-  margin-bottom: 8px;
-  color: #9696a1;
-  font-size: 11px;
 }
 
 .studio-color-trigger {
@@ -604,41 +684,46 @@ button {
 
 .studio-range {
   display: block !important;
-  margin: 22px 0 !important;
+  margin: 14px 0 !important;
 }
 
 .studio-range > span {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 8px;
 }
 
 .studio-range [data-slot="label"] {
-  font-size: 11px;
-  font-weight: 600;
+  margin-bottom: 0;
 }
 .studio-range output {
-  color: #8f8f99;
-  font-size: 10px;
+  color: #888895;
+  font-size: 11px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 .studio-range [data-slot="slider"] {
   width: 100%;
-  margin-top: 13px;
+  margin-top: 0;
 }
 
 .studio-section {
-  padding: 20px 0;
-  border-top: 1px solid #ffffff12;
+  padding: 16px 0;
+  border-top: 1px solid #ffffff10;
 }
 
 .studio-section:first-of-type {
-  padding: 0;
+  padding-top: 0;
   border-top: 0;
 }
 .studio-section h2 {
-  margin: 0 0 16px;
+  margin: 0 0 14px;
+  color: #e7e7e9;
+  font-family: "Public Sans Variable", sans-serif;
   font-size: 13px;
+  font-weight: 650;
+  line-height: 1.3;
 }
 
 .typography-advanced {
@@ -868,14 +953,46 @@ button {
   background: #f8fafc;
   color: #0f172a;
 }
+.studio-light .eyebrow {
+  color: #6657f6;
+}
+.studio-light .d1-panel h1 {
+  color: #0f172a;
+}
 .studio-light .sub {
   color: #64748b;
 }
 .studio-light .d1-panel > label,
+.studio-light .d1-panel .panel-field-label,
+.studio-light .studio-section h2 {
+  color: #1e293b;
+}
 .studio-light .studio-color-field > [data-slot="label"],
 .studio-light .studio-field > [data-slot="label"],
 .studio-light .studio-range [data-slot="label"] {
   color: #475569;
+}
+.studio-light .studio-category-pill {
+  background: #e2e8f0;
+  color: #475569;
+}
+.studio-light .studio-category-pill:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+.studio-light .studio-category-pill.active {
+  background: #6657f6;
+  color: #ffffff;
+}
+.studio-light .studio-template-badge {
+  background: #e2e8f0;
+  color: #475569;
+}
+.studio-light .studio-template-check {
+  color: #6657f6;
+}
+.studio-light .panel-toggle-button {
+  border-radius: 8px;
 }
 .studio-light .studio-range output {
   color: #64748b;
@@ -1081,25 +1198,6 @@ html:not(.dark) [data-slot="font-combobox-item"][data-highlighted] {
 }
 
 /* Studio Template Panel Light Mode */
-.studio-light .studio-template-count {
-  color: #64748b;
-}
-.studio-light .studio-category-pill {
-  background: #f1f5f9;
-  color: #475569;
-}
-.studio-light .studio-category-pill:hover {
-  background: #e2e8f0;
-  color: #0f172a;
-}
-.studio-light .studio-category-pill.active {
-  background: #6657f6;
-  color: #ffffff;
-}
-.studio-light .studio-template-badge {
-  background: #e2e8f0;
-  color: #475569;
-}
 .studio-light .studio-template-card {
   border-color: #cbd5e1;
   background: #ffffff;
@@ -1160,8 +1258,11 @@ html:not(.dark) [data-slot="font-combobox-item"][data-highlighted] {
   .d1-panel {
     order: 2;
     width: 100%;
-    padding: 26px 20px;
+    padding: 28px 20px;
     border: 0;
+  }
+  .d1-panel h1 {
+    font-size: 22px;
   }
   .functional-preview {
     border-radius: 9px;
