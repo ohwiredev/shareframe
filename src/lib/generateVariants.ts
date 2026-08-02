@@ -1,15 +1,18 @@
-import type { Background, EditorState, GradientBackground } from "../state/types";
+import {
+  BACKGROUND_COLORWAYS,
+  type ColorwayPreset,
+} from "../state/backgroundPresets";
 import { gradientsEqual } from "../state/gradient";
+import type {
+  Background,
+  EditorState,
+  GradientBackground,
+} from "../state/types";
+
+export type { ColorwayPreset };
 
 /** A/B copy length buckets for social tests. */
 export type CopyLength = "short" | "original" | "long";
-
-/** Named background alternative that keeps layout identical. */
-export type ColorwayPreset = {
-  id: string;
-  name: string;
-  background: Background;
-};
 
 /** One concrete OG variant ready to preview or export. */
 export type OgVariant = {
@@ -29,72 +32,8 @@ export type CustomCopy = {
 
 export type VariantCopyOverrides = Partial<Record<CopyLength, CustomCopy>>;
 
-/** Curated solid + gradient colorways for A/B background tests. */
-export const VARIANT_COLORWAYS: ColorwayPreset[] = [
-  { id: "ink", name: "Ink", background: { type: "solid", color: "#15151a" } },
-  { id: "zinc", name: "Zinc", background: { type: "solid", color: "#27272a" } },
-  { id: "indigo", name: "Indigo", background: { type: "solid", color: "#3730a3" } },
-  { id: "blue", name: "Blue", background: { type: "solid", color: "#1d4ed8" } },
-  { id: "emerald", name: "Emerald", background: { type: "solid", color: "#047857" } },
-  { id: "amber", name: "Amber", background: { type: "solid", color: "#b45309" } },
-  {
-    id: "midnight",
-    name: "Midnight",
-    background: {
-      type: "gradient",
-      angle: 145,
-      colors: ["#0b0f1a", "#1e293b", "#334155"],
-    },
-  },
-  {
-    id: "indigo-haze",
-    name: "Indigo Haze",
-    background: {
-      type: "gradient",
-      angle: 140,
-      colors: ["#1e1b4b", "#4338ca", "#818cf8"],
-    },
-  },
-  {
-    id: "ocean-mist",
-    name: "Ocean Mist",
-    background: {
-      type: "gradient",
-      angle: 135,
-      colors: ["#0c4a6e", "#0284c7", "#7dd3fc"],
-    },
-  },
-  {
-    id: "warm-dusk",
-    name: "Warm Dusk",
-    background: {
-      type: "gradient",
-      angle: 145,
-      colors: ["#4c1d1d", "#9a4a3a", "#d4a574"],
-    },
-  },
-  {
-    id: "lavender",
-    name: "Lavender",
-    background: {
-      type: "gradient",
-      angle: 135,
-      colors: ["#2e1065", "#6d28d9", "#c4b5fd"],
-    },
-  },
-  {
-    id: "azure-glow",
-    name: "Azure Glow",
-    background: {
-      type: "gradient",
-      style: "radial",
-      cx: 0.327,
-      cy: 0.498,
-      radius: "farthest-corner",
-      colors: ["#1c58ee", "#002789"],
-    },
-  },
-];
+/** Curated solid + gradient colorways for A/B background tests (shared presets). */
+export const VARIANT_COLORWAYS: ColorwayPreset[] = BACKGROUND_COLORWAYS;
 
 const COPY_LABELS: Record<CopyLength, string> = {
   short: "Short",
@@ -150,7 +89,9 @@ export function backgroundsEqual(a: Background, b: Background): boolean {
 
 /** Find a curated colorway matching the background, or synthesize a "Current" one. */
 export function resolveCurrentColorway(background: Background): ColorwayPreset {
-  const match = VARIANT_COLORWAYS.find((c) => backgroundsEqual(c.background, background));
+  const match = VARIANT_COLORWAYS.find((c) =>
+    backgroundsEqual(c.background, background),
+  );
   if (match) return match;
   return {
     id: "current",
@@ -184,7 +125,10 @@ export function generateVariants(
 ): OgVariant[] {
   if (colorways.length === 0 || copyLengths.length === 0) return [];
 
-  const derived = deriveCopyVariants(base.title.content, base.description.content);
+  const derived = deriveCopyVariants(
+    base.title.content,
+    base.description.content,
+  );
   const variants: OgVariant[] = [];
 
   for (const colorway of colorways) {
