@@ -6,23 +6,22 @@
   "badge": "Podcast",
   "state": {
     "background": {
-      "type": "gradient",
-      "angle": 155,
-      "colors": ["#3b0764", "#86198f", "#be185d"]
+      "type": "solid",
+      "color": "#f2f0ef"
     },
     "logo": {
-      "src": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2296%22%20height%3D%2296%22%20viewBox%3D%220%200%2096%2096%22%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2248%22%20r%3D%2246%22%20fill%3D%22%23fdf4ff%22%20opacity%3D%220.12%22/%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2248%22%20r%3D%2236%22%20fill%3D%22%23fdf4ff%22%20opacity%3D%220.08%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2220%22%20width%3D%2220%22%20height%3D%2234%22%20rx%3D%2210%22%20fill%3D%22%23fef08a%22/%3E%3Cpath%20d%3D%22M26%2044v6a22%2022%200%200%200%2044%200v-6h-5v6a17%2017%200%200%201-34%200v-6h-5z%22%20fill%3D%22%23fef08a%22/%3E%3Crect%20x%3D%2246%22%20y%3D%2270%22%20width%3D%224%22%20height%3D%2212%22%20rx%3D%221%22%20fill%3D%22%23fef08a%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2278%22%20width%3D%2232%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%23fef08a%22/%3E%3C/svg%3E",
-      "y": 0.28,
-      "scale": 1.05,
+      "src": "https://i.ibb.co/FP228DJ/logoipsum-409.png",
+      "y": 0.3,
+      "scale": 0.8,
       "alignment": "center"
     },
     "title": {
-      "content": "Ep. 42 — Architecture of Autonomous Systems",
+      "content": "Ep. 42 - Architecture of Autonomous Systems",
       "fontFamily": "Outfit",
       "fontSize": 48,
       "width": 86,
       "fontWeight": 700,
-      "color": "#fef08a",
+      "color": "#000000",
       "alignment": "center",
       "yOffset": 8
     },
@@ -32,7 +31,7 @@
       "fontSize": 18,
       "width": 78,
       "fontWeight": 400,
-      "color": "#fbcfe8",
+      "color": "#5D5D5D",
       "alignment": "center",
       "yOffset": 10
     }
