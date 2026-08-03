@@ -94,12 +94,25 @@ export function AppHeader({
           <Redo2 size={15} />
         </Button>
         {showUrlImport && (
-          <Button variant="outline" onClick={onOpenUrlImport}>
-            <Globe size={15} /> Import Website
+          <Button
+            variant="outline"
+            aria-label="Import Website"
+            title="Import Website"
+            onClick={onOpenUrlImport}
+          >
+            <Globe size={15} />
+            <span className="hidden md:inline">Import Website</span>
+            <span className="hidden sm:inline md:hidden">Import</span>
           </Button>
         )}
-        <Button variant="outline" onClick={onReset}>
-          <RotateCcw size={15} /> Reset
+        <Button
+          variant="outline"
+          aria-label="Reset canvas"
+          title="Reset canvas"
+          onClick={onReset}
+        >
+          <RotateCcw size={15} />
+          <span className="hidden sm:inline">Reset</span>
         </Button>
         <Button
           variant="outline"
@@ -117,7 +130,8 @@ export function AppHeader({
             title="Copy to clipboard (Ctrl+Shift+C)"
             onClick={onCopy}
           >
-            <Clipboard size={15} /> Copy
+            <Clipboard size={15} />
+            <span className="hidden sm:inline">Copy</span>
           </Button>
         )}
         <DropdownMenu open={exportOpen} onOpenChange={onExportOpenChange}>
@@ -125,11 +139,17 @@ export function AppHeader({
             disabled={exporting}
             render={<Button className="primary" disabled={exporting} />}
           >
-            <ArrowDownToLine size={15} /> {exporting ? "Exporting…" : "Export image"}
+            <ArrowDownToLine size={15} />
+            <span className="hidden sm:inline">{exporting ? "Exporting…" : "Export image"}</span>
+            <span className="sm:hidden">{exporting ? "…" : "Export"}</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="export-menu" align="end">
             {formats.map(({ id, description }) => (
-              <DropdownMenuItem key={id} disabled={exporting} onClick={() => onExport(id)}>
+              <DropdownMenuItem
+                key={id}
+                disabled={exporting}
+                onClick={() => onExport(id)}
+              >
                 <b>{id.toUpperCase()}</b>
                 <span>{description}</span>
               </DropdownMenuItem>
