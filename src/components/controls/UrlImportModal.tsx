@@ -1,5 +1,6 @@
 import { ArrowRight, Globe, Layers, Loader2, Sparkles, X } from "lucide-react";
 import { useState } from "react";
+import { FEATURE_FLAGS } from "../../config/flags";
 import { fetchWebsiteMetadata } from "../../lib/fetchMetadata";
 import type { ExtractedMetadata } from "../../lib/websiteExtractor";
 import { Input } from "../ui/input";
@@ -23,7 +24,7 @@ export function UrlImportModal({
   const [error, setError] = useState<string | null>(null);
   const [extracted, setExtracted] = useState<ExtractedMetadata | null>(null);
 
-  if (!isOpen) return null;
+  if (!isOpen || !FEATURE_FLAGS.ENABLE_WEBSITE_IMPORT) return null;
 
   const handleFetch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -36,10 +37,7 @@ export function UrlImportModal({
       const data = await fetchWebsiteMetadata(urlInput);
       setExtracted(data);
     } catch (err) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : "Failed to fetch website metadata.";
+      const msg = err instanceof Error ? err.message : "Failed to fetch website metadata.";
       setError(msg);
     } finally {
       setLoading(false);
@@ -88,10 +86,7 @@ export function UrlImportModal({
         {/* Modal Body */}
         <div className="p-6 space-y-5 overflow-y-auto">
           <form onSubmit={handleFetch} className="space-y-3">
-            <Label
-              htmlFor="website-url"
-              className="text-[12px] font-[650] text-foreground"
-            >
+            <Label htmlFor="website-url" className="text-[12px] font-[650] text-foreground">
               Website
             </Label>
             <div className="flex gap-2">
@@ -105,11 +100,7 @@ export function UrlImportModal({
                 disabled={loading}
               />
               <div className="d1-actions">
-                <button
-                  type="submit"
-                  className="primary"
-                  disabled={loading || !urlInput.trim()}
-                >
+                <button type="submit" className="primary" disabled={loading || !urlInput.trim()}>
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
@@ -131,7 +122,8 @@ export function UrlImportModal({
             <div className="pt-2 border-t border-border space-y-3">
               {extracted.isFallback && (
                 <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-300 text-xs leading-relaxed">
-                  ⚠️ Live website metadata could not be fetched due to CORS or network restrictions. Generated placeholder metadata for <b>{extracted.domain}</b>.
+                  ⚠️ Live website metadata could not be fetched due to CORS or network restrictions.
+                  Generated placeholder metadata for <b>{extracted.domain}</b>.
                 </div>
               )}
               <div className="p-4 rounded-[14px] border border-border bg-muted/30 hover:border-border transition-all shadow-md flex items-start gap-4">
@@ -164,8 +156,7 @@ export function UrlImportModal({
                     <div className="mt-2.5 flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
                       <Layers className="w-3.5 h-3.5 text-primary" />
                       <span>
-                        Discovered {extracted.links.length} pages on{" "}
-                        {extracted.domain}
+                        Discovered {extracted.links.length} pages on {extracted.domain}
                       </span>
                     </div>
                   )}
@@ -179,21 +170,12 @@ export function UrlImportModal({
         {extracted && (
           <div className="flex flex-col sm:flex-row items-center justify-end gap-2 px-6 py-4 border-t border-border bg-muted/40 d1-actions">
             {onApplyToCanvas && (
-              <button
-                type="button"
-                onClick={handleApplySingle}
-                className="w-full sm:w-auto"
-              >
+              <button type="button" onClick={handleApplySingle} className="w-full sm:w-auto">
                 Apply to Active Canvas
               </button>
             )}
-            <button
-              type="button"
-              onClick={handleApplyBatch}
-              className="w-full sm:w-auto primary"
-            >
-              <Layers className="w-4 h-4 mr-1.5" /> Batch Generate (
-              {extracted.links.length}{" "}
+            <button type="button" onClick={handleApplyBatch} className="w-full sm:w-auto primary">
+              <Layers className="w-4 h-4 mr-1.5" /> Batch Generate ({extracted.links.length}{" "}
               {extracted.links.length === 1 ? "Page" : "Pages"})
               <ArrowRight className="w-4 h-4 ml-1.5" />
             </button>
