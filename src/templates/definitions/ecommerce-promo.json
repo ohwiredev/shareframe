@@ -3,7 +3,7 @@
   "name": "Product Card",
   "description": "Sleek dark-mode luxury product card with right-aligned image, badge, pricing, and ratings — perfect for high-end product launches.",
   "category": "E-Commerce",
-  "badge": "Luxury",
+  "badge": "Product",
   "state": {
     "background": {
       "type": "gradient",
