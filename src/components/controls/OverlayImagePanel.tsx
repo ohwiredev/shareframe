@@ -49,11 +49,7 @@ export function OverlayImagePanel({
         <small>PNG, JPG, WebP or SVG · max 5 MB</small>
       </Button>
       {image.src && (
-        <Button
-          variant="destructive"
-          className="remove-logo"
-          onClick={onRemove}
-        >
+        <Button variant="destructive" className="remove-logo" onClick={onRemove}>
           <X size={14} /> Remove image
         </Button>
       )}

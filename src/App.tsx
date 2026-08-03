@@ -19,7 +19,15 @@ import { useHistory } from "./hooks/useHistory";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import type { ExtractedMetadata } from "./lib/websiteExtractor";
 import { DEFAULT_EDITOR_STATE } from "./state/defaults";
-import type { EditorState, LogoState, OverlayImageState, TextStyle } from "./state/types";
+import type {
+  BadgeState,
+  EditorState,
+  LogoState,
+  OverlayImageState,
+  PriceState,
+  RatingState,
+  TextStyle,
+} from "./state/types";
 import { applyTemplate, BUILTIN_TEMPLATES, type OgTemplate } from "./templates";
 
 export type ThemeMode = "light" | "dark";
@@ -81,6 +89,14 @@ export default function App() {
   const setTitle = (title: TextStyle) => setState((current) => ({ ...current, title }));
   const setDescription = (description: TextStyle) =>
     setState((current) => ({ ...current, description }));
+  const setBadge = (badge: BadgeState | undefined) =>
+    setState((current) => ({ ...current, badge }));
+  const setPrice = (price: PriceState | undefined) =>
+    setState((current) => ({ ...current, price }));
+  const setOriginalPrice = (originalPrice: PriceState | undefined) =>
+    setState((current) => ({ ...current, originalPrice }));
+  const setRating = (rating: RatingState | undefined) =>
+    setState((current) => ({ ...current, rating }));
 
   const handleApplyTemplate = (template: OgTemplate) => {
     replaceState((current) => {
@@ -282,8 +298,16 @@ export default function App() {
             <TextPanel
               title={state.title}
               description={state.description}
+              badge={state.badge}
+              price={state.price}
+              originalPrice={state.originalPrice}
+              rating={state.rating}
               onTitleChange={setTitle}
               onDescriptionChange={setDescription}
+              onBadgeChange={setBadge}
+              onPriceChange={setPrice}
+              onOriginalPriceChange={setOriginalPrice}
+              onRatingChange={setRating}
             />
           )}
           {panel === "image" && (

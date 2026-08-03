@@ -28,7 +28,7 @@
     "description": {
       "content": "Zero-config browser tools and local-first software are outperforming server monoliths.",
       "fontFamily": "Merriweather",
-      "fontSize": 22,
+      "fontSize": 18,
       "width": 84,
       "fontWeight": 400,
       "color": "#57534e",

@@ -23,3 +23,4 @@
 - [x] Keyboard shortcuts (Ctrl+Z, Ctrl+Shift+Z, Ctrl+S, Ctrl+Shift+E, Ctrl+Shift+C)
 - [x] Drag-and-drop logo upload
 - [x] Debounced slider inputs via requestAnimationFrame batching
+- [x] E-commerce product templates with customizable badge, price, rating, and Unsplash product images

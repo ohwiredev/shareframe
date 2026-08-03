@@ -80,11 +80,7 @@ export function LogoPanel({
         <small>PNG, JPG, WebP or SVG · max 5 MB · or drag & drop</small>
       </Button>
       {logo.src && (
-        <Button
-          variant="destructive"
-          className="remove-logo"
-          onClick={onRemove}
-        >
+        <Button variant="destructive" className="remove-logo" onClick={onRemove}>
           <X size={14} /> Remove logo
         </Button>
       )}

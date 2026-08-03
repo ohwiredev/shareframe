@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from "react";
 
 const DEFAULT_MAX_HISTORY = 30;
 
@@ -10,7 +10,7 @@ export function useHistory<T>(initialState: T, maxHistory: number = DEFAULT_MAX_
   const set = useCallback(
     (next: T | ((prev: T) => T)) => {
       setState((prev) => {
-        const nextState = typeof next === 'function' ? (next as (prev: T) => T)(prev) : next;
+        const nextState = typeof next === "function" ? (next as (prev: T) => T)(prev) : next;
 
         undoStack.current = [...undoStack.current, prev];
         if (undoStack.current.length > maxHistory) {

@@ -29,7 +29,7 @@
     "description": {
       "content": "A deep dive into component architecture, WCAG compliance, and cross-platform consistency.",
       "fontFamily": "DM Sans",
-      "fontSize": 22,
+      "fontSize": 18,
       "width": 100,
       "fontWeight": 400,
       "color": "#a8a29e",

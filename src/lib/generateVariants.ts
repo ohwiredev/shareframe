@@ -1,13 +1,6 @@
-import {
-  BACKGROUND_COLORWAYS,
-  type ColorwayPreset,
-} from "../state/backgroundPresets";
+import { BACKGROUND_COLORWAYS, type ColorwayPreset } from "../state/backgroundPresets";
 import { gradientsEqual } from "../state/gradient";
-import type {
-  Background,
-  EditorState,
-  GradientBackground,
-} from "../state/types";
+import type { Background, EditorState, GradientBackground } from "../state/types";
 
 export type { ColorwayPreset };
 
@@ -89,9 +82,7 @@ export function backgroundsEqual(a: Background, b: Background): boolean {
 
 /** Find a curated colorway matching the background, or synthesize a "Current" one. */
 export function resolveCurrentColorway(background: Background): ColorwayPreset {
-  const match = VARIANT_COLORWAYS.find((c) =>
-    backgroundsEqual(c.background, background),
-  );
+  const match = VARIANT_COLORWAYS.find((c) => backgroundsEqual(c.background, background));
   if (match) return match;
   return {
     id: "current",
@@ -125,10 +116,7 @@ export function generateVariants(
 ): OgVariant[] {
   if (colorways.length === 0 || copyLengths.length === 0) return [];
 
-  const derived = deriveCopyVariants(
-    base.title.content,
-    base.description.content,
-  );
+  const derived = deriveCopyVariants(base.title.content, base.description.content);
   const variants: OgVariant[] = [];
 
   for (const colorway of colorways) {

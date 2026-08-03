@@ -13,8 +13,7 @@ type TemplatePanelProps = {
 
 function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
   const bg = template.state.background;
-  const bgStyle =
-    bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
+  const bgStyle = bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
 
   const title = template.state.title;
   const desc = template.state.description;
@@ -40,45 +39,77 @@ function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
   const hasImage = Boolean(image?.src);
   const imagePos = image?.position || "bottom";
 
-  const renderTextContent = () => (
-    <div className={`w-full flex flex-col ${alignClass} gap-1`}>
-      {hasLogo && logo?.src && (
-        <img
-          src={logo.src}
-          alt=""
-          className="max-h-[22px] w-auto object-contain mb-0.5 drop-shadow-sm"
-        />
-      )}
-      {title?.content && (
-        <h4
-          className="line-clamp-2 leading-tight tracking-tight drop-shadow-sm"
-          style={{
-            fontFamily: title.fontFamily || "Inter, sans-serif",
-            fontSize: `${titleSize}px`,
-            fontWeight: title.fontWeight || 700,
-            color: title.color || "#ffffff",
-            maxWidth: `${titleWidth}%`,
-          }}
-        >
-          {title.content}
-        </h4>
-      )}
-      {desc?.content && (
-        <p
-          className="line-clamp-2 leading-normal opacity-85 drop-shadow-sm"
-          style={{
-            fontFamily: desc.fontFamily || "Inter, sans-serif",
-            fontSize: `${descSize}px`,
-            fontWeight: desc.fontWeight || 400,
-            color: desc.color || "#c8c8d4",
-            maxWidth: `${descWidth}%`,
-          }}
-        >
-          {desc.content}
-        </p>
-      )}
-    </div>
-  );
+  const renderTextContent = () => {
+    const tmplBadge = template.state.badge;
+    const tmplPrice = template.state.price;
+    const tmplOriginalPrice = template.state.originalPrice;
+
+    return (
+      <div className={`w-full flex flex-col ${alignClass} gap-1`}>
+        {tmplBadge?.text && (
+          <span
+            className="inline-block px-1.5 py-0.5 text-[7px] font-bold uppercase rounded leading-none tracking-wider mb-0.5 self-start"
+            style={{
+              color: tmplBadge.color || "#ffffff",
+              backgroundColor: tmplBadge.background || "#10b981",
+            }}
+          >
+            {tmplBadge.text}
+          </span>
+        )}
+        {hasLogo && logo?.src && (
+          <img
+            src={logo.src}
+            alt=""
+            className="max-h-[22px] w-auto object-contain mb-0.5 drop-shadow-sm"
+          />
+        )}
+        {title?.content && (
+          <h4
+            className="line-clamp-2 leading-tight tracking-tight drop-shadow-sm"
+            style={{
+              fontFamily: title.fontFamily || "Inter, sans-serif",
+              fontSize: `${titleSize}px`,
+              fontWeight: title.fontWeight || 700,
+              color: title.color || "#ffffff",
+              maxWidth: `${titleWidth}%`,
+            }}
+          >
+            {title.content}
+          </h4>
+        )}
+        {desc?.content && (
+          <p
+            className="line-clamp-2 leading-normal opacity-85 drop-shadow-sm"
+            style={{
+              fontFamily: desc.fontFamily || "Inter, sans-serif",
+              fontSize: `${descSize}px`,
+              fontWeight: desc.fontWeight || 400,
+              color: desc.color || "#c8c8d4",
+              maxWidth: `${descWidth}%`,
+            }}
+          >
+            {desc.content}
+          </p>
+        )}
+        {tmplPrice?.text && (
+          <div className="flex items-baseline gap-1.5 mt-0.5">
+            <span className="text-[11px] font-bold" style={{ color: tmplPrice.color || "#10b981" }}>
+              {tmplPrice.text}
+            </span>
+            {tmplOriginalPrice?.text && (
+              <span
+                className="text-[8px] line-through opacity-60"
+                style={{ color: tmplOriginalPrice.color || "#9ca3af" }}
+              >
+                {tmplOriginalPrice.text}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const renderImageElement = (maxH: string) => {
     if (!image?.src) return null;
@@ -123,10 +154,7 @@ function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
   );
 }
 
-export function TemplatePanel({
-  currentState,
-  onApplyTemplate,
-}: TemplatePanelProps) {
+export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [, setFontsLoaded] = useState(false);
 
@@ -142,9 +170,7 @@ export function TemplatePanel({
 
   const categories = [
     "All",
-    ...Array.from(
-      new Set(BUILTIN_TEMPLATES.map((t) => t.category || "General")),
-    ),
+    ...Array.from(new Set(BUILTIN_TEMPLATES.map((t) => t.category || "General"))),
   ];
 
   const filteredTemplates = BUILTIN_TEMPLATES.filter((t) => {
@@ -157,9 +183,7 @@ export function TemplatePanel({
     if (!bg) return false;
     if (bg.type !== currentState.background.type) return false;
     if (bg.type === "solid" && currentState.background.type === "solid") {
-      return (
-        bg.color.toLowerCase() === currentState.background.color.toLowerCase()
-      );
+      return bg.color.toLowerCase() === currentState.background.color.toLowerCase();
     }
     if (bg.type === "gradient" && currentState.background.type === "gradient") {
       return (
@@ -167,9 +191,9 @@ export function TemplatePanel({
         bg.colors.every(
           (c, i) =>
             c.toLowerCase() ===
-            (
-              currentState.background as { type: "gradient"; colors: string[] }
-            ).colors[i].toLowerCase(),
+            (currentState.background as { type: "gradient"; colors: string[] }).colors[
+              i
+            ].toLowerCase(),
         )
       );
     }
@@ -211,9 +235,7 @@ export function TemplatePanel({
             >
               <div className="studio-template-card-header">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="studio-template-card-title truncate">
-                    {template.name}
-                  </span>
+                  <span className="studio-template-card-title truncate">{template.name}</span>
                   {template.badge && (
                     <span className="studio-template-badge">{template.badge}</span>
                   )}

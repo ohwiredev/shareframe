@@ -1,10 +1,10 @@
 import {
   GRADIENT_PRESETS,
-  SOLID_COLOR_PRESETS,
-  gradientPresetToBackground,
   type GradientPreset,
+  gradientPresetToBackground,
+  SOLID_COLOR_PRESETS,
 } from "../../state/backgroundPresets";
-import { gradientToCss, gradientsEqual } from "../../state/gradient";
+import { gradientsEqual, gradientToCss } from "../../state/gradient";
 import type { Background } from "../../state/types";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
@@ -17,8 +17,7 @@ type CanvasPanelProps = {
 };
 
 export function CanvasPanel({ background, onChange }: CanvasPanelProps) {
-  const customColor =
-    background.type === "solid" ? background.color : background.colors[0];
+  const customColor = background.type === "solid" ? background.color : background.colors[0];
 
   const isGradientSelected = (gradient: GradientPreset) =>
     background.type === "gradient" &&
@@ -35,8 +34,7 @@ export function CanvasPanel({ background, onChange }: CanvasPanelProps) {
       <div className="studio-swatches">
         {SOLID_COLOR_PRESETS.map((preset) => {
           const selected =
-            background.type === "solid" &&
-            background.color.toLowerCase() === preset.color;
+            background.type === "solid" && background.color.toLowerCase() === preset.color;
           return (
             <Button
               variant="ghost"

@@ -143,16 +143,12 @@ export const GRADIENT_PRESETS: GradientPreset[] = [
 ];
 
 /** Strip display metadata so the value can be stored as editor background state. */
-export function solidPresetToBackground(
-  preset: SolidColorPreset,
-): SolidBackground {
+export function solidPresetToBackground(preset: SolidColorPreset): SolidBackground {
   return { type: "solid", color: preset.color };
 }
 
 /** Strip display metadata so the value can be stored as editor background state. */
-export function gradientPresetToBackground(
-  preset: GradientPreset,
-): GradientBackground {
+export function gradientPresetToBackground(preset: GradientPreset): GradientBackground {
   const { id: _id, name: _name, ...background } = preset;
   return background;
 }
