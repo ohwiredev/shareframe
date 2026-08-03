@@ -25,7 +25,7 @@ Create and export clean, pixel-perfect **1200 × 630** social preview images in 
 ## ✨ Features
 
 - 🎨 **Background Styling** — Solid color presets, custom HSL/HEX color picker, and curated gradient presets.
-- 📦 **Curated Templates** — 11 built-in templates across categories like *SaaS*, *Blog*, and *Changelog* with tag filters.
+- 📦 **Curated Templates** — 13 built-in templates across categories like *SaaS*, *Blog*, and *Changelog* with tag filters. Check out our **[Custom Templates & AI Guide](docs/TEMPLATES.md)** to add your own.
 - 🖼️ **Logo Integration** — Upload custom PNG, SVG, or WebP logos with intuitive scale and positioning controls.
 - ✍️ **Typography Control** — Independent font family, size, color, and weight settings for titles and descriptions.
 - ⚡ **Live Canvas Preview** — Instant 1200×630 preview powered by an sRGB Canvas 2D / OffscreenCanvas worker pipeline.
@@ -43,6 +43,17 @@ npm run dev
 ```
 
 Visit `http://localhost:5173` to start creating Open Graph images.
+
+---
+
+## 🎨 Custom Templates & AI Generation
+
+Shareframe uses a single-source JSON template system that makes it easy to create your own custom 1200×630 Open Graph layouts or have AI assistants generate them for you.
+
+Read our complete **[Custom Templates & AI Generation Guide](docs/TEMPLATES.md)** to learn:
+- How to create and register custom template JSON files in `src/templates/definitions/`
+- How to use AI coding agents with the included `generate-templates` skill
+- Complete property reference tables for backgrounds, typography, overlay images, e-commerce badges, and ratings
 
 ---
 

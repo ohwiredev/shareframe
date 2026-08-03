@@ -1,0 +1,39 @@
+{
+  "id": "minimal-solid-example",
+  "name": "Minimal Solid",
+  "description": "Ultra-clean dark solid background with centered typography and maximum contrast.",
+  "category": "Solid",
+  "badge": "Minimal",
+  "state": {
+    "background": {
+      "type": "solid",
+      "color": "#09090b"
+    },
+    "logo": {
+      "y": 0.2,
+      "scale": 0.85,
+      "alignment": "center",
+      "src": null
+    },
+    "title": {
+      "content": "Simplicity is the ultimate sophistication.",
+      "fontFamily": "Inter",
+      "fontSize": 64,
+      "width": 80,
+      "fontWeight": 700,
+      "color": "#fafafa",
+      "alignment": "center",
+      "yOffset": 0
+    },
+    "description": {
+      "content": "A high-contrast layout designed for impactful statements.",
+      "fontFamily": "Inter",
+      "fontSize": 20,
+      "width": 70,
+      "fontWeight": 400,
+      "color": "#a1a1aa",
+      "alignment": "center",
+      "yOffset": 10
+    }
+  }
+}
