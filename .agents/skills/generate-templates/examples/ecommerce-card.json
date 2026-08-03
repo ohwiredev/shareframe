@@ -1,0 +1,72 @@
+{
+  "id": "ecommerce-card-example",
+  "name": "Luxury Product Card",
+  "description": "Split-right layout with high-end dark slate gradient, promo badge, product image, price, and customer star rating.",
+  "category": "E-Commerce",
+  "badge": "Product",
+  "state": {
+    "background": {
+      "type": "gradient",
+      "style": "radial",
+      "cx": 0.75,
+      "cy": 0.5,
+      "radius": "farthest-corner",
+      "colors": ["#1e293b", "#090d16"]
+    },
+    "logo": {
+      "y": 0.92,
+      "scale": 0.55,
+      "alignment": "left",
+      "src": null
+    },
+    "title": {
+      "content": "Aura Professional Studio Mic",
+      "fontFamily": "Plus Jakarta Sans",
+      "fontSize": 48,
+      "width": 100,
+      "fontWeight": 700,
+      "color": "#f8fafc",
+      "alignment": "left",
+      "yOffset": -10
+    },
+    "description": {
+      "content": "Studio-grade cardioid condenser · 24-bit/192kHz USB-C interface · Zero-latency monitoring",
+      "fontFamily": "Inter",
+      "fontSize": 18,
+      "width": 100,
+      "fontWeight": 400,
+      "color": "#94a3b8",
+      "alignment": "left",
+      "yOffset": -20
+    },
+    "image": {
+      "src": "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&h=600&fit=crop",
+      "position": "right",
+      "scale": 0.88,
+      "borderRadius": 24,
+      "shadow": true,
+      "shadowBlur": 48,
+      "yOffset": 0
+    },
+    "badge": {
+      "text": "BESTSELLER",
+      "color": "#ffffff",
+      "background": "#6366f1"
+    },
+    "price": {
+      "text": "$249",
+      "color": "#38bdf8",
+      "fontSize": 28,
+      "yOffset": 20
+    },
+    "originalPrice": {
+      "text": "$349",
+      "color": "#64748b"
+    },
+    "rating": {
+      "value": 4.9,
+      "color": "#f59e0b",
+      "reviewCount": "412 reviews"
+    }
+  }
+}
