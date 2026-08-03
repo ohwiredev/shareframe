@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { ThemeMode } from "../App";
 import type { ExportFormat } from "../canvas/exportCanvas";
+import { FEATURE_FLAGS } from "../config/flags";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ type AppHeaderProps = {
   canUndo: boolean;
   canRedo: boolean;
   clipboardSupported: boolean;
+  showUrlImport?: boolean;
   onUndo: () => void;
   onRedo: () => void;
   onReset: () => void;
@@ -52,6 +54,7 @@ export function AppHeader({
   canUndo,
   canRedo,
   clipboardSupported,
+  showUrlImport = FEATURE_FLAGS.ENABLE_WEBSITE_IMPORT,
   onUndo,
   onRedo,
   onReset,
@@ -90,9 +93,11 @@ export function AppHeader({
         >
           <Redo2 size={15} />
         </Button>
-        <Button variant="outline" onClick={onOpenUrlImport}>
-          <Globe size={15} /> Import Website
-        </Button>
+        {showUrlImport && (
+          <Button variant="outline" onClick={onOpenUrlImport}>
+            <Globe size={15} /> Import Website
+          </Button>
+        )}
         <Button variant="outline" onClick={onReset}>
           <RotateCcw size={15} /> Reset
         </Button>

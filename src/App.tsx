@@ -13,6 +13,7 @@ import { TextPanel } from "./components/controls/TextPanel";
 import { UrlImportModal } from "./components/controls/UrlImportModal";
 import { EditorNavigation, type EditorPanel } from "./components/EditorNavigation";
 import { OgCanvas } from "./components/OgCanvas";
+import { FEATURE_FLAGS } from "./config/flags";
 import { ensureEditorFontsLoaded } from "./fonts/loadGoogleFont";
 import { useHistory } from "./hooks/useHistory";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
@@ -191,7 +192,8 @@ export default function App() {
           toast.success(`Exported as ${format.toUpperCase()}`);
         })
         .catch((error) => {
-          const message = error instanceof Error ? error.message : "The image could not be exported.";
+          const message =
+            error instanceof Error ? error.message : "The image could not be exported.";
           console.error("[shareframe] Export failed", error);
           toast.error(message);
           setRenderError(message);
@@ -211,8 +213,7 @@ export default function App() {
         toast.success("Copied to clipboard");
       })
       .catch((error) => {
-        const message =
-          error instanceof Error ? error.message : "Could not copy to clipboard.";
+        const message = error instanceof Error ? error.message : "Could not copy to clipboard.";
         toast.error(message);
       })
       .finally(() => setExporting(false));
@@ -314,21 +315,25 @@ export default function App() {
         </section>
       </main>
 
-      <UrlImportModal
-        isOpen={urlModalOpen}
-        onClose={() => setUrlModalOpen(false)}
-        onApplyToCanvas={handleApplyExtractedToCanvas}
-        onOpenBatchMode={handleOpenBatchMode}
-      />
+      {FEATURE_FLAGS.ENABLE_WEBSITE_IMPORT && (
+        <>
+          <UrlImportModal
+            isOpen={urlModalOpen}
+            onClose={() => setUrlModalOpen(false)}
+            onApplyToCanvas={handleApplyExtractedToCanvas}
+            onOpenBatchMode={handleOpenBatchMode}
+          />
 
-      <BatchOgGeneratorModal
-        isOpen={batchModalOpen}
-        onClose={() => setBatchModalOpen(false)}
-        extracted={extractedMetadata}
-        baseState={state}
-        pipeline={pipelineRef.current}
-        onSelectLinkForCanvas={(selectedState) => setState(selectedState)}
-      />
+          <BatchOgGeneratorModal
+            isOpen={batchModalOpen}
+            onClose={() => setBatchModalOpen(false)}
+            extracted={extractedMetadata}
+            baseState={state}
+            pipeline={pipelineRef.current}
+            onSelectLinkForCanvas={(selectedState) => setState(selectedState)}
+          />
+        </>
+      )}
     </div>
   );
 }
