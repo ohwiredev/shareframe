@@ -29,7 +29,7 @@
     "description": {
       "content": "Architectures, state models, and browser performance — lessons from shipping at scale.",
       "fontFamily": "Inter",
-      "fontSize": 24,
+      "fontSize": 18,
       "width": 82,
       "fontWeight": 400,
       "color": "#ffedd5",

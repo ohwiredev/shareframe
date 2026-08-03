@@ -1,8 +1,9 @@
-import React, { StrictMode, type ReactNode } from "react";
+import React, { type ReactNode, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
+
 class ErrorBoundary extends React.Component<
   { children: ReactNode },
   { hasError: boolean; error: Error | null }

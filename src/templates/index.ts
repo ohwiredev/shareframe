@@ -4,6 +4,8 @@ import blogHeroCardJson from "./definitions/blog-hero-card.json";
 import blogOgJson from "./definitions/blog-og.json";
 import devReleaseJson from "./definitions/dev-release.json";
 import docsGuideJson from "./definitions/docs-guide.json";
+import ecommercePromoJson from "./definitions/ecommerce-promo.json";
+import ecommerceShowcaseJson from "./definitions/ecommerce-showcase.json";
 import editorialOpinionJson from "./definitions/editorial-opinion.json";
 import minimalJson from "./definitions/minimal.json";
 import mobileShowcaseJson from "./definitions/mobile-showcase.json";
@@ -18,6 +20,8 @@ export const BUILTIN_TEMPLATES: OgTemplate[] = [
   blogHeroCardJson as OgTemplate,
   blogFeaturedJson as OgTemplate,
   mobileShowcaseJson as OgTemplate,
+  ecommerceShowcaseJson as OgTemplate,
+  ecommercePromoJson as OgTemplate,
   blogOgJson as OgTemplate,
   saasLaunchJson as OgTemplate,
   docsGuideJson as OgTemplate,
@@ -106,12 +110,52 @@ export function applyTemplate(currentState: EditorState, template: OgTemplate): 
         src: null,
       };
 
+  // E-commerce fields: set from template or clear when switching to non-e-commerce template
+  const badge = ts.badge?.text
+    ? {
+        text: ts.badge.text ?? "",
+        color: ts.badge.color ?? "#ffffff",
+        background: ts.badge.background ?? "#10b981",
+      }
+    : undefined;
+
+  const price = ts.price?.text
+    ? {
+        text: ts.price.text ?? "",
+        color: ts.price.color ?? "#10b981",
+        fontSize: ts.price.fontSize ?? currentState.price?.fontSize ?? 36,
+        yOffset: ts.price.yOffset ?? currentState.price?.yOffset ?? 0,
+      }
+    : undefined;
+
+  const originalPrice = ts.originalPrice?.text
+    ? {
+        text: ts.originalPrice.text ?? "",
+        color: ts.originalPrice.color ?? "#9ca3af",
+        fontSize: ts.originalPrice.fontSize ?? currentState.originalPrice?.fontSize ?? 22,
+        yOffset: ts.originalPrice.yOffset ?? currentState.originalPrice?.yOffset ?? 0,
+      }
+    : undefined;
+
+  const rating =
+    ts.rating?.value !== undefined && ts.rating.value > 0
+      ? {
+          value: ts.rating.value ?? 0,
+          color: ts.rating.color ?? "#f59e0b",
+          reviewCount: ts.rating.reviewCount ?? "",
+        }
+      : undefined;
+
   return {
     background,
     logo,
     title,
     description,
     image,
+    badge,
+    price,
+    originalPrice,
+    rating,
   };
 }
 
@@ -179,6 +223,10 @@ export function exportTemplateJson(
       title: state.title,
       description: state.description,
       image: state.image,
+      ...(state.badge && { badge: state.badge }),
+      ...(state.price && { price: state.price }),
+      ...(state.originalPrice && { originalPrice: state.originalPrice }),
+      ...(state.rating && { rating: state.rating }),
     },
   };
 

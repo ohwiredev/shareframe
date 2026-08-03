@@ -29,7 +29,7 @@
     "description": {
       "content": "Multi-agent orchestration, tool routing, and resilient AI workflows in production.",
       "fontFamily": "Manrope",
-      "fontSize": 22,
+      "fontSize": 18,
       "width": 78,
       "fontWeight": 400,
       "color": "#fbcfe8",

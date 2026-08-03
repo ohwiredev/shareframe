@@ -4,8 +4,7 @@ import type { EditorState } from "../../state/types";
 /** Lightweight CSS mock of a 1200×630 OG frame for batch / variant grids. */
 export function OgPreviewThumbnail({ state }: { state: EditorState }) {
   const bg = state.background;
-  const bgStyle =
-    bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
+  const bgStyle = bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
 
   const title = state.title;
   const desc = state.description;

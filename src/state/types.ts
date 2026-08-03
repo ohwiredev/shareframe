@@ -84,6 +84,33 @@ export type OverlayImageState = {
   yOffset: number;
 };
 
+/** E-commerce badge overlay (e.g. "BESTSELLER", "NEW", "SALE"). */
+export type BadgeState = {
+  text: string;
+  /** Text color. */
+  color: string;
+  /** Badge pill background color. */
+  background: string;
+};
+
+/** E-commerce display price (e.g. "$199"). */
+export type PriceState = {
+  text: string;
+  color: string;
+  fontSize?: number;
+  yOffset?: number;
+};
+
+/** E-commerce star rating with optional review count. */
+export type RatingState = {
+  /** Star value 0–5, supports halves (e.g. 4.5). */
+  value: number;
+  /** Filled star color. */
+  color: string;
+  /** Display string like "256 reviews". */
+  reviewCount: string;
+};
+
 /**
  * Single-source editor state.
  * Controls and canvas both read/write this shape.
@@ -94,4 +121,12 @@ export type EditorState = {
   title: TextStyle;
   description: TextStyle;
   image: OverlayImageState;
+  /** Optional e-commerce badge overlay. */
+  badge?: BadgeState;
+  /** Optional primary display price. */
+  price?: PriceState;
+  /** Optional strikethrough original price. */
+  originalPrice?: PriceState;
+  /** Optional star rating display. */
+  rating?: RatingState;
 };

@@ -45,12 +45,35 @@ export type TemplateImage = {
   yOffset?: number;
 };
 
+export type TemplateBadge = {
+  text?: string;
+  color?: string;
+  background?: string;
+};
+
+export type TemplatePrice = {
+  text?: string;
+  color?: string;
+  fontSize?: number;
+  yOffset?: number;
+};
+
+export type TemplateRating = {
+  value?: number;
+  color?: string;
+  reviewCount?: string;
+};
+
 export type TemplateState = {
   background?: TemplateBackground;
   logo?: TemplateLogo;
   title?: TemplateTextStyle;
   description?: TemplateTextStyle;
   image?: TemplateImage;
+  badge?: TemplateBadge;
+  price?: TemplatePrice;
+  originalPrice?: TemplatePrice;
+  rating?: TemplateRating;
 };
 
 export type OgTemplate = {

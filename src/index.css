@@ -275,19 +275,19 @@ button {
 }
 
 .export-menu [data-slot="dropdown-menu-item"] {
-  display: grid !important;
+  display: grid;
   width: 100%;
-  height: auto !important;
+  height: auto;
   grid-template-columns: 48px 1fr;
-  padding: 10px 11px !important;
-  border: 0 !important;
-  background: transparent !important;
+  padding: 10px 11px;
+  border: 0;
+  background: transparent;
   text-align: left;
 }
 
 .export-menu [data-slot="dropdown-menu-item"]:hover,
 .export-menu [data-slot="dropdown-menu-item"]:focus {
-  background: #ffffff0b !important;
+  background: #ffffff0b;
 }
 .export-menu b {
   color: #f4f4f6;
@@ -466,8 +466,8 @@ button {
 }
 
 .studio-color-field {
-  display: block !important;
-  margin: 14px 0 18px !important;
+  display: block;
+  margin: 14px 0 18px;
   position: relative;
 }
 
@@ -683,8 +683,8 @@ button {
 }
 
 .studio-range {
-  display: block !important;
-  margin: 14px 0 !important;
+  display: block;
+  margin: 14px 0;
 }
 
 .studio-range > span {
@@ -759,16 +759,16 @@ button {
   transform: rotate(180deg);
 }
 .typography-advanced > :not(summary) {
-  margin-right: 12px !important;
-  margin-left: 12px !important;
+  margin-right: 12px;
+  margin-left: 12px;
 }
 .typography-advanced > :last-child {
-  margin-bottom: 14px !important;
+  margin-bottom: 14px;
 }
 
 .studio-field {
-  display: block !important;
-  margin: 13px 0 !important;
+  display: block;
+  margin: 13px 0;
 }
 
 .studio-field input,
@@ -916,7 +916,7 @@ button {
 }
 
 .studio-field-row .studio-range {
-  margin: 13px 0 !important;
+  margin: 13px 0;
 }
 .studio-field.compact [data-slot="select-trigger"] {
   height: 38px;
@@ -1175,7 +1175,7 @@ html:not(.dark) .export-menu span {
 html:not(.dark) .export-menu [data-slot="dropdown-menu-item"]:hover,
 html:not(.dark) .export-menu [data-slot="dropdown-menu-item"]:focus,
 html:not(.dark) .export-menu [data-slot="dropdown-menu-item"][data-highlighted] {
-  background: #f1f5f9 !important;
+  background: #f1f5f9;
 }
 
 /* Portalled elements light mode overrides */

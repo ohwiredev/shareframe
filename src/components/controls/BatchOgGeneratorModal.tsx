@@ -2,22 +2,13 @@ import { zipSync } from "fflate";
 import { Check, Download, Layers, Loader2, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { RenderPipeline } from "../../canvas/renderPipeline";
-import type {
-  ExtractedLink,
-  ExtractedMetadata,
-} from "../../lib/websiteExtractor";
+import type { ExtractedLink, ExtractedMetadata } from "../../lib/websiteExtractor";
 import { gradientToCss } from "../../state/gradient";
 import type { EditorState } from "../../state/types";
 import { applyTemplate, BUILTIN_TEMPLATES } from "../../templates";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 
 type BatchOgGeneratorModalProps = {
@@ -32,8 +23,7 @@ type BatchOgGeneratorModalProps = {
 // Mini high-fidelity visual preview of the OG image for each page card
 function BatchPagePreviewThumbnail({ state }: { state: EditorState }) {
   const bg = state.background;
-  const bgStyle =
-    bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
+  const bgStyle = bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
 
   const title = state.title;
   const desc = state.description;
@@ -150,19 +140,12 @@ export function BatchOgGeneratorModal({
   pipeline,
   onSelectLinkForCanvas,
 }: BatchOgGeneratorModalProps) {
-  const [links, setLinks] = useState<ExtractedLink[]>(
-    () => extracted?.links || [],
-  );
-  const [selectedTemplate, setSelectedTemplate] =
-    useState<string>("minimal-dark");
-  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
-    () => new Set(),
-  );
+  const [links, setLinks] = useState<ExtractedLink[]>(() => extracted?.links || []);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("minimal-dark");
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(() => new Set());
   const [exporting, setExporting] = useState(false);
   const [exportingIndex, setExportingIndex] = useState<number | null>(null);
-  const [completedIndices, setCompletedIndices] = useState<Set<number>>(
-    () => new Set(),
-  );
+  const [completedIndices, setCompletedIndices] = useState<Set<number>>(() => new Set());
   const [exportProgress, setExportProgress] = useState<{
     current: number;
     total: number;
@@ -228,9 +211,7 @@ export function BatchOgGeneratorModal({
       },
       description: {
         ...state.description,
-        content:
-          link.description ||
-          `Official page for ${link.title} on ${extracted.domain}`,
+        content: link.description || `Official page for ${link.title} on ${extracted.domain}`,
       },
     };
   };
@@ -239,10 +220,7 @@ export function BatchOgGeneratorModal({
     if (!pipeline) return;
     const pageState = buildPageState(link);
     const blob = await pipeline.export(pageState, "png");
-    const slug =
-      link.path === "/"
-        ? "home"
-        : link.path.replace(/^\//, "").replace(/[/\s]+/g, "-");
+    const slug = link.path === "/" ? "home" : link.path.replace(/^\//, "").replace(/[/\s]+/g, "-");
     const fileName = `og-${extracted.domain}-${slug}.png`;
 
     const url = URL.createObjectURL(blob);
@@ -289,9 +267,7 @@ export function BatchOgGeneratorModal({
         const blob = await pipeline.export(pageState, "png");
         const arrayBuffer = await blob.arrayBuffer();
         const slug =
-          link.path === "/"
-            ? "home"
-            : link.path.replace(/^\//, "").replace(/[/\s]+/g, "-");
+          link.path === "/" ? "home" : link.path.replace(/^\//, "").replace(/[/\s]+/g, "-");
         const fileName = `og-${extracted.domain}-${slug}.png`;
         files[fileName] = new Uint8Array(arrayBuffer);
 
@@ -331,8 +307,7 @@ export function BatchOgGeneratorModal({
                 Visual Batch Studio - {extracted.domain}
               </h3>
               <p className="text-[13px] text-muted-foreground mt-1 leading-[1.55]">
-                Preview, customize, and export Open Graph images for your
-                website pages
+                Preview, customize, and export Open Graph images for your website pages
               </p>
             </div>
           </div>
@@ -362,9 +337,7 @@ export function BatchOgGeneratorModal({
                 <SelectValue>
                   {activeTmpl ? (
                     <div className="flex items-center justify-between w-full pr-1.5 gap-2">
-                      <span className="font-medium text-[#f4f4f6] truncate">
-                        {activeTmpl.name}
-                      </span>
+                      <span className="font-medium text-[#f4f4f6] truncate">{activeTmpl.name}</span>
                       <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#695cff]/20 text-[#a59efc] shrink-0">
                         {activeTmpl.category}
                       </span>
@@ -399,15 +372,9 @@ export function BatchOgGeneratorModal({
           <div className="px-6 py-2 bg-[#695cff]/15 border-b border-[#695cff]/30 flex items-center justify-between text-xs text-[#d5d2ff]">
             <span className="flex items-center gap-2 font-medium">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Generating image {exportProgress.current} of{" "}
-              {exportProgress.total}...
+              Generating image {exportProgress.current} of {exportProgress.total}...
             </span>
-            <span>
-              {Math.round(
-                (exportProgress.current / exportProgress.total) * 100,
-              )}
-              %
-            </span>
+            <span>{Math.round((exportProgress.current / exportProgress.total) * 100)}%</span>
           </div>
         )}
 
@@ -516,17 +483,13 @@ export function BatchOgGeneratorModal({
                   <Input
                     value={link.title}
                     placeholder="Page title"
-                    onChange={(e) =>
-                      handleUpdateLink(idx, "title", e.target.value)
-                    }
+                    onChange={(e) => handleUpdateLink(idx, "title", e.target.value)}
                     className="text-[12px] font-medium bg-background border-border text-foreground rounded-lg"
                   />
                   <Textarea
                     value={link.description || ""}
                     placeholder="Page description"
-                    onChange={(e) =>
-                      handleUpdateLink(idx, "description", e.target.value)
-                    }
+                    onChange={(e) => handleUpdateLink(idx, "description", e.target.value)}
                     rows={2}
                     className="text-[12px] text-muted-foreground bg-background border-border rounded-lg"
                   />
@@ -539,8 +502,7 @@ export function BatchOgGeneratorModal({
         {/* Footer Actions */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-muted/40 d1-actions">
           <div className="text-xs text-muted-foreground">
-            Tip: Customize titles and descriptions for each page before
-            exporting.
+            Tip: Customize titles and descriptions for each page before exporting.
           </div>
 
           <div className="flex items-center gap-2">
@@ -557,8 +519,7 @@ export function BatchOgGeneratorModal({
               {exporting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Exporting {exportProgress?.current || 0}/
-                  {exportProgress?.total || 0}...
+                  Exporting {exportProgress?.current || 0}/{exportProgress?.total || 0}...
                 </>
               ) : (
                 <>

@@ -28,7 +28,7 @@
     "description": {
       "content": "A focused layout for titles that need room to breathe.",
       "fontFamily": "Inter",
-      "fontSize": 24,
+      "fontSize": 18,
       "width": 70,
       "fontWeight": 400,
       "color": "#a1a1aa",
