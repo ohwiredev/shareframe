@@ -12,7 +12,10 @@ export function useEditorFonts(rawState: EditorState): number {
 
   const state = normalizeState(rawState);
   const families = state.elements
-    .filter((el): el is typeof el & { fontFamily: string } => el.type === "text" && Boolean(el.fontFamily))
+    .filter(
+      (el): el is typeof el & { fontFamily: string } =>
+        el.type === "text" && Boolean(el.fontFamily),
+    )
     .map((el) => el.fontFamily);
   const familyKey = families.join("::");
 

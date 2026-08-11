@@ -2,7 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const DEFAULT_MAX_HISTORY = 30;
 
-export function useHistory<T>(storageKey: string, initialState: T, maxHistory: number = DEFAULT_MAX_HISTORY) {
+export function useHistory<T>(
+  storageKey: string,
+  initialState: T,
+  maxHistory: number = DEFAULT_MAX_HISTORY,
+) {
   const [state, setState] = useState<T>(() => {
     try {
       const stored = localStorage.getItem(storageKey);
@@ -27,7 +31,7 @@ export function useHistory<T>(storageKey: string, initialState: T, maxHistory: n
             return null;
           }
           return value;
-        })
+        }),
       );
     } catch (e) {
       console.error("Failed to save state to localStorage", e);
