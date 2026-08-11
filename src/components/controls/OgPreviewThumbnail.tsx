@@ -1,13 +1,20 @@
+import {
+  findImageElement,
+  findLogoElement,
+  findTextElement,
+  normalizeState,
+} from "../../state/elementUtils";
 import { gradientToCss } from "../../state/gradient";
 import type { EditorState } from "../../state/types";
 
 /** Lightweight CSS mock of a 1200×630 OG frame for batch / variant grids. */
-export function OgPreviewThumbnail({ state }: { state: EditorState }) {
+export function OgPreviewThumbnail({ state: rawState }: { state: EditorState }) {
+  const state = normalizeState(rawState);
   const bg = state.background;
   const bgStyle = bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
 
-  const title = state.title;
-  const desc = state.description;
+  const title = findTextElement(state, "title");
+  const desc = findTextElement(state, "description");
 
   const align = title?.alignment || "center";
   const alignClass =
@@ -23,10 +30,10 @@ export function OgPreviewThumbnail({ state }: { state: EditorState }) {
   const titleWidth = title?.width ?? 90;
   const descWidth = desc?.width ?? 85;
 
-  const logo = state.logo;
+  const logo = findLogoElement(state);
   const hasLogo = Boolean(logo?.src);
-  const image = state.image;
-  const hasImage = Boolean(image?.src);
+  const image = findImageElement(state);
+  const hasImage = Boolean(image?.enabled !== false && image?.src);
   const imagePos = image?.position || "bottom";
 
   const renderTextContent = () => (

@@ -108,15 +108,21 @@ export function defaultColorwayIds(background: Background): string[] {
  * Cartesian product of selected colorways × copy lengths over a fixed layout.
  * Layout (logo, fonts, alignment, overlay) is preserved; only bg + text content change.
  */
+import { findTextElement, normalizeState } from "../state/elementUtils";
+
 export function generateVariants(
-  base: EditorState,
+  baseState: EditorState,
   colorways: ColorwayPreset[],
   copyLengths: CopyLength[],
   copyOverrides: VariantCopyOverrides = {},
 ): OgVariant[] {
   if (colorways.length === 0 || copyLengths.length === 0) return [];
 
-  const derived = deriveCopyVariants(base.title.content, base.description.content);
+  const normBase = normalizeState(baseState);
+  const titleEl = findTextElement(normBase, "title");
+  const descEl = findTextElement(normBase, "description");
+
+  const derived = deriveCopyVariants(titleEl?.content ?? "", descEl?.content ?? "");
   const variants: OgVariant[] = [];
 
   for (const colorway of colorways) {
@@ -138,6 +144,16 @@ export function generateVariants(
 
       const fileSlug = slugify(`${colorway.id}-${length}`);
 
+      const updatedElements = normBase.elements.map((el) => {
+        if (el.type === "text" && el.role === "title") {
+          return { ...el, content: copy.title };
+        }
+        if (el.type === "text" && el.role === "description") {
+          return { ...el, content: copy.description };
+        }
+        return el;
+      });
+
       variants.push({
         id: `${colorway.id}__${length}`,
         label,
@@ -146,16 +162,9 @@ export function generateVariants(
         colorwayName: colorway.name,
         copyLength: length,
         state: {
-          ...base,
+          ...normBase,
           background: colorway.background,
-          title: {
-            ...base.title,
-            content: copy.title,
-          },
-          description: {
-            ...base.description,
-            content: copy.description,
-          },
+          elements: updatedElements,
         },
       });
     }

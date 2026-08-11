@@ -1,5 +1,6 @@
 import { ensureEditorFontsLoaded } from "../fonts/loadGoogleFont";
 import { OG_HEIGHT, OG_WIDTH } from "../state/constants";
+import { findImageElement, findLogoElement, normalizeState } from "../state/elementUtils";
 import type { EditorState } from "../state/types";
 import { CONTEXT_OPTIONS, drawOgImage, type OgRenderingContext } from "./drawOgImage";
 import type {
@@ -8,6 +9,28 @@ import type {
   RenderWorkerRequest,
   RenderWorkerResponse,
 } from "./types";
+
+function extractFonts(rawState: EditorState): string[] {
+  const normalized = normalizeState(rawState);
+  const fontSet = new Set<string>();
+  for (const el of normalized.elements) {
+    if (el.type === "text" && el.fontFamily) {
+      fontSet.add(el.fontFamily);
+    }
+  }
+  return Array.from(fontSet);
+}
+
+function extractLogoSrc(rawState: EditorState): string | null {
+  const normalized = normalizeState(rawState);
+  return findLogoElement(normalized)?.src ?? null;
+}
+
+function extractOverlaySrc(rawState: EditorState): string | null {
+  const normalized = normalizeState(rawState);
+  const img = findImageElement(normalized);
+  return img?.enabled !== false ? (img?.src ?? null) : null;
+}
 
 export interface RenderPipeline {
   render(state: EditorState): void;
@@ -228,8 +251,8 @@ class WorkerRenderPipeline implements RenderPipeline {
       if (!nextState) return;
 
       void Promise.all([
-        this.ensureLogo(nextState.logo.src),
-        this.ensureOverlayImage(nextState.image?.src),
+        this.ensureLogo(extractLogoSrc(nextState)),
+        this.ensureOverlayImage(extractOverlaySrc(nextState)),
       ])
         .catch((error) => {
           this.onError?.(asError(error, "The image could not be decoded."));
@@ -254,8 +277,8 @@ class WorkerRenderPipeline implements RenderPipeline {
     }
 
     const [logoAssetId, overlayAssetId] = await Promise.all([
-      this.ensureLogo(state.logo.src),
-      this.ensureOverlayImage(state.image?.src),
+      this.ensureLogo(extractLogoSrc(state)),
+      this.ensureOverlayImage(extractOverlaySrc(state)),
     ]);
     const requestId = ++this.requestId;
     const result = new Promise<Blob>((resolve, reject) => {
@@ -415,9 +438,9 @@ class MainThreadRenderPipeline implements RenderPipeline {
       if (!nextState) return;
 
       void Promise.all([
-        ensureEditorFontsLoaded([nextState.title.fontFamily, nextState.description.fontFamily]),
-        this.ensureLogo(nextState.logo.src),
-        this.ensureOverlayImage(nextState.image?.src),
+        ensureEditorFontsLoaded(extractFonts(nextState)),
+        this.ensureLogo(extractLogoSrc(nextState)),
+        this.ensureOverlayImage(extractOverlaySrc(nextState)),
       ])
         .then(([, logo, overlay]) => {
           if (this.disposed || revision !== this.revision) return;
@@ -441,9 +464,9 @@ class MainThreadRenderPipeline implements RenderPipeline {
     }
 
     const [, logo, overlay] = await Promise.all([
-      ensureEditorFontsLoaded([state.title.fontFamily, state.description.fontFamily]),
-      this.ensureLogo(state.logo.src),
-      this.ensureOverlayImage(state.image?.src),
+      ensureEditorFontsLoaded(extractFonts(state)),
+      this.ensureLogo(extractLogoSrc(state)),
+      this.ensureOverlayImage(extractOverlaySrc(state)),
     ]);
 
     if (typeof OffscreenCanvas !== "undefined") {
@@ -468,11 +491,17 @@ class MainThreadRenderPipeline implements RenderPipeline {
     canvas.width = OG_WIDTH;
     canvas.height = OG_HEIGHT;
     const context = createHtmlContext(canvas);
-    drawOgImage(context, state, {
-      logoImage: logo?.source,
-      overlayImage: overlay?.source,
-    });
-    return canvasToBlob(canvas, format);
+
+    try {
+      drawOgImage(context, state, {
+        logoImage: logo?.source,
+        overlayImage: overlay?.source,
+      });
+      return await canvasToBlob(canvas, format);
+    } finally {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
   }
 
   dispose(): void {
@@ -496,22 +525,32 @@ class MainThreadRenderPipeline implements RenderPipeline {
     if (src === this.logoSrc) return this.logoPromise;
 
     this.logoSrc = src;
-    this.logo?.close();
-    this.logo = null;
     if (!src) {
       this.logoPromise = Promise.resolve(null);
+      this.logo?.close();
+      this.logo = null;
       return null;
     }
 
-    const expectedSrc = src;
-    this.logoPromise = decodeLogo(src).then((logo) => {
-      if (this.disposed || this.logoSrc !== expectedSrc) {
-        logo.close();
-        return null;
-      }
-      this.logo = logo;
-      return logo;
-    });
+    this.logoPromise = decodeLogo(src)
+      .then((logo) => {
+        if (this.disposed || src !== this.logoSrc) {
+          logo.close();
+          return null;
+        }
+
+        this.logo?.close();
+        this.logo = logo;
+        return logo;
+      })
+      .catch((error) => {
+        if (src === this.logoSrc) {
+          this.logo?.close();
+          this.logo = null;
+        }
+        throw error;
+      });
+
     return this.logoPromise;
   }
 
@@ -519,22 +558,32 @@ class MainThreadRenderPipeline implements RenderPipeline {
     if (src === this.overlaySrc) return this.overlayPromise;
 
     this.overlaySrc = src;
-    this.overlay?.close();
-    this.overlay = null;
     if (!src) {
       this.overlayPromise = Promise.resolve(null);
+      this.overlay?.close();
+      this.overlay = null;
       return null;
     }
 
-    const expectedSrc = src;
-    this.overlayPromise = decodeLogo(src).then((overlay) => {
-      if (this.disposed || this.overlaySrc !== expectedSrc) {
-        overlay.close();
-        return null;
-      }
-      this.overlay = overlay;
-      return overlay;
-    });
+    this.overlayPromise = decodeLogo(src)
+      .then((overlay) => {
+        if (this.disposed || src !== this.overlaySrc) {
+          overlay.close();
+          return null;
+        }
+
+        this.overlay?.close();
+        this.overlay = overlay;
+        return overlay;
+      })
+      .catch((error) => {
+        if (src === this.overlaySrc) {
+          this.overlay?.close();
+          this.overlay = null;
+        }
+        throw error;
+      });
+
     return this.overlayPromise;
   }
 }
@@ -543,12 +592,17 @@ export function createRenderPipeline(
   canvas: HTMLCanvasElement,
   options: RenderPipelineOptions = {},
 ): RenderPipeline {
-  const backend = options.backend ?? "auto";
-  if (backend === "worker" && !supportsWorkerPipeline()) {
-    throw new Error("The worker canvas pipeline is unavailable.");
+  if (options.backend === "main" || !supportsWorkerPipeline()) {
+    return new MainThreadRenderPipeline(canvas, options);
   }
 
-  return backend !== "main" && supportsWorkerPipeline()
-    ? new WorkerRenderPipeline(canvas, options)
-    : new MainThreadRenderPipeline(canvas, options);
+  try {
+    return new WorkerRenderPipeline(canvas, options);
+  } catch (error) {
+    console.warn(
+      "[shareframe] OffscreenCanvas render worker failed to start. Falling back to main thread.",
+      error,
+    );
+    return new MainThreadRenderPipeline(canvas, options);
+  }
 }

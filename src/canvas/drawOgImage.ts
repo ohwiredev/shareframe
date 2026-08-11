@@ -5,8 +5,11 @@ import type {
   BadgeState,
   EditorState,
   HorizontalAlignment,
+  ImageElement,
+  LogoElement,
   PriceState,
   RatingState,
+  ShapeElement,
   TextStyle,
 } from "../state/types";
 import { wrapText } from "./wrapText";
@@ -196,26 +199,26 @@ function imageDimensions(image: CanvasImageSource): {
 
 function drawLogo(
   ctx: OgRenderingContext,
-  state: EditorState,
+  logo: LogoElement,
   logoImage: CanvasImageSource,
   columnBounds?: { left: number; right: number },
 ): void {
   const dimensions = imageDimensions(logoImage);
   if (dimensions.width <= 0 || dimensions.height <= 0) return;
 
-  const maxSide = LOGO_BASE_SIZE * state.logo.scale;
+  const maxSide = LOGO_BASE_SIZE * logo.scale;
   const fit = Math.min(maxSide / dimensions.width, maxSide / dimensions.height);
   const width = dimensions.width * fit;
   const height = dimensions.height * fit;
   const left = columnBounds?.left ?? CONTENT_PADDING_X;
   const right = columnBounds?.right ?? OG_WIDTH - CONTENT_PADDING_X;
   const x =
-    state.logo.alignment === "left"
+    logo.alignment === "left"
       ? left
-      : state.logo.alignment === "right"
+      : logo.alignment === "right"
         ? right - width
         : left + (right - left - width) / 2;
-  const y = state.logo.y * OG_HEIGHT - height / 2;
+  const y = logo.y * OG_HEIGHT - height / 2;
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
@@ -241,7 +244,7 @@ function drawRoundRectPath(
   ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
   ctx.lineTo(x + w, y + h - radius);
   ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
-  ctx.lineTo(x + radius, y + h);
+  ctx.lineTo(x + radius, y);
   ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
   ctx.lineTo(x, y + radius);
   ctx.quadraticCurveTo(x, y, x + radius, y);
@@ -250,14 +253,14 @@ function drawRoundRectPath(
 
 function drawOverlayCard(
   ctx: OgRenderingContext,
-  state: EditorState,
+  image: ImageElement,
   overlayImage: CanvasImageSource,
 ): void {
-  if (!state.image.enabled) return;
+  if (image.enabled === false) return;
   const dimensions = imageDimensions(overlayImage);
   if (dimensions.width <= 0 || dimensions.height <= 0) return;
 
-  const { position, scale, borderRadius, shadow, shadowBlur = 32, yOffset = 0 } = state.image;
+  const { position = "bottom", scale, borderRadius, shadow, shadowBlur = 32, yOffset = 0 } = image;
 
   let maxBoxWidth = (OG_WIDTH - CONTENT_PADDING_X * 2) * scale;
   let maxBoxHeight = 300 * scale;
@@ -577,28 +580,83 @@ function drawRatingBlock(
   return topY + RATING_STAR_SIZE * 2 + 6;
 }
 
+import {
+  findBadgeElement,
+  findImageElement,
+  findLogoElement,
+  findPriceElement,
+  findRatingElement,
+  findTextElement,
+  normalizeState,
+} from "../state/elementUtils";
+
+function drawShapeElement(
+  ctx: OgRenderingContext,
+  shape: ShapeElement,
+  columnBounds?: { left: number; right: number },
+): void {
+  ctx.save();
+  const left = columnBounds?.left ?? CONTENT_PADDING_X;
+  const x = shape.x ?? left;
+  const y = shape.y ?? 100;
+
+  if (shape.fill) {
+    ctx.fillStyle = normalizeHex(shape.fill) ?? shape.fill;
+  }
+  if (shape.stroke) {
+    ctx.strokeStyle = normalizeHex(shape.stroke) ?? shape.stroke;
+    ctx.lineWidth = shape.strokeWidth ?? 1;
+  }
+
+  if (shape.shapeType === "rectangle") {
+    if (shape.borderRadius) {
+      drawRoundRectPath(ctx, x, y, shape.width, shape.height, shape.borderRadius);
+      if (shape.fill) ctx.fill();
+      if (shape.stroke) ctx.stroke();
+    } else {
+      if (shape.fill) ctx.fillRect(x, y, shape.width, shape.height);
+      if (shape.stroke) ctx.strokeRect(x, y, shape.width, shape.height);
+    }
+  } else if (shape.shapeType === "circle") {
+    const r = Math.min(shape.width, shape.height) / 2;
+    ctx.beginPath();
+    ctx.arc(x + r, y + r, r, 0, Math.PI * 2);
+    if (shape.fill) ctx.fill();
+    if (shape.stroke) ctx.stroke();
+  } else if (shape.shapeType === "line") {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + shape.width, y + shape.height);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 /**
  * Renders an OG preview or export frame from state.
  * The target context must have a 1200×630 backing bitmap.
  */
 export function drawOgImage(
   ctx: OgRenderingContext,
-  state: EditorState,
+  rawState: EditorState,
   assets: RenderAssets = {},
 ): void {
   resetContext(ctx);
 
+  const state = normalizeState(rawState);
+
   ctx.fillStyle = backgroundStyle(ctx, state.background);
   ctx.fillRect(0, 0, OG_WIDTH, OG_HEIGHT);
 
-  const overlayImage = state.image?.enabled && state.image?.src ? assets.overlayImage : null;
+  const imageElement = findImageElement(state);
+  const overlayImage = imageElement?.enabled && imageElement?.src ? assets.overlayImage : null;
   const hasOverlay = Boolean(overlayImage);
 
   let columnBounds: { left: number; right: number } | undefined;
-  if (hasOverlay) {
-    if (state.image.position === "right") {
+  if (hasOverlay && imageElement) {
+    if (imageElement.position === "right") {
       columnBounds = { left: CONTENT_PADDING_X, right: OG_WIDTH * 0.48 };
-    } else if (state.image.position === "left") {
+    } else if (imageElement.position === "left") {
       columnBounds = {
         left: OG_WIDTH * 0.52,
         right: OG_WIDTH - CONTENT_PADDING_X,
@@ -606,31 +664,87 @@ export function drawOgImage(
     }
   }
 
-  // Draw badge overlay first (top-left, above everything)
-  if (state.badge?.text) {
-    drawBadge(ctx, state.badge, columnBounds);
+  // Render elements declaratively or by group sequence
+  const badgeElement = findBadgeElement(state);
+  if (badgeElement?.text) {
+    drawBadge(ctx, badgeElement, columnBounds);
   }
 
-  const logoImage = state.logo.src ? assets.logoImage : null;
-  if (logoImage) {
-    drawLogo(ctx, state, logoImage, columnBounds);
+  const logoElement = findLogoElement(state);
+  const logoImage = logoElement?.src ? assets.logoImage : null;
+  if (logoElement && logoImage) {
+    drawLogo(ctx, logoElement, logoImage, columnBounds);
+  }
+
+  // Draw any standalone shape elements
+  for (const el of state.elements) {
+    if (el.type === "shape") {
+      drawShapeElement(ctx, el, columnBounds);
+    }
   }
 
   const maxColumnWidth = columnBounds
     ? columnBounds.right - columnBounds.left
     : OG_WIDTH - CONTENT_PADDING_X * 2;
 
-  const titleLayout = layoutText(ctx, state.title, maxColumnWidth * (state.title.width / 100));
+  const titleElement = findTextElement(state, "title");
+  const descriptionElement = findTextElement(state, "description");
+
+  const titleStyle: TextStyle = titleElement
+    ? {
+        content: titleElement.content,
+        fontFamily: titleElement.fontFamily,
+        fontSize: titleElement.fontSize,
+        width: titleElement.width,
+        fontWeight: titleElement.fontWeight,
+        color: titleElement.color,
+        alignment: titleElement.alignment,
+        yOffset: titleElement.yOffset ?? 0,
+      }
+    : {
+        content: "",
+        fontFamily: "Inter",
+        fontSize: 48,
+        width: 100,
+        fontWeight: 700,
+        color: "#ffffff",
+        alignment: "center",
+        yOffset: 0,
+      };
+
+  const descriptionStyle: TextStyle = descriptionElement
+    ? {
+        content: descriptionElement.content,
+        fontFamily: descriptionElement.fontFamily,
+        fontSize: descriptionElement.fontSize,
+        width: descriptionElement.width,
+        fontWeight: descriptionElement.fontWeight,
+        color: descriptionElement.color,
+        alignment: descriptionElement.alignment,
+        yOffset: descriptionElement.yOffset ?? 0,
+      }
+    : {
+        content: "",
+        fontFamily: "Inter",
+        fontSize: 24,
+        width: 80,
+        fontWeight: 400,
+        color: "#9ca3af",
+        alignment: "center",
+        yOffset: 0,
+      };
+
+  const titleLayout = layoutText(ctx, titleStyle, maxColumnWidth * (titleStyle.width / 100));
   const descriptionLayout = layoutText(
     ctx,
-    state.description,
-    maxColumnWidth * (state.description.width / 100),
+    descriptionStyle,
+    maxColumnWidth * (descriptionStyle.width / 100),
   );
   const hasGap = titleLayout.height > 0 && descriptionLayout.height > 0;
   const blockHeight = titleLayout.height + (hasGap ? BLOCK_GAP : 0) + descriptionLayout.height;
 
   let textStartY: number;
-  if (hasOverlay && state.image.position === "bottom") {
+  if (hasOverlay && imageElement?.position === "bottom") {
     textStartY = logoImage ? 130 : 80;
   } else {
     textStartY = logoImage
@@ -638,39 +752,86 @@ export function drawOgImage(
       : Math.max(CONTENT_PADDING_X, (OG_HEIGHT - blockHeight) / 2);
   }
 
-  const titleYOffset = state.title.yOffset ?? 0;
-  const descriptionYOffset = state.description.yOffset ?? 0;
-
+  const titleYOffset = titleStyle.yOffset;
+  const descriptionYOffset = descriptionStyle.yOffset;
   const descriptionY = textStartY + titleLayout.height + (hasGap ? BLOCK_GAP : 0);
 
-  drawText(ctx, state.title, titleLayout, textStartY + titleYOffset, columnBounds);
-  drawText(
-    ctx,
-    state.description,
-    descriptionLayout,
-    descriptionY + descriptionYOffset,
-    columnBounds,
-  );
-
-  // Draw e-commerce price block below text
-  let cursorY = descriptionY + descriptionYOffset + descriptionLayout.height;
-  if (state.price?.text || state.originalPrice?.text) {
-    cursorY = drawPriceBlock(
+  if (titleStyle.content) {
+    drawText(ctx, titleStyle, titleLayout, textStartY + titleYOffset, columnBounds);
+  }
+  if (descriptionStyle.content) {
+    drawText(
       ctx,
-      state.price,
-      state.originalPrice,
-      cursorY + 16,
-      state.title.alignment,
+      descriptionStyle,
+      descriptionLayout,
+      descriptionY + descriptionYOffset,
       columnBounds,
     );
   }
 
-  // Draw e-commerce star rating below price
-  if (state.rating && state.rating.value > 0) {
-    drawRatingBlock(ctx, state.rating, cursorY + 12, state.title.alignment, columnBounds);
+  // Draw any additional custom text elements
+  for (const el of state.elements) {
+    if (el.type === "text" && el.role === "custom" && el.content) {
+      const customStyle: TextStyle = {
+        content: el.content,
+        fontFamily: el.fontFamily,
+        fontSize: el.fontSize,
+        width: el.width,
+        fontWeight: el.fontWeight,
+        color: el.color,
+        alignment: el.alignment,
+        yOffset: el.yOffset ?? 0,
+      };
+      const layout = layoutText(ctx, customStyle, maxColumnWidth * (customStyle.width / 100));
+      drawText(ctx, customStyle, layout, (el.y ?? 200) + customStyle.yOffset, columnBounds);
+    }
   }
 
-  if (hasOverlay && overlayImage) {
-    drawOverlayCard(ctx, state, overlayImage);
+  // Draw price element
+  let cursorY = descriptionY + descriptionYOffset + descriptionLayout.height;
+  const priceElement = findPriceElement(state);
+  if (priceElement && (priceElement.text || priceElement.originalPriceText)) {
+    const priceState: PriceState = {
+      text: priceElement.text,
+      color: priceElement.color,
+      fontSize: priceElement.fontSize,
+      yOffset: priceElement.yOffset,
+    };
+    const origPriceState: PriceState | undefined = priceElement.originalPriceText
+      ? {
+          text: priceElement.originalPriceText,
+          color: priceElement.originalPriceColor ?? "#9ca3af",
+          fontSize: priceElement.originalPriceFontSize,
+        }
+      : undefined;
+
+    cursorY = drawPriceBlock(
+      ctx,
+      priceState,
+      origPriceState,
+      cursorY + 16,
+      titleStyle.alignment,
+      columnBounds,
+    );
+  }
+
+  // Draw rating element
+  const ratingElement = findRatingElement(state);
+  if (ratingElement && (ratingElement.value > 0 || ratingElement.reviewCount)) {
+    drawRatingBlock(
+      ctx,
+      {
+        value: ratingElement.value,
+        color: ratingElement.color,
+        reviewCount: ratingElement.reviewCount ?? "",
+      },
+      cursorY + 12,
+      titleStyle.alignment,
+      columnBounds,
+    );
+  }
+
+  if (hasOverlay && overlayImage && imageElement) {
+    drawOverlayCard(ctx, imageElement, overlayImage);
   }
 }

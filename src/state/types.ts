@@ -111,22 +111,119 @@ export type RatingState = {
   reviewCount: string;
 };
 
+export type CanvasElementType =
+  | "text"
+  | "image"
+  | "logo"
+  | "badge"
+  | "price"
+  | "rating"
+  | "shape";
+
+export type BaseCanvasElement = {
+  id: string;
+  type: CanvasElementType;
+  visible?: boolean;
+  x?: number;
+  y?: number;
+  zIndex?: number;
+};
+
+export type TextElementRole = "title" | "description" | "custom";
+
+export type TextElement = BaseCanvasElement & {
+  type: "text";
+  role?: TextElementRole;
+  content: string;
+  fontFamily: string;
+  fontSize: number;
+  fontWeight: number;
+  color: string;
+  alignment: HorizontalAlignment;
+  width: number;
+  yOffset?: number;
+};
+
+export type ImageElement = BaseCanvasElement & {
+  type: "image";
+  role?: "overlay" | "custom";
+  enabled?: boolean;
+  src: string | null;
+  position?: OverlayPosition;
+  scale: number;
+  borderRadius: number;
+  shadow: boolean;
+  shadowBlur: number;
+  yOffset?: number;
+};
+
+export type LogoElement = BaseCanvasElement & {
+  type: "logo";
+  src: string | null;
+  y: number;
+  scale: number;
+  alignment: HorizontalAlignment;
+};
+
+export type BadgeElement = BaseCanvasElement & {
+  type: "badge";
+  text: string;
+  color: string;
+  background: string;
+};
+
+export type PriceElement = BaseCanvasElement & {
+  type: "price";
+  text: string;
+  color: string;
+  fontSize?: number;
+  originalPriceText?: string;
+  originalPriceColor?: string;
+  originalPriceFontSize?: number;
+  yOffset?: number;
+};
+
+export type RatingElement = BaseCanvasElement & {
+  type: "rating";
+  value: number;
+  color: string;
+  reviewCount?: string;
+};
+
+export type ShapeElement = BaseCanvasElement & {
+  type: "shape";
+  shapeType: "rectangle" | "circle" | "line";
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
+  width: number;
+  height: number;
+  borderRadius?: number;
+};
+
+export type CanvasElement =
+  | TextElement
+  | ImageElement
+  | LogoElement
+  | BadgeElement
+  | PriceElement
+  | RatingElement
+  | ShapeElement;
+
 /**
  * Single-source editor state.
- * Controls and canvas both read/write this shape.
+ * Controls and canvas both read/write this declarative shape.
  */
 export type EditorState = {
   background: Background;
-  logo: LogoState;
-  title: TextStyle;
-  description: TextStyle;
-  image: OverlayImageState;
-  /** Optional e-commerce badge overlay. */
+  elements: CanvasElement[];
+  /** Optional legacy fields preserved for backwards compatibility during transition */
+  logo?: LogoState;
+  title?: TextStyle;
+  description?: TextStyle;
+  image?: OverlayImageState;
   badge?: BadgeState;
-  /** Optional primary display price. */
   price?: PriceState;
-  /** Optional strikethrough original price. */
   originalPrice?: PriceState;
-  /** Optional star rating display. */
   rating?: RatingState;
 };

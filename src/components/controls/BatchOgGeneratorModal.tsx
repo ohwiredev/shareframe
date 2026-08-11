@@ -21,12 +21,20 @@ type BatchOgGeneratorModalProps = {
 };
 
 // Mini high-fidelity visual preview of the OG image for each page card
-function BatchPagePreviewThumbnail({ state }: { state: EditorState }) {
+import {
+  findImageElement,
+  findLogoElement,
+  findTextElement,
+  normalizeState,
+} from "../../state/elementUtils";
+
+function BatchPagePreviewThumbnail({ state: rawState }: { state: EditorState }) {
+  const state = normalizeState(rawState);
   const bg = state.background;
   const bgStyle = bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
 
-  const title = state.title;
-  const desc = state.description;
+  const title = findTextElement(state, "title");
+  const desc = findTextElement(state, "description");
 
   const align = title?.alignment || "center";
   const alignClass =
@@ -42,10 +50,10 @@ function BatchPagePreviewThumbnail({ state }: { state: EditorState }) {
   const titleWidth = title?.width ?? 90;
   const descWidth = desc?.width ?? 85;
 
-  const logo = state.logo;
+  const logo = findLogoElement(state);
   const hasLogo = Boolean(logo?.src);
-  const image = state.image;
-  const hasImage = Boolean(image?.src);
+  const image = findImageElement(state);
+  const hasImage = Boolean(image?.enabled !== false && image?.src);
   const imagePos = image?.position || "bottom";
 
   const renderTextContent = () => (
@@ -198,21 +206,27 @@ export function BatchOgGeneratorModal({
   const activeTmpl = BUILTIN_TEMPLATES.find((t) => t.id === selectedTemplate);
 
   const buildPageState = (link: ExtractedLink): EditorState => {
-    let state = { ...baseState };
+    let state = normalizeState(baseState);
     const tmpl = BUILTIN_TEMPLATES.find((t) => t.id === selectedTemplate);
     if (tmpl) {
       state = applyTemplate(state, tmpl);
     }
+    const nextElements = state.elements.map((el) => {
+      if (el.type === "text" && el.role === "title") {
+        return { ...el, content: link.title };
+      }
+      if (el.type === "text" && el.role === "description") {
+        return {
+          ...el,
+          content: link.description || `Official page for ${link.title} on ${extracted.domain}`,
+        };
+      }
+      return el;
+    });
+
     return {
       ...state,
-      title: {
-        ...state.title,
-        content: link.title,
-      },
-      description: {
-        ...state.description,
-        content: link.description || `Official page for ${link.title} on ${extracted.domain}`,
-      },
+      elements: nextElements,
     };
   };
 
