@@ -24,3 +24,7 @@
 - [x] Drag-and-drop logo upload
 - [x] Debounced slider inputs via requestAnimationFrame batching
 - [x] E-commerce product templates with customizable badge, price, rating, and Unsplash product images
+- [x] Transition EditorState and canvas rendering to declarative elements array (`CanvasElement[]` with normalizeState)
+- [x] Auto-register template definitions via Vite `import.meta.glob`
+- [x] Persistent local storage for editor state
+- [x] Live social previews (Twitter/X, LinkedIn, Facebook card previews)
