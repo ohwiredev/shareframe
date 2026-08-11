@@ -10,31 +10,41 @@
       "angle": 125,
       "colors": ["#7c2d12", "#c2410c", "#ea580c"]
     },
-    "logo": {
-      "y": 0.18,
-      "scale": 0.95,
-      "alignment": "left",
-      "src": null
-    },
-    "title": {
-      "content": "Designing Scalable Web Apps with Modern Frontend Patterns",
-      "fontFamily": "Space Grotesk",
-      "fontSize": 52,
-      "width": 88,
-      "fontWeight": 700,
-      "color": "#fff7ed",
-      "alignment": "left",
-      "yOffset": 0
-    },
-    "description": {
-      "content": "Architectures, state models, and browser performance — lessons from shipping at scale.",
-      "fontFamily": "Inter",
-      "fontSize": 18,
-      "width": 82,
-      "fontWeight": 400,
-      "color": "#ffedd5",
-      "alignment": "left",
-      "yOffset": 6
-    }
+    "elements": [
+      {
+        "id": "logo-main",
+        "type": "logo",
+        "y": 0.18,
+        "scale": 0.95,
+        "alignment": "left",
+        "src": null
+      },
+      {
+        "id": "text-title",
+        "type": "text",
+        "role": "title",
+        "content": "Designing Scalable Web Apps with Modern Frontend Patterns",
+        "fontFamily": "Space Grotesk",
+        "fontSize": 52,
+        "width": 88,
+        "fontWeight": 700,
+        "color": "#fff7ed",
+        "alignment": "left",
+        "yOffset": 0
+      },
+      {
+        "id": "text-description",
+        "type": "text",
+        "role": "description",
+        "content": "Architectures, state models, and browser performance — lessons from shipping at scale.",
+        "fontFamily": "Inter",
+        "fontSize": 18,
+        "width": 82,
+        "fontWeight": 400,
+        "color": "#ffedd5",
+        "alignment": "left",
+        "yOffset": 6
+      }
+    ]
   }
 }

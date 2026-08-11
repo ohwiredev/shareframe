@@ -9,31 +9,41 @@
       "type": "solid",
       "color": "#faf6f0"
     },
-    "logo": {
-      "y": 0.2,
-      "scale": 0.88,
-      "alignment": "left",
-      "src": null
-    },
-    "title": {
-      "content": "Why Simplicity Wins: The Return to Client-Side Architecture",
-      "fontFamily": "Playfair Display",
-      "fontSize": 48,
-      "width": 90,
-      "fontWeight": 700,
-      "color": "#1c1917",
-      "alignment": "left",
-      "yOffset": 0
-    },
-    "description": {
-      "content": "Zero-config browser tools and local-first software are outperforming server monoliths.",
-      "fontFamily": "Lato",
-      "fontSize": 18,
-      "width": 84,
-      "fontWeight": 400,
-      "color": "#57534e",
-      "alignment": "left",
-      "yOffset": 8
-    }
+    "elements": [
+      {
+        "id": "logo-main",
+        "type": "logo",
+        "y": 0.2,
+        "scale": 0.88,
+        "alignment": "left",
+        "src": null
+      },
+      {
+        "id": "text-title",
+        "type": "text",
+        "role": "title",
+        "content": "Why Simplicity Wins: The Return to Client-Side Architecture",
+        "fontFamily": "Playfair Display",
+        "fontSize": 48,
+        "width": 90,
+        "fontWeight": 700,
+        "color": "#1c1917",
+        "alignment": "left",
+        "yOffset": 0
+      },
+      {
+        "id": "text-description",
+        "type": "text",
+        "role": "description",
+        "content": "Zero-config browser tools and local-first software are outperforming server monoliths.",
+        "fontFamily": "Lato",
+        "fontSize": 18,
+        "width": 84,
+        "fontWeight": 400,
+        "color": "#57534e",
+        "alignment": "left",
+        "yOffset": 8
+      }
+    ]
   }
 }

@@ -9,31 +9,41 @@
       "type": "solid",
       "color": "#f2f0ef"
     },
-    "logo": {
-      "src": "https://i.ibb.co/FP228DJ/logoipsum-409.png",
-      "y": 0.3,
-      "scale": 0.8,
-      "alignment": "center"
-    },
-    "title": {
-      "content": "Ep. 42 - Architecture of Autonomous Systems",
-      "fontFamily": "Outfit",
-      "fontSize": 48,
-      "width": 86,
-      "fontWeight": 700,
-      "color": "#000000",
-      "alignment": "center",
-      "yOffset": 8
-    },
-    "description": {
-      "content": "Multi-agent orchestration, tool routing, and resilient AI workflows in production.",
-      "fontFamily": "Manrope",
-      "fontSize": 18,
-      "width": 78,
-      "fontWeight": 400,
-      "color": "#5D5D5D",
-      "alignment": "center",
-      "yOffset": 10
-    }
+    "elements": [
+      {
+        "id": "logo-main",
+        "type": "logo",
+        "src": "https://i.ibb.co/FP228DJ/logoipsum-409.png",
+        "y": 0.3,
+        "scale": 0.8,
+        "alignment": "center"
+      },
+      {
+        "id": "text-title",
+        "type": "text",
+        "role": "title",
+        "content": "Ep. 42 - Architecture of Autonomous Systems",
+        "fontFamily": "Outfit",
+        "fontSize": 48,
+        "width": 86,
+        "fontWeight": 700,
+        "color": "#000000",
+        "alignment": "center",
+        "yOffset": 8
+      },
+      {
+        "id": "text-description",
+        "type": "text",
+        "role": "description",
+        "content": "Multi-agent orchestration, tool routing, and resilient AI workflows in production.",
+        "fontFamily": "Manrope",
+        "fontSize": 18,
+        "width": 78,
+        "fontWeight": 400,
+        "color": "#5D5D5D",
+        "alignment": "center",
+        "yOffset": 10
+      }
+    ]
   }
 }

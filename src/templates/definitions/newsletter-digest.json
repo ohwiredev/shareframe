@@ -10,31 +10,41 @@
       "angle": 135,
       "colors": ["#022c22", "#064e3b", "#065f46"]
     },
-    "logo": {
-      "y": 0.18,
-      "scale": 0.95,
-      "alignment": "left",
-      "src": null
-    },
-    "title": {
-      "content": "Frontend Weekly #104",
-      "fontFamily": "Plus Jakarta Sans",
-      "fontSize": 56,
-      "width": 88,
-      "fontWeight": 700,
-      "color": "#a7f3d0",
-      "alignment": "left",
-      "yOffset": 0
-    },
-    "description": {
-      "content": "React 19, Vite 6, and the benchmarks worth reading this week.",
-      "fontFamily": "DM Sans",
-      "fontSize": 18,
-      "width": 82,
-      "fontWeight": 400,
-      "color": "#d1fae5",
-      "alignment": "left",
-      "yOffset": 8
-    }
+    "elements": [
+      {
+        "id": "logo-main",
+        "type": "logo",
+        "y": 0.18,
+        "scale": 0.95,
+        "alignment": "left",
+        "src": null
+      },
+      {
+        "id": "text-title",
+        "type": "text",
+        "role": "title",
+        "content": "Frontend Weekly #104",
+        "fontFamily": "Plus Jakarta Sans",
+        "fontSize": 56,
+        "width": 88,
+        "fontWeight": 700,
+        "color": "#a7f3d0",
+        "alignment": "left",
+        "yOffset": 0
+      },
+      {
+        "id": "text-description",
+        "type": "text",
+        "role": "description",
+        "content": "React 19, Vite 6, and the benchmarks worth reading this week.",
+        "fontFamily": "DM Sans",
+        "fontSize": 18,
+        "width": 82,
+        "fontWeight": 400,
+        "color": "#d1fae5",
+        "alignment": "left",
+        "yOffset": 8
+      }
+    ]
   }
 }
