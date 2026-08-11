@@ -28,3 +28,5 @@
 - [x] Auto-register template definitions via Vite `import.meta.glob`
 - [x] Persistent local storage for editor state
 - [x] Live social previews (Twitter/X, LinkedIn, Facebook card previews)
+- [x] Richer layout primitives (Relative positioning, multi-column grid, safe-area constraints)
+
