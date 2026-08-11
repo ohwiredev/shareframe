@@ -5,23 +5,39 @@ import {
   SOLID_COLOR_PRESETS,
 } from "../../state/backgroundPresets";
 import { gradientsEqual, gradientToCss } from "../../state/gradient";
-import type { Background } from "../../state/types";
+import type { Background, SafeAreaConfig } from "../../state/types";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { Separator } from "../ui/separator";
 import { ColorField } from "./ColorField";
 import { PanelHeader } from "./PanelHeader";
+import { RangeField } from "./RangeField";
 
 type CanvasPanelProps = {
   background: Background;
+  safeArea?: SafeAreaConfig;
   onChange: (background: Background) => void;
+  onSafeAreaChange?: (safeArea: SafeAreaConfig) => void;
 };
 
-export function CanvasPanel({ background, onChange }: CanvasPanelProps) {
+export function CanvasPanel({
+  background,
+  safeArea,
+  onChange,
+  onSafeAreaChange,
+}: CanvasPanelProps) {
   const customColor = background.type === "solid" ? background.color : background.colors[0];
 
   const isGradientSelected = (gradient: GradientPreset) =>
     background.type === "gradient" &&
     gradientsEqual(background, gradientPresetToBackground(gradient));
+
+  const currentSafeArea: SafeAreaConfig = {
+    left: safeArea?.left ?? 80,
+    right: safeArea?.right ?? 80,
+    top: safeArea?.top ?? 60,
+    bottom: safeArea?.bottom ?? 60,
+  };
 
   return (
     <>
@@ -72,6 +88,46 @@ export function CanvasPanel({ background, onChange }: CanvasPanelProps) {
           );
         })}
       </div>
+
+      {onSafeAreaChange && (
+        <>
+          <Separator className="section-rule" />
+          <PanelHeader
+            title="Safe Area Constraints"
+            subtitle="Adjust outer margins and canvas safe area boundaries."
+          />
+          <RangeField
+            label="Left & Right Padding (px)"
+            value={currentSafeArea.left ?? 80}
+            min={20}
+            max={200}
+            step={5}
+            display={`${currentSafeArea.left ?? 80}px`}
+            onChange={(val) =>
+              onSafeAreaChange({
+                ...currentSafeArea,
+                left: val,
+                right: val,
+              })
+            }
+          />
+          <RangeField
+            label="Top & Bottom Padding (px)"
+            value={currentSafeArea.top ?? 60}
+            min={20}
+            max={180}
+            step={5}
+            display={`${currentSafeArea.top ?? 60}px`}
+            onChange={(val) =>
+              onSafeAreaChange({
+                ...currentSafeArea,
+                top: val,
+                bottom: val,
+              })
+            }
+          />
+        </>
+      )}
     </>
   );
 }

@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 
-
 export type ViewMode = "raw" | "twitter" | "slack";
 
 interface SocialPreviewWrapperProps {
@@ -27,7 +26,7 @@ export function SocialPreviewWrapper({ viewMode, children }: SocialPreviewWrappe
           <div className="h-2 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded" />
           <div className="h-2 w-1/2 bg-neutral-200 dark:bg-neutral-800 rounded" />
         </div>
-        
+
         <div className="border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden bg-white dark:bg-[#000000] transition-colors">
           <div className="[&_.functional-preview]:!border-0 [&_.functional-preview]:!rounded-none [&_.functional-preview]:!shadow-none [&_.functional-preview]:!bg-transparent">
             {children}
@@ -53,7 +52,7 @@ export function SocialPreviewWrapper({ viewMode, children }: SocialPreviewWrappe
               <div className="h-2 w-12 bg-neutral-400 dark:bg-neutral-500 rounded" />
             </div>
             <div className="h-2 w-3/4 bg-neutral-800 dark:bg-neutral-200 rounded mb-3" />
-            
+
             <div className="flex">
               <div className="w-1 bg-neutral-200 dark:bg-neutral-700 rounded-full mr-3 shrink-0" />
               <div className="flex-1">

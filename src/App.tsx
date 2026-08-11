@@ -1,5 +1,5 @@
+import { Hash, MessageSquare, Monitor } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Hash, Monitor, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { copyImageToClipboard, isClipboardSupported } from "./canvas/clipboard";
 import { type ExportFormat, exportImage } from "./canvas/exportCanvas";
@@ -21,17 +21,6 @@ import { useHistory } from "./hooks/useHistory";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import type { ExtractedMetadata } from "./lib/websiteExtractor";
 import { DEFAULT_EDITOR_STATE } from "./state/defaults";
-import type {
-  BadgeState,
-  EditorState,
-  LogoState,
-  OverlayImageState,
-  PriceState,
-  RatingState,
-  TextStyle,
-} from "./state/types";
-import { applyTemplate, BUILTIN_TEMPLATES, type OgTemplate } from "./templates";
-
 import {
   badgeStateToBadgeElement,
   findBadgeElement,
@@ -51,6 +40,16 @@ import {
   textElementToTextStyle,
   textStyleToTextElement,
 } from "./state/elementUtils";
+import type {
+  BadgeState,
+  EditorState,
+  LogoState,
+  OverlayImageState,
+  PriceState,
+  RatingState,
+  TextStyle,
+} from "./state/types";
+import { applyTemplate, BUILTIN_TEMPLATES, type OgTemplate } from "./templates";
 
 export type ThemeMode = "light" | "dark";
 
@@ -77,12 +76,30 @@ export default function App() {
   const titleState = textElementToTextStyle(findTextElement(state, "title"));
   const descriptionState = textElementToTextStyle(findTextElement(state, "description"));
   const badgeEl = findBadgeElement(state);
-  const badgeState = badgeEl ? { text: badgeEl.text, color: badgeEl.color, background: badgeEl.background } : undefined;
+  const badgeState = badgeEl
+    ? { text: badgeEl.text, color: badgeEl.color, background: badgeEl.background }
+    : undefined;
   const priceEl = findPriceElement(state);
-  const priceState = priceEl?.text ? { text: priceEl.text, color: priceEl.color, fontSize: priceEl.fontSize, yOffset: priceEl.yOffset } : undefined;
-  const origPriceState = priceEl?.originalPriceText ? { text: priceEl.originalPriceText, color: priceEl.originalPriceColor ?? "#9ca3af", fontSize: priceEl.originalPriceFontSize } : undefined;
+  const priceState = priceEl?.text
+    ? {
+        text: priceEl.text,
+        color: priceEl.color,
+        fontSize: priceEl.fontSize,
+        yOffset: priceEl.yOffset,
+      }
+    : undefined;
+  const origPriceState = priceEl?.originalPriceText
+    ? {
+        text: priceEl.originalPriceText,
+        color: priceEl.originalPriceColor ?? "#9ca3af",
+        fontSize: priceEl.originalPriceFontSize,
+      }
+    : undefined;
   const ratingEl = findRatingElement(state);
-  const ratingState = ratingEl && ratingEl.value > 0 ? { value: ratingEl.value, color: ratingEl.color, reviewCount: ratingEl.reviewCount ?? "" } : undefined;
+  const ratingState =
+    ratingEl && ratingEl.value > 0
+      ? { value: ratingEl.value, color: ratingEl.color, reviewCount: ratingEl.reviewCount ?? "" }
+      : undefined;
 
   const [theme, setTheme] = useState<ThemeMode>("dark");
   const [panel, setPanel] = useState<EditorPanel>("templates");
@@ -133,7 +150,10 @@ export default function App() {
 
   const setTitle = (title: TextStyle) =>
     setState((currentRaw) =>
-      setOrUpdateElement(normalizeState(currentRaw), textStyleToTextElement("text-title", "title", title)),
+      setOrUpdateElement(
+        normalizeState(currentRaw),
+        textStyleToTextElement("text-title", "title", title),
+      ),
     );
 
   const setDescription = (description: TextStyle) =>
@@ -214,7 +234,10 @@ export default function App() {
         const desc = textElementToTextStyle(findTextElement(current, "description"));
         updated = setOrUpdateElement(
           updated,
-          textStyleToTextElement("text-description", "description", { ...desc, content: extracted.description }),
+          textStyleToTextElement("text-description", "description", {
+            ...desc,
+            content: extracted.description,
+          }),
         );
       }
       if (extracted.logoUrl) {
@@ -382,7 +405,9 @@ export default function App() {
           {panel === "canvas" && (
             <CanvasPanel
               background={state.background}
+              safeArea={state.safeArea}
               onChange={(background) => setState((current) => ({ ...current, background }))}
+              onSafeAreaChange={(safeArea) => setState((current) => ({ ...current, safeArea }))}
             />
           )}
           {panel === "logo" && (
@@ -468,6 +493,16 @@ export default function App() {
               {renderError}
             </p>
           )}
+          <a
+            href="https://github.com/ohwiredev/shareframe"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute bottom-3 right-3 z-10 text-neutral-400 hover:text-neutral-200 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors"
+            title="View on GitHub"
+            aria-label="View on GitHub"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.11.82-.26.82-.58l-.01-2.04c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6.02 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18a4.65 4.65 0 0 1 1.24 3.22c0 4.61-2.8 5.63-5.48 5.92.43.37.81 1.1.81 2.22l-.01 3.29c0 .32.22.7.82.58A12 12 0 0 0 12 .3"/></svg>
+          </a>
         </section>
       </main>
 

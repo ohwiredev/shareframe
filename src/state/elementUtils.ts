@@ -12,6 +12,7 @@ import type {
   PriceState,
   RatingElement,
   RatingState,
+  SafeAreaConfig,
   TextElement,
   TextElementRole,
   TextStyle,
@@ -22,9 +23,7 @@ export function findTextElement(
   role: TextElementRole,
 ): TextElement | undefined {
   if (!state.elements) return undefined;
-  return state.elements.find(
-    (el): el is TextElement => el.type === "text" && el.role === role,
-  );
+  return state.elements.find((el): el is TextElement => el.type === "text" && el.role === role);
 }
 
 export function findLogoElement(state: EditorState): LogoElement | undefined {
@@ -63,10 +62,7 @@ export function updateElement<T extends CanvasElement>(
   return { ...state, elements };
 }
 
-export function setOrUpdateElement(
-  state: EditorState,
-  element: CanvasElement,
-): EditorState {
+export function setOrUpdateElement(state: EditorState, element: CanvasElement): EditorState {
   const elements = state.elements || [];
   const index = elements.findIndex((el) => el.id === element.id);
 
@@ -79,10 +75,7 @@ export function setOrUpdateElement(
   return { ...state, elements: [...elements, element] };
 }
 
-export function removeElement(
-  state: EditorState,
-  idOrType: string,
-): EditorState {
+export function removeElement(state: EditorState, idOrType: string): EditorState {
   const elements = (state.elements || []).filter(
     (el) => el.id !== idOrType && el.type !== idOrType,
   );
@@ -223,11 +216,18 @@ export function normalizeState(rawState: unknown): EditorState {
   }
 
   const raw = rawState as Record<string, unknown>;
-  const background = (raw.background as Background | undefined) ?? { type: "solid", color: "#09090b" };
+  const templateId = raw.templateId as string | undefined;
+  const background = (raw.background as Background | undefined) ?? {
+    type: "solid",
+    color: "#09090b",
+  };
+  const safeArea = raw.safeArea as SafeAreaConfig | undefined;
 
   if (Array.isArray(raw.elements) && raw.elements.length > 0) {
     return {
+      templateId,
       background,
+      safeArea,
       elements: raw.elements,
     };
   }
@@ -259,16 +259,24 @@ export function normalizeState(rawState: unknown): EditorState {
 
   if ((raw.price as PriceState | undefined)?.text) {
     elements.push(
-      priceStateToPriceElement(raw.price as PriceState, raw.originalPrice as PriceState | undefined),
+      priceStateToPriceElement(
+        raw.price as PriceState,
+        raw.originalPrice as PriceState | undefined,
+      ),
     );
   }
 
-  if (raw.rating && ((raw.rating as RatingState).value > 0 || (raw.rating as RatingState).reviewCount)) {
+  if (
+    raw.rating &&
+    ((raw.rating as RatingState).value > 0 || (raw.rating as RatingState).reviewCount)
+  ) {
     elements.push(ratingStateToRatingElement(raw.rating as RatingState));
   }
 
   return {
+    templateId,
     background,
+    safeArea,
     elements,
   };
 }

@@ -101,10 +101,7 @@ function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
         )}
         {tmplPrice?.text && (
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span
-              className="text-[11px] font-bold"
-              style={{ color: tmplPrice.color || "#10b981" }}
-            >
+            <span className="text-[11px] font-bold" style={{ color: tmplPrice.color || "#10b981" }}>
               {tmplPrice.text}
             </span>
             {tmplPrice.originalPriceText && (
@@ -189,6 +186,11 @@ export function TemplatePanel({ currentState, onApplyTemplate }: TemplatePanelPr
   });
 
   const isSelected = (template: OgTemplate) => {
+    if (currentState.templateId) {
+      return template.id === currentState.templateId;
+    }
+
+    // Fallback for older saved state without templateId
     const bg = template.state.background;
     if (!bg) return false;
     if (bg.type !== currentState.background.type) return false;

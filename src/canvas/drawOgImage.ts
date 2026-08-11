@@ -9,6 +9,8 @@ import type {
   LogoElement,
   PriceState,
   RatingState,
+  RelativeAnchor,
+  SafeAreaConfig,
   ShapeElement,
   TextStyle,
 } from "../state/types";
@@ -32,6 +34,126 @@ type TextLayout = {
   lineHeight: number;
   lines: string[];
 };
+
+export type ResolvedSafeArea = {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  width: number;
+  height: number;
+};
+
+export type ElementBounds = {
+  id: string;
+  role?: string;
+  type: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export function resolveSafeArea(safeArea?: SafeAreaConfig): ResolvedSafeArea {
+  const left = safeArea?.left ?? CONTENT_PADDING_X;
+  const right = OG_WIDTH - (safeArea?.right ?? CONTENT_PADDING_X);
+  const top = safeArea?.top ?? 60;
+  const bottom = OG_HEIGHT - (safeArea?.bottom ?? 60);
+  return {
+    left,
+    right,
+    top,
+    bottom,
+    width: Math.max(10, right - left),
+    height: Math.max(10, bottom - top),
+  };
+}
+
+export function findTargetBounds(
+  targetRef: string,
+  boundsMap: Map<string, ElementBounds>,
+  lastBounds?: ElementBounds,
+): ElementBounds | undefined {
+  if (targetRef === "previous") return lastBounds;
+  if (boundsMap.has(targetRef)) return boundsMap.get(targetRef);
+
+  for (const bounds of boundsMap.values()) {
+    if (bounds.role === targetRef || bounds.type === targetRef) {
+      return bounds;
+    }
+  }
+  return undefined;
+}
+
+export function resolveRelativePosition(
+  el: {
+    relativeTo?: string;
+    relativeAnchor?: RelativeAnchor;
+    offsetX?: number;
+    offsetY?: number;
+  },
+  elementWidth: number,
+  elementHeight: number,
+  boundsMap: Map<string, ElementBounds>,
+  lastBounds?: ElementBounds,
+  defaultY?: number,
+  defaultX?: number,
+): { x?: number; y: number } {
+  if (!el.relativeTo) {
+    return {
+      x: defaultX !== undefined ? defaultX + (el.offsetX ?? 0) : undefined,
+      y: (defaultY ?? 0) + (el.offsetY ?? 0),
+    };
+  }
+
+  const target = findTargetBounds(el.relativeTo, boundsMap, lastBounds);
+  if (!target) {
+    return {
+      x: defaultX !== undefined ? defaultX + (el.offsetX ?? 0) : undefined,
+      y: (defaultY ?? 0) + (el.offsetY ?? 0),
+    };
+  }
+
+  const anchor = el.relativeAnchor ?? "below";
+  const offsetX = el.offsetX ?? 0;
+  const offsetY = el.offsetY ?? 0;
+
+  let x = defaultX;
+  let y = defaultY ?? target.y;
+
+  switch (anchor) {
+    case "below":
+      y = target.y + target.height + offsetY;
+      break;
+    case "above":
+      y = target.y - elementHeight - offsetY;
+      break;
+    case "right-of":
+      x = target.x + target.width + offsetX;
+      break;
+    case "left-of":
+      x = target.x - elementWidth - offsetX;
+      break;
+    case "top":
+      y = target.y + offsetY;
+      break;
+    case "bottom":
+      y = target.y + target.height - elementHeight + offsetY;
+      break;
+    case "left":
+      x = target.x + offsetX;
+      break;
+    case "right":
+      x = target.x + target.width - elementWidth + offsetX;
+      break;
+    case "center":
+      x = target.x + (target.width - elementWidth) / 2 + offsetX;
+      y = target.y + (target.height - elementHeight) / 2 + offsetY;
+      break;
+  }
+
+  return { x, y };
+}
 
 export const CONTEXT_OPTIONS: CanvasRenderingContext2DSettings = {
   alpha: false,
@@ -648,47 +770,116 @@ export function drawOgImage(
   ctx.fillStyle = backgroundStyle(ctx, state.background);
   ctx.fillRect(0, 0, OG_WIDTH, OG_HEIGHT);
 
+  const safeArea = resolveSafeArea(state.safeArea);
+  const elementBoundsMap = new Map<string, ElementBounds>();
+  elementBoundsMap.set("safe-area", {
+    id: "safe-area",
+    type: "container",
+    x: safeArea.left,
+    y: safeArea.top,
+    width: safeArea.width,
+    height: safeArea.height,
+  });
+
   const imageElement = findImageElement(state);
   const overlayImage = imageElement?.enabled && imageElement?.src ? assets.overlayImage : null;
   const hasOverlay = Boolean(overlayImage);
 
-  let columnBounds: { left: number; right: number } | undefined;
+  let defaultColumnBounds: { left: number; right: number } | undefined;
   if (hasOverlay && imageElement) {
     if (imageElement.position === "right") {
-      columnBounds = { left: CONTENT_PADDING_X, right: OG_WIDTH * 0.48 };
+      defaultColumnBounds = { left: safeArea.left, right: OG_WIDTH * 0.48 };
     } else if (imageElement.position === "left") {
-      columnBounds = {
+      defaultColumnBounds = {
         left: OG_WIDTH * 0.52,
-        right: OG_WIDTH - CONTENT_PADDING_X,
+        right: safeArea.right,
       };
     }
   }
 
+  let lastBounds: ElementBounds | undefined;
+
   // Render elements declaratively or by group sequence
   const badgeElement = findBadgeElement(state);
   if (badgeElement?.text) {
-    drawBadge(ctx, badgeElement, columnBounds);
+    const badgeCols = defaultColumnBounds ?? { left: safeArea.left, right: safeArea.right };
+    drawBadge(ctx, badgeElement, badgeCols);
+    const badgeBounds: ElementBounds = {
+      id: badgeElement.id ?? "badge-main",
+      role: "badge",
+      type: "badge",
+      x: badgeCols.left,
+      y: BADGE_Y,
+      width: badgeCols.right - badgeCols.left,
+      height: 30,
+    };
+    elementBoundsMap.set(badgeBounds.id, badgeBounds);
+    elementBoundsMap.set("badge", badgeBounds);
+    lastBounds = badgeBounds;
   }
 
   const logoElement = findLogoElement(state);
   const logoImage = logoElement?.src ? assets.logoImage : null;
   if (logoElement && logoImage) {
-    drawLogo(ctx, logoElement, logoImage, columnBounds);
+    const logoCols = defaultColumnBounds ?? { left: safeArea.left, right: safeArea.right };
+    drawLogo(ctx, logoElement, logoImage, logoCols);
+    const logoY = logoElement.y * OG_HEIGHT - LOGO_BASE_SIZE / 2;
+    const logoBounds: ElementBounds = {
+      id: logoElement.id ?? "logo-main",
+      role: "logo",
+      type: "logo",
+      x: logoCols.left,
+      y: logoY,
+      width: LOGO_BASE_SIZE * logoElement.scale,
+      height: LOGO_BASE_SIZE * logoElement.scale,
+    };
+    elementBoundsMap.set(logoBounds.id, logoBounds);
+    elementBoundsMap.set("logo", logoBounds);
+    lastBounds = logoBounds;
   }
 
   // Draw any standalone shape elements
   for (const el of state.elements) {
     if (el.type === "shape") {
-      drawShapeElement(ctx, el, columnBounds);
+      const shapeCols = defaultColumnBounds ?? { left: safeArea.left, right: safeArea.right };
+      const defaultY = el.y ?? 100;
+      const defaultX = el.x ?? shapeCols.left;
+      const relPos = resolveRelativePosition(
+        el,
+        el.width,
+        el.height,
+        elementBoundsMap,
+        lastBounds,
+        defaultY,
+        defaultX,
+      );
+      const targetShape: ShapeElement = {
+        ...el,
+        x: relPos.x ?? defaultX,
+        y: relPos.y,
+      };
+      drawShapeElement(ctx, targetShape, shapeCols);
+      const shapeBounds: ElementBounds = {
+        id: el.id,
+        type: "shape",
+        x: targetShape.x ?? shapeCols.left,
+        y: targetShape.y ?? 100,
+        width: el.width,
+        height: el.height,
+      };
+      elementBoundsMap.set(el.id, shapeBounds);
+      lastBounds = shapeBounds;
     }
   }
 
-  const maxColumnWidth = columnBounds
-    ? columnBounds.right - columnBounds.left
-    : OG_WIDTH - CONTENT_PADDING_X * 2;
-
   const titleElement = findTextElement(state, "title");
   const descriptionElement = findTextElement(state, "description");
+
+  const titleCols = defaultColumnBounds ?? { left: safeArea.left, right: safeArea.right };
+  const maxTitleColumnWidth = titleCols.right - titleCols.left;
+
+  const descCols = defaultColumnBounds ?? { left: safeArea.left, right: safeArea.right };
+  const maxDescColumnWidth = descCols.right - descCols.left;
 
   const titleStyle: TextStyle = titleElement
     ? {
@@ -734,44 +925,88 @@ export function drawOgImage(
         yOffset: 0,
       };
 
-  const titleLayout = layoutText(ctx, titleStyle, maxColumnWidth * (titleStyle.width / 100));
+  const titleLayout = layoutText(ctx, titleStyle, maxTitleColumnWidth * (titleStyle.width / 100));
   const descriptionLayout = layoutText(
     ctx,
     descriptionStyle,
-    maxColumnWidth * (descriptionStyle.width / 100),
+    maxDescColumnWidth * (descriptionStyle.width / 100),
   );
   const hasGap = titleLayout.height > 0 && descriptionLayout.height > 0;
   const blockHeight = titleLayout.height + (hasGap ? BLOCK_GAP : 0) + descriptionLayout.height;
 
   let textStartY: number;
   if (hasOverlay && imageElement?.position === "bottom") {
-    textStartY = logoImage ? 130 : 80;
+    textStartY = logoImage ? safeArea.top + 70 : safeArea.top + 20;
   } else {
     textStartY = logoImage
       ? OG_HEIGHT * 0.42
-      : Math.max(CONTENT_PADDING_X, (OG_HEIGHT - blockHeight) / 2);
+      : Math.max(safeArea.top, (OG_HEIGHT - blockHeight) / 2);
   }
 
-  const titleYOffset = titleStyle.yOffset;
-  const descriptionYOffset = descriptionStyle.yOffset;
-  const descriptionY = textStartY + titleLayout.height + (hasGap ? BLOCK_GAP : 0);
+  let finalTitleY = textStartY + titleStyle.yOffset;
+  if (titleElement?.relativeTo) {
+    const relPos = resolveRelativePosition(
+      titleElement,
+      maxTitleColumnWidth,
+      titleLayout.height,
+      elementBoundsMap,
+      lastBounds,
+      textStartY,
+    );
+    finalTitleY = relPos.y;
+  }
 
   if (titleStyle.content) {
-    drawText(ctx, titleStyle, titleLayout, textStartY + titleYOffset, columnBounds);
+    drawText(ctx, titleStyle, titleLayout, finalTitleY, titleCols);
+    const titleBounds: ElementBounds = {
+      id: titleElement?.id ?? "text-title",
+      role: "title",
+      type: "text",
+      x: titleCols.left,
+      y: finalTitleY,
+      width: maxTitleColumnWidth,
+      height: titleLayout.height,
+    };
+    elementBoundsMap.set(titleBounds.id, titleBounds);
+    elementBoundsMap.set("title", titleBounds);
+    lastBounds = titleBounds;
   }
-  if (descriptionStyle.content) {
-    drawText(
-      ctx,
-      descriptionStyle,
-      descriptionLayout,
-      descriptionY + descriptionYOffset,
-      columnBounds,
+
+  const defaultDescY = finalTitleY + titleLayout.height + (hasGap ? BLOCK_GAP : 0);
+  let finalDescY = defaultDescY + descriptionStyle.yOffset;
+  if (descriptionElement?.relativeTo) {
+    const relPos = resolveRelativePosition(
+      descriptionElement,
+      maxDescColumnWidth,
+      descriptionLayout.height,
+      elementBoundsMap,
+      lastBounds,
+      defaultDescY,
     );
+    finalDescY = relPos.y;
+  }
+
+  if (descriptionStyle.content) {
+    drawText(ctx, descriptionStyle, descriptionLayout, finalDescY, descCols);
+    const descBounds: ElementBounds = {
+      id: descriptionElement?.id ?? "text-description",
+      role: "description",
+      type: "text",
+      x: descCols.left,
+      y: finalDescY,
+      width: maxDescColumnWidth,
+      height: descriptionLayout.height,
+    };
+    elementBoundsMap.set(descBounds.id, descBounds);
+    elementBoundsMap.set("description", descBounds);
+    lastBounds = descBounds;
   }
 
   // Draw any additional custom text elements
   for (const el of state.elements) {
     if (el.type === "text" && el.role === "custom" && el.content) {
+      const customCols = defaultColumnBounds ?? { left: safeArea.left, right: safeArea.right };
+      const maxColWidth = customCols.right - customCols.left;
       const customStyle: TextStyle = {
         content: el.content,
         fontFamily: el.fontFamily,
@@ -782,15 +1017,38 @@ export function drawOgImage(
         alignment: el.alignment,
         yOffset: el.yOffset ?? 0,
       };
-      const layout = layoutText(ctx, customStyle, maxColumnWidth * (customStyle.width / 100));
-      drawText(ctx, customStyle, layout, (el.y ?? 200) + customStyle.yOffset, columnBounds);
+      const layout = layoutText(ctx, customStyle, maxColWidth * (customStyle.width / 100));
+      const defaultY = el.y ?? 200;
+      const relPos = resolveRelativePosition(
+        el,
+        maxColWidth,
+        layout.height,
+        elementBoundsMap,
+        lastBounds,
+        defaultY,
+      );
+      const drawY = relPos.y + customStyle.yOffset;
+      drawText(ctx, customStyle, layout, drawY, customCols);
+
+      const customBounds: ElementBounds = {
+        id: el.id,
+        role: el.role,
+        type: "text",
+        x: customCols.left,
+        y: drawY,
+        width: maxColWidth,
+        height: layout.height,
+      };
+      elementBoundsMap.set(el.id, customBounds);
+      lastBounds = customBounds;
     }
   }
 
   // Draw price element
-  let cursorY = descriptionY + descriptionYOffset + descriptionLayout.height;
+  let cursorY = finalDescY + descriptionLayout.height;
   const priceElement = findPriceElement(state);
   if (priceElement && (priceElement.text || priceElement.originalPriceText)) {
+    const priceCols = defaultColumnBounds ?? { left: safeArea.left, right: safeArea.right };
     const priceState: PriceState = {
       text: priceElement.text,
       color: priceElement.color,
@@ -805,30 +1063,83 @@ export function drawOgImage(
         }
       : undefined;
 
+    let targetPriceTopY = cursorY + 16;
+    if (priceElement.relativeTo) {
+      const relPos = resolveRelativePosition(
+        priceElement,
+        priceCols.right - priceCols.left,
+        36,
+        elementBoundsMap,
+        lastBounds,
+        targetPriceTopY,
+      );
+      targetPriceTopY = relPos.y;
+    }
+
     cursorY = drawPriceBlock(
       ctx,
       priceState,
       origPriceState,
-      cursorY + 16,
+      targetPriceTopY,
       titleStyle.alignment,
-      columnBounds,
+      priceCols,
     );
+
+    const priceBounds: ElementBounds = {
+      id: priceElement.id ?? "price-main",
+      role: "price",
+      type: "price",
+      x: priceCols.left,
+      y: targetPriceTopY,
+      width: priceCols.right - priceCols.left,
+      height: cursorY - targetPriceTopY,
+    };
+    elementBoundsMap.set(priceBounds.id, priceBounds);
+    elementBoundsMap.set("price", priceBounds);
+    lastBounds = priceBounds;
   }
 
   // Draw rating element
   const ratingElement = findRatingElement(state);
   if (ratingElement && (ratingElement.value > 0 || ratingElement.reviewCount)) {
-    drawRatingBlock(
+    const ratingCols = defaultColumnBounds ?? { left: safeArea.left, right: safeArea.right };
+    let targetRatingTopY = cursorY + 12;
+    if (ratingElement.relativeTo) {
+      const relPos = resolveRelativePosition(
+        ratingElement,
+        ratingCols.right - ratingCols.left,
+        24,
+        elementBoundsMap,
+        lastBounds,
+        targetRatingTopY,
+      );
+      targetRatingTopY = relPos.y;
+    }
+
+    const endY = drawRatingBlock(
       ctx,
       {
         value: ratingElement.value,
         color: ratingElement.color,
         reviewCount: ratingElement.reviewCount ?? "",
       },
-      cursorY + 12,
+      targetRatingTopY,
       titleStyle.alignment,
-      columnBounds,
+      ratingCols,
     );
+
+    const ratingBounds: ElementBounds = {
+      id: ratingElement.id ?? "rating-main",
+      role: "rating",
+      type: "rating",
+      x: ratingCols.left,
+      y: targetRatingTopY,
+      width: ratingCols.right - ratingCols.left,
+      height: endY - targetRatingTopY,
+    };
+    elementBoundsMap.set(ratingBounds.id, ratingBounds);
+    elementBoundsMap.set("rating", ratingBounds);
+    lastBounds = ratingBounds;
   }
 
   if (hasOverlay && overlayImage && imageElement) {

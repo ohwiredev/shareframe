@@ -105,12 +105,7 @@ export function AppHeader({
             <span className="hidden sm:inline md:hidden">Import</span>
           </Button>
         )}
-        <Button
-          variant="outline"
-          aria-label="Reset canvas"
-          title="Reset canvas"
-          onClick={onReset}
-        >
+        <Button variant="outline" aria-label="Reset canvas" title="Reset canvas" onClick={onReset}>
           <RotateCcw size={15} />
           <span className="hidden sm:inline">Reset</span>
         </Button>
@@ -145,11 +140,7 @@ export function AppHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="export-menu" align="end">
             {formats.map(({ id, description }) => (
-              <DropdownMenuItem
-                key={id}
-                disabled={exporting}
-                onClick={() => onExport(id)}
-              >
+              <DropdownMenuItem key={id} disabled={exporting} onClick={() => onExport(id)}>
                 <b>{id.toUpperCase()}</b>
                 <span>{description}</span>
               </DropdownMenuItem>
