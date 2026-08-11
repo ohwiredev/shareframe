@@ -75,18 +75,17 @@ Create a new file in `src/templates/definitions/` named with your template's keb
 }
 ```
 
-### Step 2: Register in `src/templates/index.ts`
-Open `src/templates/index.ts`, import your JSON definition, and add it to the `BUILTIN_TEMPLATES` array:
+### Step 2: Automatic Registration (No Code Changes Needed!)
+Shareframe automatically discovers and registers all template definitions in `src/templates/definitions/*.json` at build and dev time using Vite's `import.meta.glob`:
 
 ```ts
-import myCustomCardJson from "./definitions/my-custom-card.json";
-import type { OgTemplate } from "./types";
-
-export const BUILTIN_TEMPLATES: OgTemplate[] = [
-  // ... existing templates
-  myCustomCardJson as OgTemplate,
-];
+const templateModules = import.meta.glob<OgTemplate | { default: OgTemplate }>(
+  "./definitions/*.json",
+  { eager: true },
+);
 ```
+
+You do **not** need to edit `src/templates/index.ts` or add manual `import` statements. Simply saving your JSON file in `src/templates/definitions/` registers it instantly.
 
 ### Step 3: Test Live in Your Browser
 Start the local development server:
@@ -104,9 +103,9 @@ Because Shareframe templates are declarative JSON files with predictable layout 
 ### 1. The Built-in AI Skill (`generate-templates`)
 Shareframe includes an AI Skill instruction file located at `.agents/skills/generate-templates/SKILL.md`. This file teaches AI agents:
 - The exact TypeScript types (`OgTemplate`, `TemplateState`).
-- The 1200×630 coordinate system and typography rules.
+- The 1200×630 coordinate system, declarative canvas elements, and typography rules.
 - How to format gradient backgrounds, split-column product cards, and e-commerce badge overlays.
-- How to automatically register the generated file in `src/templates/index.ts`.
+- How Vite's `import.meta.glob` auto-registers any new file saved in `src/templates/definitions/`.
 
 ### 2. Ready-to-Use AI Prompt Examples
 
@@ -114,15 +113,15 @@ You can copy and paste prompts like the following directly to your AI assistant:
 
 #### Example 1: Podcast Episode Release Card
 > **Prompt:**  
-> *"Create a new Shareframe Open Graph template in `src/templates/definitions/podcast-episode-card.json` for a podcast episode release. Use a dark violet radial gradient background, centered Space Grotesk typography, an overlay image card on the right for the episode cover artwork, and a badge for 'EPISODE 42'. Register the template in `src/templates/index.ts`."*
+> *"Create a new Shareframe Open Graph template in `src/templates/definitions/podcast-episode-card.json` for a podcast episode release. Use a dark violet radial gradient background, centered Space Grotesk typography, an overlay image card on the right for the episode cover artwork, and a badge for 'EPISODE 42'."*
 
 #### Example 2: Luxury E-Commerce Product Card
 > **Prompt:**  
-> *"Generate an e-commerce watch product template JSON for Shareframe in `src/templates/definitions/luxury-watch.json`. Use a sleek dark slate background (`#09090b`), Plus Jakarta Sans for the title, a primary price of '$499', an original strikethrough price of '$599', a 4.9-star rating with '312 reviews', and a right-aligned product image card. Add it to `src/templates/index.ts`."*
+> *"Generate an e-commerce watch product template JSON for Shareframe in `src/templates/definitions/luxury-watch.json`. Use a sleek dark slate background (`#09090b`), Plus Jakarta Sans for the title, a primary price of '$499', an original strikethrough price of '$599', a 4.9-star rating with '312 reviews', and a right-aligned product image card."*
 
 #### Example 3: Minimalist Technical Essay Card
 > **Prompt:**  
-> *"Add a clean minimal editorial template for long-form blog posts in `src/templates/definitions/minimal-essay.json`. Use an off-white stone background (`#f5f5f4`), high-contrast dark text (`#1c1917`), a category of 'Solid', and register it in `src/templates/index.ts`."*
+> *"Add a clean minimal editorial template for long-form blog posts in `src/templates/definitions/minimal-essay.json`. Use an off-white stone background (`#f5f5f4`), high-contrast dark text (`#1c1917`), and a category of 'Solid'."*
 
 ---
 
@@ -145,6 +144,7 @@ You can copy and paste prompts like the following directly to your AI assistant:
 ```json
 "state": {
   "background": { ... },
+  "elements": [ ... ],
   "logo": { ... },
   "title": { ... },
   "description": { ... },
@@ -155,6 +155,10 @@ You can copy and paste prompts like the following directly to your AI assistant:
   "rating": { ... }
 }
 ```
+
+> **Note on `elements` vs structured properties:** Shareframe automatically normalizes structured template properties into a declarative `elements: CanvasElement[]` array. You can define templates using structured properties (`logo`, `title`, etc.) or pass a direct `elements` array containing `text`, `image`, `logo`, `badge`, `price`, `rating`, or `shape` elements.
+
+---
 
 | Component | Property | Type | Default / Range | Description |
 | :--- | :--- | :--- | :--- | :--- |
