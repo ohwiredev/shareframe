@@ -1,4 +1,9 @@
-import type { CanvasElement, HorizontalAlignment, OverlayPosition } from "../state/types";
+import type {
+  CanvasElement,
+  HorizontalAlignment,
+  OverlayPosition,
+  SafeAreaConfig,
+} from "../state/types";
 
 export type TemplateBackground =
   | {
@@ -66,6 +71,7 @@ export type TemplateRating = {
 
 export type TemplateState = {
   background?: TemplateBackground;
+  safeArea?: SafeAreaConfig;
   elements?: CanvasElement[];
   logo?: TemplateLogo;
   title?: TemplateTextStyle;

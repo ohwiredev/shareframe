@@ -13,8 +13,8 @@ const templateModules = import.meta.glob<OgTemplate | { default: OgTemplate }>(
   { eager: true },
 );
 
-export const BUILTIN_TEMPLATES: OgTemplate[] = Object.values(templateModules).map(
-  (mod) => ("default" in mod ? mod.default : mod),
+export const BUILTIN_TEMPLATES: OgTemplate[] = Object.values(templateModules).map((mod) =>
+  "default" in mod ? mod.default : mod,
 );
 
 /**
@@ -42,7 +42,9 @@ export function applyTemplate(currentState: EditorState, template: OgTemplate): 
   });
 
   return {
+    templateId: template.id,
     background: template.state.background ?? normCurrent.background,
+    safeArea: template.state.safeArea,
     elements,
   };
 }
