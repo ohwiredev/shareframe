@@ -111,14 +111,27 @@ export type RatingState = {
   reviewCount: string;
 };
 
-export type CanvasElementType =
-  | "text"
-  | "image"
-  | "logo"
-  | "badge"
-  | "price"
-  | "rating"
-  | "shape";
+export type CanvasElementType = "text" | "image" | "logo" | "badge" | "price" | "rating" | "shape";
+
+export type SafeAreaConfig = {
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
+};
+
+export type PositionMode = "absolute" | "relative" | "stacked";
+
+export type RelativeAnchor =
+  | "above"
+  | "below"
+  | "left-of"
+  | "right-of"
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "center";
 
 export type BaseCanvasElement = {
   id: string;
@@ -127,6 +140,16 @@ export type BaseCanvasElement = {
   x?: number;
   y?: number;
   zIndex?: number;
+  /** Positioning mode: absolute coordinates, relative to another element, or stacked */
+  positionMode?: PositionMode;
+  /** Target element ID, role ("title", "description"), or "previous" / "safe-area" */
+  relativeTo?: string;
+  /** Anchor point relative to target element */
+  relativeAnchor?: RelativeAnchor;
+  /** Horizontal offset adjustment in pixels */
+  offsetX?: number;
+  /** Vertical offset adjustment in pixels */
+  offsetY?: number;
 };
 
 export type TextElementRole = "title" | "description" | "custom";
@@ -215,8 +238,12 @@ export type CanvasElement =
  * Controls and canvas both read/write this declarative shape.
  */
 export type EditorState = {
+  /** The ID of the currently active template, if any */
+  templateId?: string;
   background: Background;
   elements: CanvasElement[];
+  /** Optional safe area padding overrides (top, right, bottom, left) */
+  safeArea?: SafeAreaConfig;
   /** Optional legacy fields preserved for backwards compatibility during transition */
   logo?: LogoState;
   title?: TextStyle;
