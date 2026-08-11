@@ -1,9 +1,38 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const DEFAULT_MAX_HISTORY = 30;
 
-export function useHistory<T>(initialState: T, maxHistory: number = DEFAULT_MAX_HISTORY) {
-  const [state, setState] = useState<T>(initialState);
+export function useHistory<T>(storageKey: string, initialState: T, maxHistory: number = DEFAULT_MAX_HISTORY) {
+  const [state, setState] = useState<T>(() => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.logo?.src?.startsWith("blob:")) parsed.logo.src = null;
+        if (parsed?.image?.src?.startsWith("blob:")) parsed.image.src = null;
+        return parsed;
+      }
+    } catch (e) {
+      console.error("Failed to load state from localStorage", e);
+    }
+    return initialState;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify(state, (key, value) => {
+          if (key === "src" && typeof value === "string" && value.startsWith("blob:")) {
+            return null;
+          }
+          return value;
+        })
+      );
+    } catch (e) {
+      console.error("Failed to save state to localStorage", e);
+    }
+  }, [state, storageKey]);
   const undoStack = useRef<T[]>([]);
   const redoStack = useRef<T[]>([]);
 

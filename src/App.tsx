@@ -46,7 +46,7 @@ export default function App() {
     canUndo,
     canRedo,
     reset: resetHistory,
-  } = useHistory<EditorState>(DEFAULT_EDITOR_STATE);
+  } = useHistory<EditorState>("shareframe_editor_state", DEFAULT_EDITOR_STATE);
 
   const [theme, setTheme] = useState<ThemeMode>("dark");
   const [panel, setPanel] = useState<EditorPanel>("templates");
