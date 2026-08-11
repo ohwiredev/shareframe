@@ -32,6 +32,26 @@ import type {
 } from "./state/types";
 import { applyTemplate, BUILTIN_TEMPLATES, type OgTemplate } from "./templates";
 
+import {
+  badgeStateToBadgeElement,
+  findBadgeElement,
+  findImageElement,
+  findLogoElement,
+  findPriceElement,
+  findRatingElement,
+  findTextElement,
+  imageElementToOverlayState,
+  logoElementToLogoState,
+  logoStateToLogoElement,
+  normalizeState,
+  overlayStateToImageElement,
+  priceStateToPriceElement,
+  ratingStateToRatingElement,
+  setOrUpdateElement,
+  textElementToTextStyle,
+  textStyleToTextElement,
+} from "./state/elementUtils";
+
 export type ThemeMode = "light" | "dark";
 
 function revokeLogo(src: string | null) {
@@ -40,7 +60,7 @@ function revokeLogo(src: string | null) {
 
 export default function App() {
   const {
-    state,
+    state: rawState,
     set: setState,
     replace: replaceState,
     undo,
@@ -49,6 +69,20 @@ export default function App() {
     canRedo,
     reset: resetHistory,
   } = useHistory<EditorState>("shareframe_editor_state", DEFAULT_EDITOR_STATE);
+
+  const state = normalizeState(rawState);
+
+  const logoState = logoElementToLogoState(findLogoElement(state));
+  const imageState = imageElementToOverlayState(findImageElement(state));
+  const titleState = textElementToTextStyle(findTextElement(state, "title"));
+  const descriptionState = textElementToTextStyle(findTextElement(state, "description"));
+  const badgeEl = findBadgeElement(state);
+  const badgeState = badgeEl ? { text: badgeEl.text, color: badgeEl.color, background: badgeEl.background } : undefined;
+  const priceEl = findPriceElement(state);
+  const priceState = priceEl?.text ? { text: priceEl.text, color: priceEl.color, fontSize: priceEl.fontSize, yOffset: priceEl.yOffset } : undefined;
+  const origPriceState = priceEl?.originalPriceText ? { text: priceEl.originalPriceText, color: priceEl.originalPriceColor ?? "#9ca3af", fontSize: priceEl.originalPriceFontSize } : undefined;
+  const ratingEl = findRatingElement(state);
+  const ratingState = ratingEl && ratingEl.value > 0 ? { value: ratingEl.value, color: ratingEl.color, reviewCount: ratingEl.reviewCount ?? "" } : undefined;
 
   const [theme, setTheme] = useState<ThemeMode>("dark");
   const [panel, setPanel] = useState<EditorPanel>("templates");
@@ -66,45 +100,98 @@ export default function App() {
   const imageFileRef = useRef<HTMLInputElement>(null);
   const pipelineRef = useRef<RenderPipeline | null>(null);
 
-  useEffect(() => () => revokeLogo(state.logo.src), [state.logo.src]);
-  useEffect(() => () => revokeLogo(state.image.src), [state.image.src]);
+  useEffect(() => () => revokeLogo(logoState.src), [logoState.src]);
+  useEffect(() => () => revokeLogo(imageState.src), [imageState.src]);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
   useEffect(() => {
-    const templateFontStacks = BUILTIN_TEMPLATES.flatMap((t) => [
-      t.state.title?.fontFamily,
-      t.state.description?.fontFamily,
-    ]).filter((s): s is string => Boolean(s));
+    const templateFontStacks = BUILTIN_TEMPLATES.flatMap((t) => {
+      const s = normalizeState(t.state);
+      const title = findTextElement(s, "title");
+      const desc = findTextElement(s, "description");
+      return [title?.fontFamily, desc?.fontFamily];
+    }).filter((s): s is string => Boolean(s));
     void ensureEditorFontsLoaded(templateFontStacks);
   }, []);
 
   const setLogo = (logo: LogoState) =>
-    setState((current) => {
-      if (current.logo.src !== logo.src) revokeLogo(current.logo.src);
-      return { ...current, logo };
+    setState((currentRaw) => {
+      const current = normalizeState(currentRaw);
+      const currentLogo = findLogoElement(current);
+      if (currentLogo?.src !== logo.src) revokeLogo(currentLogo?.src ?? null);
+      return setOrUpdateElement(current, logoStateToLogoElement(logo));
     });
+
   const setImage = (image: OverlayImageState) =>
-    setState((current) => {
-      if (current.image.src !== image.src) revokeLogo(current.image.src);
-      return { ...current, image };
+    setState((currentRaw) => {
+      const current = normalizeState(currentRaw);
+      const currentImage = findImageElement(current);
+      if (currentImage?.src !== image.src) revokeLogo(currentImage?.src ?? null);
+      return setOrUpdateElement(current, overlayStateToImageElement(image));
     });
-  const setTitle = (title: TextStyle) => setState((current) => ({ ...current, title }));
+
+  const setTitle = (title: TextStyle) =>
+    setState((currentRaw) =>
+      setOrUpdateElement(normalizeState(currentRaw), textStyleToTextElement("text-title", "title", title)),
+    );
+
   const setDescription = (description: TextStyle) =>
-    setState((current) => ({ ...current, description }));
+    setState((currentRaw) =>
+      setOrUpdateElement(
+        normalizeState(currentRaw),
+        textStyleToTextElement("text-description", "description", description),
+      ),
+    );
+
   const setBadge = (badge: BadgeState | undefined) =>
-    setState((current) => ({ ...current, badge }));
+    setState((currentRaw) => {
+      const current = normalizeState(currentRaw);
+      if (!badge) {
+        return {
+          ...current,
+          elements: current.elements.filter((el) => el.type !== "badge"),
+        };
+      }
+      return setOrUpdateElement(current, badgeStateToBadgeElement(badge));
+    });
+
   const setPrice = (price: PriceState | undefined) =>
-    setState((current) => ({ ...current, price }));
+    setState((currentRaw) => {
+      const current = normalizeState(currentRaw);
+      if (!price) {
+        return {
+          ...current,
+          elements: current.elements.filter((el) => el.type !== "price"),
+        };
+      }
+      return setOrUpdateElement(current, priceStateToPriceElement(price, origPriceState));
+    });
+
   const setOriginalPrice = (originalPrice: PriceState | undefined) =>
-    setState((current) => ({ ...current, originalPrice }));
+    setState((currentRaw) => {
+      const current = normalizeState(currentRaw);
+      if (!priceState) return current;
+      return setOrUpdateElement(current, priceStateToPriceElement(priceState, originalPrice));
+    });
+
   const setRating = (rating: RatingState | undefined) =>
-    setState((current) => ({ ...current, rating }));
+    setState((currentRaw) => {
+      const current = normalizeState(currentRaw);
+      if (!rating || rating.value <= 0) {
+        return {
+          ...current,
+          elements: current.elements.filter((el) => el.type !== "rating"),
+        };
+      }
+      return setOrUpdateElement(current, ratingStateToRatingElement(rating));
+    });
 
   const handleApplyTemplate = (template: OgTemplate) => {
     replaceState((current) => {
       const next = applyTemplate(current, template);
-      if (!next.image.enabled && panel === "image") {
+      const nextImg = findImageElement(next);
+      if ((!nextImg || !nextImg.enabled) && panel === "image") {
         setPanel("templates");
       }
       return next;
@@ -112,29 +199,40 @@ export default function App() {
   };
 
   const handleApplyExtractedToCanvas = (extracted: ExtractedMetadata) => {
-    setState((current) => ({
-      ...current,
-      title: {
-        ...current.title,
-        content: extracted.title,
-      },
-      description: {
-        ...current.description,
-        content: extracted.description,
-      },
-      logo: extracted.logoUrl
-        ? {
-            ...current.logo,
-            src: extracted.logoUrl,
-          }
-        : current.logo,
-      background: extracted.themeColor
-        ? {
-            type: "solid",
-            color: extracted.themeColor,
-          }
-        : current.background,
-    }));
+    setState((currentRaw) => {
+      const current = normalizeState(currentRaw);
+      let updated = current;
+
+      if (extracted.title) {
+        const title = textElementToTextStyle(findTextElement(current, "title"));
+        updated = setOrUpdateElement(
+          updated,
+          textStyleToTextElement("text-title", "title", { ...title, content: extracted.title }),
+        );
+      }
+      if (extracted.description) {
+        const desc = textElementToTextStyle(findTextElement(current, "description"));
+        updated = setOrUpdateElement(
+          updated,
+          textStyleToTextElement("text-description", "description", { ...desc, content: extracted.description }),
+        );
+      }
+      if (extracted.logoUrl) {
+        const logo = logoElementToLogoState(findLogoElement(current));
+        updated = setOrUpdateElement(
+          updated,
+          logoStateToLogoElement({ ...logo, src: extracted.logoUrl }),
+        );
+      }
+      if (extracted.themeColor) {
+        updated = {
+          ...updated,
+          background: { type: "solid", color: extracted.themeColor },
+        };
+      }
+
+      return updated;
+    });
   };
 
   const handleOpenBatchMode = (extracted: ExtractedMetadata) => {
@@ -149,11 +247,11 @@ export default function App() {
       return;
     }
     setFileName(file.name);
-    setLogo({ ...state.logo, src: URL.createObjectURL(file) });
+    setLogo({ ...logoState, src: URL.createObjectURL(file) });
   };
 
   const removeLogo = () => {
-    setLogo({ ...state.logo, src: null });
+    setLogo({ ...logoState, src: null });
     setFileName("");
     if (fileRef.current) fileRef.current.value = "";
   };
@@ -165,18 +263,18 @@ export default function App() {
       return;
     }
     setImageFileName(file.name);
-    setImage({ ...state.image, src: URL.createObjectURL(file) });
+    setImage({ ...imageState, src: URL.createObjectURL(file) });
   };
 
   const removeImage = () => {
-    setImage({ ...state.image, src: null });
+    setImage({ ...imageState, src: null });
     setImageFileName("");
     if (imageFileRef.current) imageFileRef.current.value = "";
   };
 
   const reset = () => {
-    revokeLogo(state.logo.src);
-    revokeLogo(state.image.src);
+    revokeLogo(logoState.src);
+    revokeLogo(imageState.src);
     setFileName("");
     setImageFileName("");
     if (fileRef.current) fileRef.current.value = "";
@@ -273,7 +371,7 @@ export default function App() {
       <main className="d1-grid">
         <EditorNavigation
           activePanel={panel}
-          showImagePanel={state.image.enabled}
+          showImagePanel={imageState.enabled}
           onPanelChange={setPanel}
         />
 
@@ -289,7 +387,7 @@ export default function App() {
           )}
           {panel === "logo" && (
             <LogoPanel
-              logo={state.logo}
+              logo={logoState}
               fileName={fileName}
               fileRef={fileRef}
               onFileChange={chooseLogo}
@@ -299,12 +397,12 @@ export default function App() {
           )}
           {panel === "text" && (
             <TextPanel
-              title={state.title}
-              description={state.description}
-              badge={state.badge}
-              price={state.price}
-              originalPrice={state.originalPrice}
-              rating={state.rating}
+              title={titleState}
+              description={descriptionState}
+              badge={badgeState}
+              price={priceState}
+              originalPrice={origPriceState}
+              rating={ratingState}
               onTitleChange={setTitle}
               onDescriptionChange={setDescription}
               onBadgeChange={setBadge}
@@ -315,7 +413,7 @@ export default function App() {
           )}
           {panel === "image" && (
             <OverlayImagePanel
-              image={state.image}
+              image={imageState}
               fileName={imageFileName}
               fileRef={imageFileRef}
               onFileChange={chooseImage}

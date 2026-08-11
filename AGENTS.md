@@ -4,29 +4,31 @@ Guidance for AI coding agents working in this repository.
 
 ## Project
 
-**Shareframe** is a fast browser tool that generates clean Open Graph images (1200×630) with a logo, title, and description on solid backgrounds.
+**Shareframe** is a fast browser tool that generates clean Open Graph images (1200×630) with logos, text, e-commerce badges, prices, ratings, and custom overlay shapes on solid or gradient backgrounds.
 
 **Success metric:** A user can create and download a usable OG image in under 60 seconds.
 
 ## Product scope
 
-### In scope (v1)
+### In scope
 
-- Solid background color presets + custom color picker
-- Logo upload (PNG preferred) with position and scale controls
-- Title and description: independent font family, size, color, weight
-- Live Canvas 2D preview at **1200×630**
-- Export as **PNG**, **JPG**, and **WebP**
+- Solid background color presets + custom color picker + linear/radial gradient presets
+- Declarative `elements: CanvasElement[]` state model (text, image, logo, badge, price, rating, shape)
+- Single-source JSON template system with 13+ built-in templates auto-registered via Vite `import.meta.glob`
+- Logo upload (PNG, SVG, WebP) with position and scale controls
+- Title and description: independent font family, size, color, weight, and vertical offsets
+- Live Canvas 2D preview at **1200×630** with web worker rendering
+- Live social previews for Twitter/X, LinkedIn, and Facebook
+- Persistent local storage for editor state and undo/redo state history
+- Export as **PNG**, **JPG**, and **WebP** plus copy to clipboard
 - Dark/light theme via shadcn/ui tokens
-- Responsive controls layout
 
-### Out of scope (v1)
+### Out of scope
 
-- Custom gradients, patterns, multiple logos
-- Text effects, template library
-- User accounts / cloud save
+- Multi-page video export / animated GIFs
+- User accounts / cloud database save
 
-Prefer shipping a tight, polished v1 over expanding scope.
+Prefer shipping a tight, polished app over expanding unnecessary server scope.
 
 ## Tech stack
 
@@ -36,6 +38,7 @@ Prefer shipping a tight, polished v1 over expanding scope.
 | UI | shadcn/ui (Radix base) + Tailwind CSS |
 | Rendering / export | Canvas 2D + OffscreenCanvas worker |
 | Fonts | System fonts + Google Fonts |
+| Templates | Single-source JSON definitions auto-loaded via Vite `import.meta.glob` |
 
 Do not introduce alternate UI kits, heavy rendering libraries, or backend services unless the user explicitly asks.
 
@@ -45,6 +48,7 @@ Do not introduce alternate UI kits, heavy rendering libraries, or backend servic
 | --- | --- |
 | `docs/PRD.md` | Product requirements and success criteria |
 | `docs/TODO.md` | Implementation checklist (scaffold → polish) |
+| `docs/TEMPLATES.md` | Custom JSON template creation & AI generation guide |
 | `DESIGN.md` | Authoritative design system guidelines (typography, colors, spacing, radius) |
 | `AGENTS.md` | This file — agent/project conventions |
 
@@ -52,21 +56,25 @@ Keep these docs accurate when product or stack decisions change.
 
 ## Architecture principles
 
-1. **Single-source editor state** — One React state (or small set of related state) drives both the controls and the canvas. Changing any control must trigger a live redraw.
-2. **Canvas is the source of truth** — Preview and export must use the same Canvas 2D drawing function so what you see is what you get.
-3. **Fixed OG size** — Always render at 1200×630. CSS may scale the preview for layout; export must be full resolution.
+1. **Declarative Canvas Elements Array** — Editor state is represented by `elements: CanvasElement[]` (text, image, logo, badge, price, rating, shape) normalized by `normalizeState()`. Changing any element triggers a live canvas redraw.
+2. **Canvas is the source of truth** — Preview and export use the same Canvas 2D drawing function (`drawOgImage`) so what you see is what you get.
+3. **Fixed OG size** — Always render at 1200×630. CSS scales the preview for layout; export is full resolution.
 4. **shadcn/ui for chrome, Canvas for the image** — Use generated shadcn/ui components for the app shell and controls. Use an sRGB Canvas 2D worker where supported, with a main-thread fallback.
-5. **Client-only** — No server, auth, or persistence in v1. Everything runs in the browser.
+5. **Auto-Registering Templates** — Save template JSON definitions in `src/templates/definitions/<id>.json`. Vite's `import.meta.glob` registers them automatically without manual imports.
+6. **Client-only** — No server or auth required. Everything runs in the browser with local storage persistence.
 
 ## App shape
 
 ```text
 src/
+  canvas/          # Shared drawing (drawOgImage), preview-worker, and export pipeline
   components/
     ui/            # Generated shadcn/ui components
-    controls/      # Editor controls
-  canvas/          # Shared drawing, preview-worker, and export pipeline
-  state/           # Editor state types and defaults
+    controls/      # Editor controls, modals, and preview panels
+  hooks/           # Custom React hooks (useHistory, useEditorFonts)
+  lib/             # Helper utilities (generateVariants, website import)
+  state/           # EditorState types, defaults, and elementUtils
+  templates/       # JSON template definitions and auto-discovery loader (import.meta.glob)
   App.tsx
   main.tsx
 ```
@@ -80,7 +88,7 @@ Keep canvas drawing and export logic separate from form controls.
 - Reuse components in `src/components/ui/` before hand-rolling primitives.
 - Use Tailwind utilities and the CSS variables generated by the configured shadcn preset.
 - Add shadcn components with `npx shadcn@latest add <component>`.
-- Avoid premature abstraction; this is a one-screen app.
+- Avoid premature abstraction.
 - Do not add dependencies without a clear rendering or export need.
 
 ## Commands
@@ -90,13 +98,14 @@ npm install
 npm run dev
 npm run build
 npm run lint
+npm run format
 npm run preview
 ```
 
 ## What not to do
 
-- Do not add gradients, multi-logo, templates, or accounts without an explicit product decision.
 - Do not replace Canvas 2D with a screenshot-of-DOM approach unless justified.
+- Do not require manual imports in `src/templates/index.ts` for new JSON templates.
 - Do not commit secrets or API keys.
 - Do not expand `docs/` with unsolicited markdown unless asked.
 

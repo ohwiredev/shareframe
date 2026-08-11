@@ -11,12 +11,22 @@ type TemplatePanelProps = {
   onApplyTemplate: (template: OgTemplate) => void;
 };
 
+import {
+  findBadgeElement,
+  findImageElement,
+  findLogoElement,
+  findPriceElement,
+  findTextElement,
+  normalizeState,
+} from "../../state/elementUtils";
+
 function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
-  const bg = template.state.background;
+  const normState = normalizeState(template.state);
+  const bg = normState.background;
   const bgStyle = bg?.type === "gradient" ? gradientToCss(bg) : (bg?.color ?? "#1e293b");
 
-  const title = template.state.title;
-  const desc = template.state.description;
+  const title = findTextElement(normState, "title");
+  const desc = findTextElement(normState, "description");
 
   const align = title?.alignment || "center";
   const alignClass =
@@ -33,22 +43,21 @@ function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
   const titleWidth = title?.width ?? 90;
   const descWidth = desc?.width ?? 85;
 
-  const logo = template.state.logo;
+  const logo = findLogoElement(normState);
   const hasLogo = Boolean(logo?.src);
-  const image = template.state.image;
-  const hasImage = Boolean(image?.src);
+  const image = findImageElement(normState);
+  const hasImage = Boolean(image?.enabled !== false && image?.src);
   const imagePos = image?.position || "bottom";
 
   const renderTextContent = () => {
-    const tmplBadge = template.state.badge;
-    const tmplPrice = template.state.price;
-    const tmplOriginalPrice = template.state.originalPrice;
+    const tmplBadge = findBadgeElement(normState);
+    const tmplPrice = findPriceElement(normState);
 
     return (
       <div className={`w-full flex flex-col ${alignClass} gap-1`}>
         {tmplBadge?.text && (
           <span
-            className="inline-block px-1.5 py-0.5 text-[7px] font-bold uppercase rounded leading-none tracking-wider mb-0.5 self-start"
+            className="text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wide uppercase self-start mb-0.5"
             style={{
               color: tmplBadge.color || "#ffffff",
               backgroundColor: tmplBadge.background || "#10b981",
@@ -61,16 +70,15 @@ function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
           <img
             src={logo.src}
             alt=""
-            className="max-h-[22px] w-auto object-contain mb-0.5 drop-shadow-sm"
+            className="max-h-[18px] w-auto object-contain mb-0.5 drop-shadow-sm"
           />
         )}
         {title?.content && (
           <h4
-            className="line-clamp-2 leading-tight tracking-tight drop-shadow-sm"
+            className="line-clamp-2 leading-tight tracking-tight drop-shadow-sm font-semibold"
             style={{
               fontFamily: title.fontFamily || "Inter, sans-serif",
               fontSize: `${titleSize}px`,
-              fontWeight: title.fontWeight || 700,
               color: title.color || "#ffffff",
               maxWidth: `${titleWidth}%`,
             }}
@@ -84,7 +92,6 @@ function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
             style={{
               fontFamily: desc.fontFamily || "Inter, sans-serif",
               fontSize: `${descSize}px`,
-              fontWeight: desc.fontWeight || 400,
               color: desc.color || "#c8c8d4",
               maxWidth: `${descWidth}%`,
             }}
@@ -93,16 +100,19 @@ function TemplatePreviewThumbnail({ template }: { template: OgTemplate }) {
           </p>
         )}
         {tmplPrice?.text && (
-          <div className="flex items-baseline gap-1.5 mt-0.5">
-            <span className="text-[11px] font-bold" style={{ color: tmplPrice.color || "#10b981" }}>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span
+              className="text-[11px] font-bold"
+              style={{ color: tmplPrice.color || "#10b981" }}
+            >
               {tmplPrice.text}
             </span>
-            {tmplOriginalPrice?.text && (
+            {tmplPrice.originalPriceText && (
               <span
-                className="text-[8px] line-through opacity-60"
-                style={{ color: tmplOriginalPrice.color || "#9ca3af" }}
+                className="text-[9px] line-through opacity-70"
+                style={{ color: tmplPrice.originalPriceColor || "#9ca3af" }}
               >
-                {tmplOriginalPrice.text}
+                {tmplPrice.originalPriceText}
               </span>
             )}
           </div>

@@ -10,31 +10,41 @@
       "angle": 145,
       "colors": ["#020617", "#0f172a", "#1e293b"]
     },
-    "logo": {
-      "y": 0.16,
-      "scale": 1.05,
-      "alignment": "left",
-      "src": null
-    },
-    "title": {
-      "content": "Introducing Shareframe 2.0",
-      "fontFamily": "Plus Jakarta Sans",
-      "fontSize": 58,
-      "width": 90,
-      "fontWeight": 700,
-      "color": "#38bdf8",
-      "alignment": "left",
-      "yOffset": 0
-    },
-    "description": {
-      "content": "Generate stunning 1200×630 social cards in seconds — live Canvas preview, zero latency.",
-      "fontFamily": "Inter",
-      "fontSize": 18,
-      "width": 84,
-      "fontWeight": 400,
-      "color": "#cbd5e1",
-      "alignment": "left",
-      "yOffset": 8
-    }
+    "elements": [
+      {
+        "id": "logo-main",
+        "type": "logo",
+        "y": 0.16,
+        "scale": 1.05,
+        "alignment": "left",
+        "src": null
+      },
+      {
+        "id": "text-title",
+        "type": "text",
+        "role": "title",
+        "content": "Introducing Shareframe 2.0",
+        "fontFamily": "Plus Jakarta Sans",
+        "fontSize": 58,
+        "width": 90,
+        "fontWeight": 700,
+        "color": "#38bdf8",
+        "alignment": "left",
+        "yOffset": 0
+      },
+      {
+        "id": "text-description",
+        "type": "text",
+        "role": "description",
+        "content": "Generate stunning 1200×630 social cards in seconds — live Canvas preview, zero latency.",
+        "fontFamily": "Inter",
+        "fontSize": 18,
+        "width": 84,
+        "fontWeight": 400,
+        "color": "#cbd5e1",
+        "alignment": "left",
+        "yOffset": 8
+      }
+    ]
   }
 }

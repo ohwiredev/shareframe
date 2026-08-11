@@ -25,11 +25,17 @@ function post(message: RenderWorkerResponse, transfer: Transferable[] = []) {
   scope.postMessage(message, transfer);
 }
 
-async function ensureFonts(state: EditorState): Promise<void> {
-  await Promise.all([
-    ensureWorkerFontLoaded(scope, state.title.fontFamily, state.title.fontWeight),
-    ensureWorkerFontLoaded(scope, state.description.fontFamily, state.description.fontWeight),
-  ]);
+import { normalizeState } from "../state/elementUtils";
+
+async function ensureFonts(rawState: EditorState): Promise<void> {
+  const state = normalizeState(rawState);
+  const fontLoads: Promise<unknown>[] = [];
+  for (const el of state.elements) {
+    if (el.type === "text" && el.fontFamily) {
+      fontLoads.push(ensureWorkerFontLoaded(scope, el.fontFamily, el.fontWeight));
+    }
+  }
+  await Promise.all(fontLoads);
 }
 
 function matchingLogo(assetId: number | null): ImageBitmap | null {

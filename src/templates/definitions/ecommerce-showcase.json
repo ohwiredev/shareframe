@@ -9,55 +9,71 @@
       "type": "solid",
       "color": "#ffffff"
     },
-    "logo": {
-      "y": 0.92,
-      "scale": 0.55,
-      "alignment": "left",
-      "src": null
-    },
-    "title": {
-      "content": "Premium Wireless Headphones",
-      "fontFamily": "Plus Jakarta Sans",
-      "fontSize": 48,
-      "width": 100,
-      "fontWeight": 700,
-      "color": "#1c1917",
-      "alignment": "left",
-      "yOffset": -30
-    },
-    "description": {
-      "content": "Active Noise Cancellation · 30-hour Battery Life · Premium Sound Quality",
-      "fontFamily": "Inter",
-      "fontSize": 18,
-      "width": 100,
-      "fontWeight": 400,
-      "color": "#57534e",
-      "alignment": "left",
-      "yOffset": -40
-    },
-    "image": {
-      "src": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop",
-      "position": "left",
-      "scale": 0.85,
-      "borderRadius": 20,
-      "shadow": false,
-      "shadowBlur": 40,
-      "yOffset": 0
-    },
-    "price": {
-      "text": "$199",
-      "color": "#10b981",
-      "fontSize": 28,
-      "yOffset": 20
-    },
-    "originalPrice": {
-      "text": "$299",
-      "color": "#a8a29e"
-    },
-    "rating": {
-      "value": 4.8,
-      "color": "#f59e0b",
-      "reviewCount": "256 reviews"
-    }
+    "elements": [
+      {
+        "id": "logo-main",
+        "type": "logo",
+        "y": 0.92,
+        "scale": 0.55,
+        "alignment": "left",
+        "src": null
+      },
+      {
+        "id": "text-title",
+        "type": "text",
+        "role": "title",
+        "content": "Premium Wireless Headphones",
+        "fontFamily": "Plus Jakarta Sans",
+        "fontSize": 48,
+        "width": 100,
+        "fontWeight": 700,
+        "color": "#1c1917",
+        "alignment": "left",
+        "yOffset": -30
+      },
+      {
+        "id": "text-description",
+        "type": "text",
+        "role": "description",
+        "content": "Active Noise Cancellation · 30-hour Battery Life · Premium Sound Quality",
+        "fontFamily": "Inter",
+        "fontSize": 18,
+        "width": 100,
+        "fontWeight": 400,
+        "color": "#57534e",
+        "alignment": "left",
+        "yOffset": -40
+      },
+      {
+        "id": "price-main",
+        "type": "price",
+        "text": "$199",
+        "color": "#10b981",
+        "fontSize": 28,
+        "yOffset": 20,
+        "originalPriceText": "$299",
+        "originalPriceColor": "#a8a29e"
+      },
+      {
+        "id": "rating-main",
+        "type": "rating",
+        "value": 4.8,
+        "color": "#f59e0b",
+        "reviewCount": "256 reviews"
+      },
+      {
+        "id": "image-overlay",
+        "type": "image",
+        "role": "overlay",
+        "enabled": true,
+        "src": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop",
+        "position": "left",
+        "scale": 0.85,
+        "borderRadius": 20,
+        "shadow": false,
+        "shadowBlur": 40,
+        "yOffset": 0
+      }
+    ]
   }
 }

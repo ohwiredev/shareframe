@@ -19,26 +19,28 @@ When generating or adding templates to Shareframe, follow the specifications, pr
 ### 1. Template Definition File
 Create a new JSON file in `src/templates/definitions/<id>.json`. The filename must match the template's kebab-case `id` property.
 
-### 2. Registry Registration
-Import and append the new template in `src/templates/index.ts`:
+### 2. Automatic Registry Registration
+Shareframe automatically discovers and registers all template definitions in `src/templates/definitions/*.json` at dev and build time using Vite's `import.meta.glob`:
 
 ```ts
-import newTemplateJson from "./definitions/new-template.json";
-import type { OgTemplate } from "./types";
+const templateModules = import.meta.glob<OgTemplate | { default: OgTemplate }>(
+  "./definitions/*.json",
+  { eager: true },
+);
 
-export const BUILTIN_TEMPLATES: OgTemplate[] = [
-  // ... existing templates
-  newTemplateJson as OgTemplate,
-];
+export const BUILTIN_TEMPLATES: OgTemplate[] = Object.values(templateModules).map(
+  (mod) => ("default" in mod ? mod.default : mod),
+);
 ```
 
+No manual imports or updates in `src/templates/index.ts` are required. Simply creating a `<id>.json` file in `src/templates/definitions/` auto-registers it instantly.
+
 ### 3. How Templates Apply (`applyTemplate`)
-When a user selects a template, `applyTemplate(currentState, template)` in `src/templates/index.ts` merges the template's `state` onto the active canvas state:
+When a user selects a template, `applyTemplate(currentState, template)` in `src/templates/index.ts` normalizes state into a declarative elements array (`elements: CanvasElement[]`) and merges template styling onto the active canvas:
+- **Normalization**: Structured fields (`title`, `description`, `logo`, `image`, `badge`, `price`, `rating`) or direct `elements` are converted into normalized `CanvasElement` objects via `normalizeState()`.
 - **Background**: Replaced by `template.state.background` (or preserved if omitted).
-- **Logo**: Updates positioning (`y`, `scale`, `alignment`). Preserves the user's uploaded logo unless the template defines an explicit `src` override.
-- **Typography**: Merges font family, font size, color, font weight, line wrapping width, alignment, and vertical offset (`yOffset`) for `title` and `description`.
-- **Overlay Image**: Configures `enabled`, `src`, `position`, `scale`, `borderRadius`, `shadow`, and `yOffset`.
-- **E-Commerce & Extras**: Applies `badge`, `price`, `originalPrice`, and `rating` if present.
+- **Logo**: Updates positioning (`y`, `scale`, `alignment`) while preserving the user's uploaded logo unless the template defines an explicit `src` override.
+- **Elements Array**: Applies typography, positioning, overlay images, e-commerce badges, prices, ratings, and shapes.
 
 ---
 
@@ -59,11 +61,12 @@ Every template JSON definition must conform to the `OgTemplate` interface:
 
 ## `TemplateState` Property Reference
 
-The `state` object inside an `OgTemplate` controls what is rendered on the 1200×630 canvas.
+The `state` object inside an `OgTemplate` controls what is rendered on the 1200×630 canvas. Templates can specify direct `elements` array or structured component properties (which `normalizeState()` automatically maps into elements).
 
 ```json
 "state": {
   "background": { ... },
+  "elements": [ ... ],
   "logo": { ... },
   "title": { ... },
   "description": { ... },
@@ -74,6 +77,8 @@ The `state` object inside an `OgTemplate` controls what is rendered on the 1200�
   "rating": { ... }
 }
 ```
+
+> **Note on `elements` vs structured properties:** Shareframe's runtime normalizes all template state into a unified `elements: CanvasElement[]` array. You can define templates using structured properties (`logo`, `title`, `description`, `image`, `badge`, `price`, `rating`), or directly pass a custom `elements` array containing `text`, `image`, `logo`, `badge`, `price`, `rating`, or `shape` elements.
 
 ---
 

@@ -1,21 +1,26 @@
 import { useEffect, useState } from "react";
 import { ensureEditorFontsLoaded } from "../fonts/loadGoogleFont";
+import { normalizeState } from "../state/elementUtils";
 import type { EditorState } from "../state/types";
 
 /**
  * Loads Google Fonts used by the editor and bumps a generation when ready
- * so the SVG can redraw with real metrics (not fallback faces).
+ * so the canvas can redraw with real metrics (not fallback faces).
  */
-export function useEditorFonts(state: EditorState): number {
+export function useEditorFonts(rawState: EditorState): number {
   const [fontGeneration, setFontGeneration] = useState(0);
 
-  const titleFamily = state.title.fontFamily;
-  const descriptionFamily = state.description.fontFamily;
+  const state = normalizeState(rawState);
+  const families = state.elements
+    .filter((el): el is typeof el & { fontFamily: string } => el.type === "text" && Boolean(el.fontFamily))
+    .map((el) => el.fontFamily);
+  const familyKey = families.join("::");
 
   useEffect(() => {
     let cancelled = false;
 
-    void ensureEditorFontsLoaded([titleFamily, descriptionFamily]).then(() => {
+    const list = familyKey ? familyKey.split("::") : [];
+    void ensureEditorFontsLoaded(list).then(() => {
       if (!cancelled) {
         setFontGeneration((n) => n + 1);
       }
@@ -24,7 +29,7 @@ export function useEditorFonts(state: EditorState): number {
     return () => {
       cancelled = true;
     };
-  }, [titleFamily, descriptionFamily]);
+  }, [familyKey]);
 
   return fontGeneration;
 }
