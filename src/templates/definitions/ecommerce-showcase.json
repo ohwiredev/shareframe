@@ -29,7 +29,7 @@
         "fontWeight": 700,
         "color": "#1c1917",
         "alignment": "left",
-        "yOffset": -30
+        "yOffset": -40
       },
       {
         "id": "text-description",
@@ -42,7 +42,7 @@
         "fontWeight": 400,
         "color": "#57534e",
         "alignment": "left",
-        "yOffset": -40
+        "yOffset": -10
       },
       {
         "id": "price-main",
